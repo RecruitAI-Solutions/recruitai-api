@@ -12,7 +12,7 @@ public partial class RecruitDevContext : DbContext
 
 	// DbSets - các bảng trong database
 	public virtual DbSet<Test> Tests { get; set; }
-	// Thêm các DbSet khác: public virtual DbSet<User> Users { get; set; }
+	 //Thêm các DbSet khác: public virtual DbSet<User> Users { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
