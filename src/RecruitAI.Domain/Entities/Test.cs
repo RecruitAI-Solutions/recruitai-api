@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Recruitai_API.Models;
+namespace RecruitAI.Domain.Entities;
 
 public partial class Test
 {

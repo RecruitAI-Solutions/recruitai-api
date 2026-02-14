@@ -1,30 +1,51 @@
-using Microsoft.EntityFrameworkCore;
-using Recruitai_API.Data;
+﻿using RecruitAI.Infrastructure.Extensions;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Host.UseSerilog((context, config) =>
+{
+	config.ReadFrom.Configuration(context.Configuration)
+		  .Enrich.WithProperty("Application", "RecruitAI-API")
+		  .Enrich.WithEnvironmentName();
+});
 
+// Add services to the container.
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 
-
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-	options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Middleware pipeline
 if (app.Environment.IsDevelopment())
 {
 	app.MapOpenApi();
+	app.UseDeveloperExceptionPage();
+}
+else
+{
+	app.UseExceptionHandler("/error");
+	app.UseHsts();
 }
 
 app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
 app.MapControllers();
 
-await app.RunAsync();
+
+// Log khi ứng dụng start
+try
+{
+	Log.Information("Starting RecruitAI-API application");
+	await app.RunAsync();
+}
+catch (Exception ex)
+{
+	Log.Fatal(ex, "Application failed to start");
+}
+finally
+{
+	await Log.CloseAndFlushAsync();
+}
