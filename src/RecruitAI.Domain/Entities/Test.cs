@@ -1,0 +1,13 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace RecruitAI.Domain.Entities;
+
+public partial class Test
+{
+    public int Id { get; set; }
+
+    public string FirstName { get; set; } = null!;
+
+    public string LastName { get; set; } = null!;
+}
