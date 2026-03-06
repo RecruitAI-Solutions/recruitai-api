@@ -1,13 +1,55 @@
-# Visual Studio
-.vs/
-.cr/
-*.suo
-*.user
+# OS generated files
+.DS_Store
+Thumbs.db
 
-# Build outputs
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userprefs
+.cr/          # Đã có
+.cr/**        # Đã có - tốt
+
+# Build results
 bin/
 obj/
+out/
+publish/
+**/bin/
+**/obj/
 
-# Rider / VS Code
-.idea/
-.vscode/
+# Log files
+logs/
+**/logs/
+**/*.log
+**/Logs/
+**/log-*.txt
+**/serilog-*.txt
+
+# Database migrations
+**/Migrations/*.Designer.cs
+!**/Migrations/*Snapshot.cs
+
+# NuGet packages
+packages/
+*.nupkg
+
+# Test results
+TestResults/
+coverage/
+*.trx
+
+# User-specific files
+appsettings.Development.json
+appsettings.Production.json
+appsettings.*.json  # THÊM: tất cả appsettings riêng
+
+# Docker
+docker-compose.override.yml
+.env                # THÊM: file environment variables
+*.env              # THÊM: tất cả file env
+
+# Runtime
+**/secrets.json    # THÊM: user secrets
