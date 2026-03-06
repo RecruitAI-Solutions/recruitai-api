@@ -1,0 +1,44 @@
+# File: .github/workflows/ci.yml
+# Mục đích: Check build khi push lên bất kỳ branch nào
+
+name: CI - Build Check
+
+on:
+  push:
+    branches: [testing, production, feature/*]
+  pull_request:
+    branches: [testing, production]
+
+jobs:
+  build-check:
+    name: [Build] Kiem tra build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: [1] Checkout code
+        uses: actions/checkout@v4
+
+      - name: [2] Setup .NET 10.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: [3] Restore dependencies
+        run: dotnet restore RecruitAI-API.sln
+
+      - name: [4] Build project
+        run: dotnet build RecruitAI-API.sln --configuration Release --no-restore
+
+      - name: [5] Build Docker image (khong push)
+        run: docker build -t recruitai-api:test .
+
+      - name: [6] Ket qua
+        run: |
+          echo "=== KET QUA KIEM TRA ===" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "OK - Build project thanh cong" >> $GITHUB_STEP_SUMMARY
+          echo "OK - Build Docker thanh cong" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "=========================" >> $GITHUB_STEP_SUMMARY
