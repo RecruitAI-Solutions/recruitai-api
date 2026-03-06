@@ -1,30 +1,80 @@
-# recruitai-api
+# RecruitAI API
+
 ASP.NET Core Web API for CV analysis and AI-based recruitment support
 
+## Yêu cầu hệ thống
 
-# Các lệnh docker
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/download)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [Git](https://git-scm.com/)
 
-======================== Môi trường Dev ========================
-## Lệnh build
-docker compose -f docker/docker-compose.dev.yml up -d --build
+======================================================================
 
-### Dừng và xóa containers, networks (giữ lại volumes nếu muốn giữ data)
-docker compose -f docker/docker-compose.dev.yml down
+## Bắt đầu nhanh
 
-### Nếu muốn xóa luôn volumes (xóa hết data SQL)
-docker compose -f docker/docker-compose.dev.yml down -v
 
-### Kiểm tra containers đã xóa chưa
-docker ps -a | findstr recruitai
+# Load biến môi trường cho dev (Windows - PowerShell)
+$env:ENVIRONMENT="dev"
+$env:DB_PASSWORD="DevPass@8386"
+$env:DB_PORT="1434"
+$env:API_PORT="5000"
+.......
 
-### Xóa image cũ để build lại hoàn toàn
-docker rmi recruitai-api.dev
+# Hoặc (Windows - Command Prompt)
+set ENVIRONMENT=dev
+set DB_PASSWORD=DevPass@8386
+set DB_PORT=1434
+set API_PORT=5000
+....
 
-### Hoặc xóa tất cả images không dùng
-docker image prune -f
+# Hoặc (Linux/Mac)
+export ENVIRONMENT=dev
+export DB_PASSWORD=DevPass@8386
+export DB_PORT=1434
+export API_PORT=5000
+......
 
-### Kiểm tra SQL Server log
-docker logs recruitai-sql.dev --tail 20
+# Chạy Docker Compose
+docker-compose up -d --build
 
-### Kiểm tra API log
-docker logs recruitai-api.dev
+
+# Load biến môi trường từ file
+set -a; source docker/dev.env; set +a  # Linux/Mac
+# Hoặc copy từ file dev.env paste vào terminal (Windows)
+
+# Build và chạy
+docker-compose up -d --build
+
+# Dừng và xóa containers cũ (giữ lại volume data)
+docker-compose down
+
+# Dừng, xóa containers và xóa luôn volume (MẤT DATA)
+docker-compose down -v
+
+# Xem 50 dòng cuối
+docker-compose logs --tail=50 api
+
+# Xem 50 dòng cuối
+docker-compose logs --tail=50 sqlserver
+
+======================================================================
+
+# Liệt kê databases
+docker exec -it recruitai-sql-dev /opt/mssql-tools18/bin/sqlcmd \
+  -S localhost -U sa -P "DevPass@8386" -C \
+  -Q "SELECT name FROM sys.databases"
+
+# Chạy câu lệnh SQL bất kỳ
+docker exec -it recruitai-sql-dev /opt/mssql-tools18/bin/sqlcmd \
+  -S localhost -U sa -P "DevPass@8386" -C -d RecruitDev \
+  -Q "SELECT * FROM Tests"
+
+# Tạo database mới (nếu chưa có)
+docker exec -it recruitai-sql-dev /opt/mssql-tools18/bin/sqlcmd \
+  -S localhost -U sa -P "DevPass@8386" -C \
+  -Q "CREATE DATABASE RecruitDev"
+
+# Chạy migration
+docker exec recruitai-api-dev dotnet ef database update \
+  --project RecruitAI.Infrastructure \
+  --startup-project RecruitAI.API
