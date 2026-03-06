@@ -28,3 +28,6 @@ docker logs recruitai-sql.dev --tail 20
 
 ### Kiểm tra API log
 docker logs recruitai-api.dev
+
+### Lệnh query docker sql 
+docker exec -it recruitai-sql.dev /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "DevPass@8386" -C -d RecruitDev -Q "...sql command..."
