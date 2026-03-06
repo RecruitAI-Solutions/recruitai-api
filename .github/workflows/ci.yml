@@ -11,28 +11,28 @@ on:
 
 jobs:
   build-check:
-    name: [Build] Kiem tra build
+    name: Build - Kiem tra build
     runs-on: ubuntu-latest
 
     steps:
-      - name: [1] Checkout code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: [2] Setup .NET 10.0
+      - name: Setup .NET 10.0
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: "10.0.x"
 
-      - name: [3] Restore dependencies
+      - name: Restore dependencies
         run: dotnet restore RecruitAI-API.sln
 
-      - name: [4] Build project
+      - name: Build project
         run: dotnet build RecruitAI-API.sln --configuration Release --no-restore
 
-      - name: [5] Build Docker image (khong push)
+      - name: Build Docker image (khong push)
         run: docker build -t recruitai-api:test .
 
-      - name: [6] Ket qua
+      - name: Ket qua
         run: |
           echo "=== KET QUA KIEM TRA ===" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
