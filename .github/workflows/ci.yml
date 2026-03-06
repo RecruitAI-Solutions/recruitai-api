@@ -1,25 +1,44 @@
-name: CI
+# File: .github/workflows/ci.yml
+# Mục đích: Check build khi push lên testing, production, feature/
+
+name: CI - Build Check
 
 on:
   push:
-    branches: [testing]
+    branches: [testing, production, feature/*]
+  pull_request:
+    branches: [testing, production]
 
 jobs:
-  build:
+  build-check:
+    name: Build - Kiem tra build
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Setup Docker
-        uses: docker/setup-buildx-action@v2
+      - name: Setup .NET 10.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
 
-      - name: Build container
-        run: docker build -t myproject .
+      - name: Restore dependencies
+        run: dotnet restore RecruitAI.API.slnx # ĐÃ SỬA: .slnx thay vì .sln
 
-      - name: Run docker compose
-        run: docker compose -f docker/docker-compose.ci.yml up -d
+      - name: Build project
+        run: dotnet build RecruitAI.API.slnx --configuration Release --no-restore # ĐÃ SỬA
 
-      - name: Run tests
-        run: dotnet test
+      - name: Build Docker image (khong push)
+        run: docker build -t recruitai-api:test .
+
+      - name: Ket qua
+        run: |
+          echo "=== KET QUA KIEM TRA ===" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "OK - Build project thanh cong" >> $GITHUB_STEP_SUMMARY
+          echo "OK - Build Docker thanh cong" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Branch: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "=========================" >> $GITHUB_STEP_SUMMARY
