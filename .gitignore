@@ -9,6 +9,8 @@ Thumbs.db
 *.user
 *.suo
 *.userprefs
+.cr/
+.cr/**
 
 # Build results
 bin/
