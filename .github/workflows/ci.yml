@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [testing]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v2
+
+      - name: Build container
+        run: docker build -t myproject .
+
+      - name: Run docker compose
+        run: docker compose -f docker/docker-compose.ci.yml up -d
+
+      - name: Run tests
+        run: dotnet test

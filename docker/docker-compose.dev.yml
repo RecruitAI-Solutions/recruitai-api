@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: recruitai-sql.dev
+    environment:
+      SA_PASSWORD: "DevPass@8386"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1434:1433"
+    volumes:
+      - sql_data:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "DevPass@8386" -C -Q "SELECT 1" || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  api:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      target: development
+    container_name: recruitai-api.dev
+    depends_on:
+      - sqlserver
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=RecruitDev;User Id=sa;Password=DevPass@8386;TrustServerCertificate=True"
+    ports:
+      - "5000:8080"
+    volumes:
+      # Mount source code
+      - ../src:/src
+      # Exclude thư mục bin/obj (anonymous volumes)
+      - /src/RecruitAI.API/bin
+      - /src/RecruitAI.API/obj
+      - /src/RecruitAI.Application/bin
+      - /src/RecruitAI.Application/obj
+      - /src/RecruitAI.Domain/bin
+      - /src/RecruitAI.Domain/obj
+      - /src/RecruitAI.Infrastructure/bin
+      - /src/RecruitAI.Infrastructure/obj
+
+volumes:
+  sql_data:

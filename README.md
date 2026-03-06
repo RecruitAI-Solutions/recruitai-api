@@ -2,18 +2,29 @@
 ASP.NET Core Web API for CV analysis and AI-based recruitment support
 
 
-# API Project
+# Các lệnh docker
 
-## Công nghệ sử dụng
-- .NET 8
-- Entity Framework Core
-- Swagger/OpenAPI
+======================== Môi trường Dev ========================
+## Lệnh build
+docker compose -f docker/docker-compose.dev.yml up -d --build
 
-## Cài đặt
+### Dừng và xóa containers, networks (giữ lại volumes nếu muốn giữ data)
+docker compose -f docker/docker-compose.dev.yml down
 
-1. Clone repository
-2. Chạy `dotnet restore`
-3. Chạy `dotnet run`
+### Nếu muốn xóa luôn volumes (xóa hết data SQL)
+docker compose -f docker/docker-compose.dev.yml down -v
 
-## API Endpoints
-- GET /api/weatherforecast
+### Kiểm tra containers đã xóa chưa
+docker ps -a | findstr recruitai
+
+### Xóa image cũ để build lại hoàn toàn
+docker rmi recruitai-api.dev
+
+### Hoặc xóa tất cả images không dùng
+docker image prune -f
+
+### Kiểm tra SQL Server log
+docker logs recruitai-sql.dev --tail 20
+
+### Kiểm tra API log
+docker logs recruitai-api.dev
