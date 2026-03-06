@@ -1,5 +1,3 @@
-# .dockerignore
-
 # Thư mục build
 **/bin/
 **/obj/
@@ -12,16 +10,20 @@
 **/.idea/
 **/*.user
 **/*.suo
+**/.cr/           # THÊM: Code Runner
 
 # Git
 **/.git/
 **/.gitignore
 **/.gitattributes
+**/.github/       # THÊM: GitHub workflows
 
 # Docker
 **/.dockerignore
 **/docker-compose*.yml
 **/Dockerfile*
+**/README.md      # THÊM: docs
+**/LICENSE        # THÊM: license
 
 # Temp files
 **/*.log
@@ -29,6 +31,7 @@
 **/*.cache
 **/temp/
 **/logs/
+**/TestResults/   # THÊM: test results
 
 # NuGet packages
 **/packages/
@@ -37,3 +40,14 @@
 # OS generated files
 **/.DS_Store
 **/Thumbs.db
+
+# Source control
+**/.gitignore
+**/.gitattributes
+
+# Environment
+**/.env
+**/appsettings.Development.json
+**/appsettings.Production.json
+**/appsettings.*.json
+**/secrets.json
