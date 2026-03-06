@@ -1,0 +1,39 @@
+# .dockerignore
+
+# Thư mục build
+**/bin/
+**/obj/
+**/out/
+**/publish/
+
+# IDE
+**/.vs/
+**/.vscode/
+**/.idea/
+**/*.user
+**/*.suo
+
+# Git
+**/.git/
+**/.gitignore
+**/.gitattributes
+
+# Docker
+**/.dockerignore
+**/docker-compose*.yml
+**/Dockerfile*
+
+# Temp files
+**/*.log
+**/*.tmp
+**/*.cache
+**/temp/
+**/logs/
+
+# NuGet packages
+**/packages/
+**/*.nupkg
+
+# OS generated files
+**/.DS_Store
+**/Thumbs.db
