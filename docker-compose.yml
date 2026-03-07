@@ -1,8 +1,6 @@
 # File: docker-compose.yml
 # Đặt tại thư mục gốc (api/)
 
-version: "3.9"
-
 networks:
   recruitai-network:
     driver: bridge
@@ -48,18 +46,67 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ASPNETCORE_URLS: http://+:8080
+      ASPNETCORE_HOSTINGSTARTUPASSEMBLIES: "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation"
       ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=${DB_NAME:-RecruitDev}${DB_SUFFIX:-};User Id=sa;Password=${DB_PASSWORD:-DevPass@8386};TrustServerCertificate=True;MultipleActiveResultSets=true"
     ports:
       - "${API_PORT:-5000}:8080"
     volumes:
-      - ${MOUNT_SRC:-./src}:/src
+      # Chỉ giữ lại volume logs, không mount source code để tránh conflict với watch
       - api_logs:/app/Logs
-      - /src/RecruitAI.API/bin
-      - /src/RecruitAI.API/obj
-      - /src/RecruitAI.Application/bin
-      - /src/RecruitAI.Application/obj
-      - /src/RecruitAI.Domain/bin
-      - /src/RecruitAI.Domain/obj
-      - /src/RecruitAI.Infrastructure/bin
-      - /src/RecruitAI.Infrastructure/obj
     restart: ${RESTART_POLICY:-no}
+    
+    # Cấu hình Docker Watch cho development
+    develop:
+      watch:
+        # Theo dõi source code API
+        - path: ./src/RecruitAI.API
+          action: sync
+          target: /src/RecruitAI.API
+          ignore:
+            - bin/
+            - obj/
+            - .vs/
+        
+        # Theo dõi source code Application
+        - path: ./src/RecruitAI.Application
+          action: sync
+          target: /src/RecruitAI.Application
+          ignore:
+            - bin/
+            - obj/
+        
+        # Theo dõi source code Domain
+        - path: ./src/RecruitAI.Domain
+          action: sync
+          target: /src/RecruitAI.Domain
+          ignore:
+            - bin/
+            - obj/
+        
+        # Theo dõi source code Infrastructure
+        - path: ./src/RecruitAI.Infrastructure
+          action: sync
+          target: /src/RecruitAI.Infrastructure
+          ignore:
+            - bin/
+            - obj/
+        
+        # Rebuild khi thay đổi file cấu hình
+        - path: ./src/RecruitAI.API/Properties/launchSettings.json
+          action: rebuild
+        
+        # Liệt kê cụ thể các file appsettings (không dùng wildcard)
+        - path: ./src/RecruitAI.API/appsettings.json
+          action: rebuild
+        - path: ./src/RecruitAI.API/appsettings.Development.json
+          action: rebuild
+        
+        # Liệt kê cụ thể các file project (không dùng wildcard)
+        - path: ./src/RecruitAI.API/RecruitAI.API.csproj
+          action: rebuild
+        - path: ./src/RecruitAI.Application/RecruitAI.Application.csproj
+          action: rebuild
+        - path: ./src/RecruitAI.Domain/RecruitAI.Domain.csproj
+          action: rebuild
+        - path: ./src/RecruitAI.Infrastructure/RecruitAI.Infrastructure.csproj
+          action: rebuild
