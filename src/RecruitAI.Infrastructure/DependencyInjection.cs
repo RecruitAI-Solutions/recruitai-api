@@ -5,9 +5,9 @@ using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Infrastructure.Data;
 using RecruitAI.Infrastructure.Repositories;
 
-namespace RecruitAI.Infrastructure.Extensions
+namespace RecruitAI.Infrastructure
 {
-    public static class ServiceCollectionExtensions
+    public static class DependencyInjection
     {
         public static IServiceCollection AddInfrastructure(
             this IServiceCollection services,

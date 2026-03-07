@@ -1,6 +1,6 @@
-﻿namespace RecruitAI.Application.DTOs
+﻿namespace RecruitAI.Application.DTOs.Requests
 {
-    public class CreatedTestRequest
+    public class CreatedTestRequestDto
     {
         public string? FirstName { get; set; }
         public string? LastName { get; set; }

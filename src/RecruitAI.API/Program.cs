@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RecruitAI.Application;
+using RecruitAI.Infrastructure;
 using RecruitAI.Infrastructure.Data;
-using RecruitAI.Infrastructure.Extensions;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -17,6 +17,17 @@ builder.Host.UseSerilog((context, config) =>
     config.ReadFrom.Configuration(context.Configuration)
           .Enrich.WithProperty("Application", "RecruitAI-API")
           .Enrich.WithEnvironmentName();
+});
+
+// Thêm CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()      // Cho phép mọi nguồn
+              .AllowAnyMethod()      // Cho phép mọi method (GET, POST, PUT, DELETE)
+              .AllowAnyHeader();     // Cho phép mọi header
+    });
 });
 
 // Add services to the container.

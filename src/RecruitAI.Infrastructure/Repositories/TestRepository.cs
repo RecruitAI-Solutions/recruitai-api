@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Infrastructure.Data;
@@ -8,22 +9,40 @@ namespace RecruitAI.Infrastructure.Repositories
     internal class TestRepository : ITestRepository
     {
         private readonly RecruitDevContext _context;
+        private readonly ILogger<TestRepository> _logger;
 
-        public TestRepository(RecruitDevContext context)
+        public TestRepository(RecruitDevContext context, ILogger<TestRepository> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
-        public async Task<Test> AddAsync(Test entity)
+        public async Task<Test> AddAsync(Test entity, CancellationToken cancellationToken)
         {
-            _context.Tests.Add(entity);
-            await _context.SaveChangesAsync();
-            return entity;
+            try
+            {
+                _context.Tests.Add(entity);
+                await _context.SaveChangesAsync();
+                return entity;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding Test entity");
+                throw;
+            }
         }
-        public async Task<IEnumerable<Test>> GetAllAsync()
+        public async Task<IEnumerable<Test>> GetAllAsync(CancellationToken cancellationToken)
         {
-            var listTest = await _context.Tests.ToListAsync();
-            return listTest;
+            try
+            {
+                var listTest = await _context.Tests.ToListAsync();
+                return listTest;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving Test entities");
+                throw;
+            }
         }
     }
 }

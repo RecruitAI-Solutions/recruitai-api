@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Services;
 using RecruitAI.Domain.Interfaces.Services;
+using RecruitAI.Domain.Services;
 
 namespace RecruitAI.Application
 {
@@ -11,6 +13,7 @@ namespace RecruitAI.Application
             // Register application services here
             // e.g., services.AddScoped<ITestService, TestService>();
             services.AddScoped<ITestService, TestService>();
+            services.AddScoped<ITestDomainService, TestDomainService>();
 
             return services;
         }

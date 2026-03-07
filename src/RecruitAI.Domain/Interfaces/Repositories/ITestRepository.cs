@@ -4,7 +4,7 @@ namespace RecruitAI.Domain.Interfaces.Repositories
 {
     public interface ITestRepository
     {
-        Task<IEnumerable<Test>> GetAllAsync();
-        Task<Test> AddAsync(Test entity);
+        Task<IEnumerable<Test>> GetAllAsync(CancellationToken cancellationToken);
+        Task<Test> AddAsync(Test entity, CancellationToken cancellationToken);
     }
 }
