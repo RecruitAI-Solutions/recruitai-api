@@ -3,9 +3,11 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.DTOs.Requests;
 using RecruitAI.Application.DTOs.Responses;
+using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
+using RecruitAI.Domain.Exceptions;
 using RecruitAI.Infrastructure.Data;
 
 namespace RecruitAI.Application.Services
@@ -41,7 +43,7 @@ namespace RecruitAI.Application.Services
                     .FirstOrDefaultAsync(x => x.Email == request.Email);
 
                 if (existing != null)
-                    throw new Exception(_msg.Business("EmailExists"));
+                    _msg.Throw(ErrorCode.EmailAlreadyExists, "EmailExists");
 
                 // Tạo user mới
                 var user = new User
@@ -71,17 +73,11 @@ namespace RecruitAI.Application.Services
 
                 await _context.SaveChangesAsync();
 
-                // Kiểm tra user trước khi tạo token
-                if (user == null || user.Id == Guid.Empty)
-                    throw new Exception(_msg.Business("UserCreationFailed"));
-
                 // Generate token
                 var token = await _jwtService.GenerateToken(user);
 
                 // Đọc expiry từ config
                 var expiryMinutes = _configuration.GetValue<int>("Jwt:ExpiryMinutes", 15);
-
-                // Tính số giây còn lại
                 var expirySeconds = expiryMinutes * 60;
 
                 // Log thành công
@@ -96,10 +92,15 @@ namespace RecruitAI.Application.Services
                     ExpiresIn = expirySeconds
                 };
             }
+            catch (BusinessException)
+            {
+                throw; // Giữ nguyên cho controller xử lý
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, _msg.Log("RegistrationError"), request.Email);
-                throw new Exception(_msg.Business("RegistrationFailed", ex.Message));
+                _msg.Throw(ErrorCode.InternalServerError, "RegistrationFailed", ex, ex.Message);
+                return null; // Never reached
             }
         }
 
@@ -113,25 +114,23 @@ namespace RecruitAI.Application.Services
                     .FirstOrDefaultAsync(x => x.Provider == AuthProviderType.Email && x.ProviderUserId == request.Email);
 
                 if (provider == null)
-                    throw new Exception(_msg.Business("InvalidCredentials"));
+                    _msg.Throw(ErrorCode.InvalidCredentials, "InvalidCredentials");
 
                 // Kiểm tra password
                 if (!BCrypt.Net.BCrypt.Verify(request.Password, provider.PasswordHash))
-                    throw new Exception(_msg.Business("InvalidCredentials"));
+                    _msg.Throw(ErrorCode.InvalidCredentials, "InvalidCredentials");
 
                 var user = provider.User;
 
-                // Kiểm tra user trước khi tạo token
-                if (user == null || user.Id == Guid.Empty)
-                    throw new Exception(_msg.Business("UserNotFound"));
+                // Kiểm tra trạng thái user
+                if (user.Status != UserStatus.Active)
+                    _msg.Throw(ErrorCode.AccountLocked, "AccountLocked");
 
                 // Generate token
                 var token = await _jwtService.GenerateToken(user);
 
                 // Đọc expiry từ config
                 var expiryMinutes = _configuration.GetValue<int>("Jwt:ExpiryMinutes", 15);
-
-                // Tính số giây còn lại
                 var expirySeconds = expiryMinutes * 60;
 
                 // Log thành công
@@ -146,10 +145,15 @@ namespace RecruitAI.Application.Services
                     ExpiresIn = expirySeconds
                 };
             }
+            catch (BusinessException)
+            {
+                throw; // Giữ nguyên cho controller xử lý
+            }
             catch (Exception ex)
             {
                 _logger.LogError(ex, _msg.Log("LoginError"), request.Email);
-                throw new Exception(_msg.Business("LoginFailed", ex.Message));
+                _msg.Throw(ErrorCode.InternalServerError, "LoginFailed", ex, ex.Message);
+                return null; // Never reached
             }
         }
     }
