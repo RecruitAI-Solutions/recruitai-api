@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+		<!-- schema section giữ nguyên -->
+	</xsd:schema>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>2.0</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+
+	<!-- ===== LOG MESSAGES - ENGLISH ===== -->
+	<data name="LogDatabaseCheck" xml:space="preserve">
+		<value>=== DATABASE CHECK ===</value>
+	</data>
+	<data name="LogDatabaseEnsuring" xml:space="preserve">
+		<value>Ensuring database exists...</value>
+	</data>
+	<data name="LogDatabaseConnected" xml:space="preserve">
+		<value>Database connection: {0}</value>
+	</data>
+	<data name="LogMigrationStarted" xml:space="preserve">
+		<value>Running migrations...</value>
+	</data>
+	<data name="LogMigrationPending" xml:space="preserve">
+		<value>Found {0} pending migration(s)</value>
+	</data>
+	<data name="LogMigrationSuccess" xml:space="preserve">
+		<value>Migration completed successfully!</value>
+	</data>
+	<data name="LogNoPendingMigration" xml:space="preserve">
+		<value>No pending migrations</value>
+	</data>
+	<data name="LogTablesFound" xml:space="preserve">
+		<value>Found {0} tables in database</value>
+	</data>
+	<data name="LogAppStarting" xml:space="preserve">
+		<value>Starting RecruitAI-API application</value>
+	</data>
+	<data name="LogAppFailed" xml:space="preserve">
+		<value>Application failed to start</value>
+	</data>
+	<data name="LogEnvironment" xml:space="preserve">
+		<value>Environment: {0}</value>
+	</data>
+	<data name="LogConnectionString" xml:space="preserve">
+		<value>Connection String: {0}</value>
+	</data>
+	<data name="LogDbError" xml:space="preserve">
+		<value>Database error!</value>
+	</data>
+
+	<!-- ===== JWT LOGS - ENGLISH ===== -->
+	<data name="LogAuthFailed" xml:space="preserve">
+		<value>Authentication failed</value>
+	</data>
+	<data name="LogAuthChallenge" xml:space="preserve">
+		<value>Authentication challenge: {0}, {1}</value>
+	</data>
+
+	<!-- ===== BUSINESS MESSAGES - ENGLISH ===== -->
+	<data name="EmailExists" xml:space="preserve">
+		<value>Email already exists</value>
+	</data>
+	<data name="InvalidCredentials" xml:space="preserve">
+		<value>Invalid email or password</value>
+	</data>
+	<data name="AccountLocked" xml:space="preserve">
+		<value>Account is locked</value>
+	</data>
+	<data name="UserNotFound" xml:space="preserve">
+		<value>User not found</value>
+	</data>
+	<data name="InvalidToken" xml:space="preserve">
+		<value>Invalid token</value>
+	</data>
+	<data name="TokenExpired" xml:space="preserve">
+		<value>Token expired</value>
+	</data>
+
+	<!-- ===== VALIDATION - ENGLISH ===== -->
+	<data name="EmailRequired" xml:space="preserve">
+		<value>Email is required</value>
+	</data>
+	<data name="EmailInvalid" xml:space="preserve">
+		<value>Invalid email format</value>
+	</data>
+	<data name="PasswordRequired" xml:space="preserve">
+		<value>Password is required</value>
+	</data>
+	<data name="PasswordMinLength" xml:space="preserve">
+		<value>Password must be at least 6 characters</value>
+	</data>
+	<data name="FullNameRequired" xml:space="preserve">
+		<value>Full name is required</value>
+	</data>
+
+	<!-- ===== SUCCESS MESSAGES - ENGLISH ===== -->
+	<data name="Registered" xml:space="preserve">
+		<value>Registration successful</value>
+	</data>
+	<data name="LoggedIn" xml:space="preserve">
+		<value>Login successful</value>
+	</data>
+	<data name="LoggedOut" xml:space="preserve">
+		<value>Logged out successfully</value>
+	</data>
+
+	<!-- ===== BUSINESS MESSAGES - ENGLISH ===== -->
+	<data name="BusinessEmailExists" xml:space="preserve">
+	<value>Email already exists in the system</value>
+  </data>
+	<data name="BusinessInvalidCredentials" xml:space="preserve">
+	<value>Invalid email or password</value>
+  </data>
+	<data name="BusinessUserNotFound" xml:space="preserve">
+	<value>User not found</value>
+  </data>
+	<data name="BusinessUserCreationFailed" xml:space="preserve">
+	<value>User creation failed</value>
+  </data>
+	<data name="BusinessRegistrationFailed" xml:space="preserve">
+	<value>Registration failed: {0}</value>
+  </data>
+	<data name="BusinessLoginFailed" xml:space="preserve">
+	<value>Login failed: {0}</value>
+  </data>
+	<data name="BusinessAccountLocked" xml:space="preserve">
+	<value>Account has been locked</value>
+  </data>
+
+	<!-- ===== JWT MESSAGES - ENGLISH ===== -->
+	<data name="BusinessUserNull" xml:space="preserve">
+	<value>User cannot be null</value>
+  </data>
+	<data name="BusinessUserIdEmpty" xml:space="preserve">
+	<value>User Id cannot be empty</value>
+  </data>
+	<data name="BusinessUserEmailEmpty" xml:space="preserve">
+	<value>User email cannot be empty</value>
+  </data>
+	<data name="BusinessJwtKeyNotConfigured" xml:space="preserve">
+	<value>JWT Key is not configured</value>
+  </data>
+	<data name="BusinessInvalidToken" xml:space="preserve">
+	<value>Invalid token</value>
+  </data>
+	<data name="BusinessTokenExpired" xml:space="preserve">
+	<value>Token expired</value>
+  </data>
+
+	<!-- ===== LOG MESSAGES - ENGLISH ===== -->
+	<data name="LogRegistrationError" xml:space="preserve">
+	<value>Error occurred during registration</value>
+  </data>
+	<data name="LogLoginError" xml:space="preserve">
+	<value>Error occurred during login</value>
+  </data>
+	<data name="LogRegistrationErrorDetailed" xml:space="preserve">
+	<value>Registration error for email {Email}</value>
+  </data>
+	<data name="LogLoginErrorDetailed" xml:space="preserve">
+	<value>Login error for email {Email}</value>
+  </data>
+	<data name="LogJwtKeyAutoGenerated" xml:space="preserve">
+	<value>JWT Key not found in config. Auto-generated for development: {Key}</value>
+  </data>
+	<data name="LogJwtGenerationError" xml:space="preserve">
+	<value>Error generating JWT token for user {UserId}</value>
+  </data>
+
+	<!-- ===== SUCCESS MESSAGES - ENGLISH ===== -->
+	<data name="SuccessRegistered" xml:space="preserve">
+	<value>Registration successful</value>
+  </data>
+	<data name="SuccessLoggedIn" xml:space="preserve">
+	<value>Login successful</value>
+  </data>
+	<data name="SuccessLoggedOut" xml:space="preserve">
+	<value>Logged out successfully</value>
+  </data>
+	<data name="SuccessTokenRefreshed" xml:space="preserve">
+	<value>Token refreshed successfully</value>
+  </data>
+
+	<!-- ===== VALIDATION MESSAGES - ENGLISH ===== -->
+	<data name="ValidationEmailRequired" xml:space="preserve">
+	<value>Email is required</value>
+  </data>
+	<data name="ValidationEmailInvalid" xml:space="preserve">
+	<value>Invalid email format</value>
+  </data>
+	<data name="ValidationPasswordRequired" xml:space="preserve">
+	<value>Password is required</value>
+  </data>
+	<data name="ValidationPasswordMinLength" xml:space="preserve">
+	<value>Password must be at least 6 characters</value>
+  </data>
+	<data name="ValidationFullNameRequired" xml:space="preserve">
+	<value>Full name is required</value>
+  </data>
+
+	<!-- Business Messages - Thêm các keys sau -->
+	<data name="BusinessUserCreationFailed" xml:space="preserve">
+  <value>User creation failed</value>
+</data>
+	<data name="BusinessRegistrationFailed" xml:space="preserve">
+  <value>Registration failed: {0}</value>
+</data>
+	<data name="BusinessLoginFailed" xml:space="preserve">
+  <value>Login failed: {0}</value>
+</data>
+	<data name="BusinessUserNull" xml:space="preserve">
+  <value>User cannot be null</value>
+</data>
+	<data name="BusinessUserIdEmpty" xml:space="preserve">
+  <value>User Id cannot be empty</value>
+</data>
+	<data name="BusinessUserEmailEmpty" xml:space="preserve">
+  <value>User Email cannot be empty</value>
+</data>
+	<data name="BusinessJwtKeyNotConfigured" xml:space="preserve">
+  <value>JWT Key is not configured</value>
+</data>
+
+	<!-- Log Messages - Thêm các keys sau -->
+	<data name="LogRegistrationSuccess" xml:space="preserve">
+  <value>User {0} registered successfully</value>
+</data>
+	<data name="LogRegistrationError" xml:space="preserve">
+  <value>Error during registration for email {0}</value>
+</data>
+	<data name="LogLoginSuccess" xml:space="preserve">
+  <value>User {0} logged in successfully</value>
+</data>
+	<data name="LogLoginError" xml:space="preserve">
+  <value>Error during login for email {0}</value>
+</data>
+	<data name="LogJwtKeyAutoGenerated" xml:space="preserve">
+  <value>JWT Key not found in config. Auto-generated for development: {0}</value>
+</data>
+	<data name="LogJwtGenerationError" xml:space="preserve">
+  <value>Error generating JWT token for user {0}</value>
+</data>
+	<data name="ValidationValidationFailed" xml:space="preserve">
+  <value>Validation failed</value>
+</data>
+	<data name="ValidationEmailRequired" xml:space="preserve">
+  <value>Email is required</value>
+</data>
+	<data name="ValidationEmailInvalid" xml:space="preserve">
+  <value>Invalid email format</value>
+</data>
+	<data name="ValidationPasswordRequired" xml:space="preserve">
+  <value>Password is required</value>
+</data>
+	<data name="ValidationPasswordMinLength" xml:space="preserve">
+  <value>Password must be at least 6 characters</value>
+</data>
+	<data name="ValidationFullNameRequired" xml:space="preserve">
+  <value>Full name is required</value>
+</data>
+</root>

@@ -48,6 +48,7 @@ services:
       ASPNETCORE_URLS: http://+:8080
       ASPNETCORE_HOSTINGSTARTUPASSEMBLIES: "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation"
       ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=${DB_NAME:-RecruitDev}${DB_SUFFIX:-};User Id=sa;Password=${DB_PASSWORD:-DevPass@8386};TrustServerCertificate=True;MultipleActiveResultSets=true"
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
     ports:
       - "${API_PORT:-5000}:8080"
     volumes:
