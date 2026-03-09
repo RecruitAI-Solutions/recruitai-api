@@ -126,8 +126,11 @@ namespace RecruitAI.Application.Services
                 if (user.Status != UserStatus.Active)
                     _msg.Throw(ErrorCode.AccountLocked, "AccountLocked");
 
-                // Generate token
-                var token = await _jwtService.GenerateToken(user);
+				provider.LastLoginAt = DateTime.UtcNow;
+				await _context.SaveChangesAsync();
+
+				// Generate token
+				var token = await _jwtService.GenerateToken(user);
 
                 // Đọc expiry từ config
                 var expiryMinutes = _configuration.GetValue<int>("Jwt:ExpiryMinutes", 15);
