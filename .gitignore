@@ -9,8 +9,8 @@ Thumbs.db
 *.user
 *.suo
 *.userprefs
-.cr/          # Đã có
-.cr/**        # Đã có - tốt
+.cr/    
+.cr/**       
 
 # Build results
 bin/
