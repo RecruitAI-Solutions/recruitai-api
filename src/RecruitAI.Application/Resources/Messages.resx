@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<resheader name="resmimetype">
+		<value>text/microsoft-resx</value>
+	</resheader>
+	<resheader name="version">
+		<value>2.0</value>
+	</resheader>
+	<resheader name="reader">
+		<value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<resheader name="writer">
+		<value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+	</resheader>
+	<!-- ===== LOG MESSAGES - TIẾNG VIỆT ===== -->
+	<data name="LogDatabaseCheck" xml:space="preserve">
+	<value>=== KIỂM TRA DATABASE ===</value>
+  </data>
+	<data name="LogDatabaseEnsuring" xml:space="preserve">
+	<value>Đang kiểm tra database...</value>
+  </data>
+	<data name="LogDatabaseConnected" xml:space="preserve">
+	<value>Kết nối database: {0}</value>
+  </data>
+	<data name="LogMigrationStarted" xml:space="preserve">
+	<value>Đang chạy migration...</value>
+  </data>
+	<data name="LogMigrationPending" xml:space="preserve">
+	<value>Có {0} migration cần áp dụng</value>
+  </data>
+	<data name="LogMigrationSuccess" xml:space="preserve">
+	<value>Migration thành công!</value>
+  </data>
+	<data name="LogNoPendingMigration" xml:space="preserve">
+	<value>Không có migration nào cần áp dụng</value>
+  </data>
+	<data name="LogTablesFound" xml:space="preserve">
+	<value>Tìm thấy {0} bảng trong database</value>
+  </data>
+	<data name="LogAppStarting" xml:space="preserve">
+	<value>Đang khởi động ứng dụng RecruitAI-API</value>
+  </data>
+	<data name="LogAppFailed" xml:space="preserve">
+	<value>Khởi động ứng dụng thất bại</value>
+  </data>
+	<data name="LogEnvironment" xml:space="preserve">
+	<value>Môi trường: {0}</value>
+  </data>
+	<data name="LogConnectionString" xml:space="preserve">
+	<value>Chuỗi kết nối: {0}</value>
+  </data>
+	<data name="LogDbError" xml:space="preserve">
+	<value>Lỗi database!</value>
+  </data>
+
+	<!-- ===== JWT LOGS - TIẾNG VIỆT ===== -->
+	<data name="LogAuthFailed" xml:space="preserve">
+	<value>Xác thực thất bại</value>
+  </data>
+	<data name="LogAuthChallenge" xml:space="preserve">
+	<value>Thử thách xác thực: {0}, {1}</value>
+  </data>
+
+	<!-- ===== BUSINESS MESSAGES - TIẾNG VIỆT ===== -->
+	<data name="EmailExists" xml:space="preserve">
+	<value>Email đã tồn tại trong hệ thống</value>
+  </data>
+	<data name="InvalidCredentials" xml:space="preserve">
+	<value>Email hoặc mật khẩu không chính xác</value>
+  </data>
+	<data name="AccountLocked" xml:space="preserve">
+	<value>Tài khoản đã bị khóa</value>
+  </data>
+	<data name="UserNotFound" xml:space="preserve">
+	<value>Không tìm thấy người dùng</value>
+  </data>
+	<data name="InvalidToken" xml:space="preserve">
+	<value>Token không hợp lệ</value>
+  </data>
+	<data name="TokenExpired" xml:space="preserve">
+	<value>Token đã hết hạn</value>
+  </data>
+
+	<!-- ===== VALIDATION - TIẾNG VIỆT ===== -->
+	<data name="EmailRequired" xml:space="preserve">
+	<value>Email là bắt buộc</value>
+  </data>
+	<data name="EmailInvalid" xml:space="preserve">
+	<value>Email không đúng định dạng</value>
+  </data>
+	<data name="PasswordRequired" xml:space="preserve">
+	<value>Mật khẩu là bắt buộc</value>
+  </data>
+	<data name="PasswordMinLength" xml:space="preserve">
+	<value>Mật khẩu phải có ít nhất 6 ký tự</value>
+  </data>
+	<data name="FullNameRequired" xml:space="preserve">
+	<value>Họ tên là bắt buộc</value>
+  </data>
+
+	<!-- ===== SUCCESS MESSAGES - TIẾNG VIỆT ===== -->
+	<data name="Registered" xml:space="preserve">
+	<value>Đăng ký thành công</value>
+  </data>
+	<data name="LoggedIn" xml:space="preserve">
+	<value>Đăng nhập thành công</value>
+  </data>
+	<data name="LoggedOut" xml:space="preserve">
+	<value>Đăng xuất thành công</value>
+  </data>
+
+	<!-- ===== BUSINESS MESSAGES - TIẾNG VIỆT ===== -->
+	<data name="BusinessEmailExists" xml:space="preserve">
+	<value>Email đã tồn tại trong hệ thống</value>
+  </data>
+	<data name="BusinessInvalidCredentials" xml:space="preserve">
+	<value>Email hoặc mật khẩu không chính xác</value>
+  </data>
+	<data name="BusinessUserNotFound" xml:space="preserve">
+	<value>Không tìm thấy người dùng</value>
+  </data>
+	<data name="BusinessUserCreationFailed" xml:space="preserve">
+	<value>Tạo người dùng thất bại</value>
+  </data>
+	<data name="BusinessRegistrationFailed" xml:space="preserve">
+	<value>Đăng ký thất bại: {0}</value>
+  </data>
+	<data name="BusinessLoginFailed" xml:space="preserve">
+	<value>Đăng nhập thất bại: {0}</value>
+  </data>
+	<data name="BusinessAccountLocked" xml:space="preserve">
+	<value>Tài khoản đã bị khóa</value>
+  </data>
+
+	<!-- ===== JWT MESSAGES - TIẾNG VIỆT ===== -->
+	<data name="BusinessUserNull" xml:space="preserve">
+	<value>Người dùng không được để trống</value>
+  </data>
+	<data name="BusinessUserIdEmpty" xml:space="preserve">
+	<value>ID người dùng không được để trống</value>
+  </data>
+	<data name="BusinessUserEmailEmpty" xml:space="preserve">
+	<value>Email người dùng không được để trống</value>
+  </data>
+	<data name="BusinessJwtKeyNotConfigured" xml:space="preserve">
+	<value>Khóa JWT chưa được cấu hình</value>
+  </data>
+	<data name="BusinessInvalidToken" xml:space="preserve">
+	<value>Token không hợp lệ</value>
+  </data>
+	<data name="BusinessTokenExpired" xml:space="preserve">
+	<value>Token đã hết hạn</value>
+  </data>
+
+	<!-- ===== LOG MESSAGES - TIẾNG VIỆT ===== -->
+	<data name="LogRegistrationError" xml:space="preserve">
+	<value>Lỗi xảy ra trong quá trình đăng ký</value>
+  </data>
+	<data name="LogLoginError" xml:space="preserve">
+	<value>Lỗi xảy ra trong quá trình đăng nhập</value>
+  </data>
+	<data name="LogRegistrationErrorDetailed" xml:space="preserve">
+	<value>Lỗi đăng ký cho email {Email}</value>
+  </data>
+	<data name="LogLoginErrorDetailed" xml:space="preserve">
+	<value>Lỗi đăng nhập cho email {Email}</value>
+  </data>
+	<data name="LogJwtKeyAutoGenerated" xml:space="preserve">
+	<value>Không tìm thấy khóa JWT trong cấu hình. Đã tự động tạo cho môi trường phát triển: {Key}</value>
+  </data>
+	<data name="LogJwtGenerationError" xml:space="preserve">
+	<value>Lỗi tạo JWT token cho người dùng {UserId}</value>
+  </data>
+
+	<!-- ===== SUCCESS MESSAGES - TIẾNG VIỆT ===== -->
+	<data name="SuccessRegistered" xml:space="preserve">
+	<value>Đăng ký thành công</value>
+  </data>
+	<data name="SuccessLoggedIn" xml:space="preserve">
+	<value>Đăng nhập thành công</value>
+  </data>
+	<data name="SuccessLoggedOut" xml:space="preserve">
+	<value>Đăng xuất thành công</value>
+  </data>
+	<data name="SuccessTokenRefreshed" xml:space="preserve">
+	<value>Làm mới token thành công</value>
+  </data>
+
+	<!-- ===== VALIDATION MESSAGES - TIẾNG VIỆT ===== -->
+	<data name="ValidationEmailRequired" xml:space="preserve">
+	<value>Email là bắt buộc</value>
+  </data>
+	<data name="ValidationEmailInvalid" xml:space="preserve">
+	<value>Email không đúng định dạng</value>
+  </data>
+	<data name="ValidationPasswordRequired" xml:space="preserve">
+	<value>Mật khẩu là bắt buộc</value>
+  </data>
+	<data name="ValidationPasswordMinLength" xml:space="preserve">
+	<value>Mật khẩu phải có ít nhất 6 ký tự</value>
+  </data>
+	<data name="ValidationFullNameRequired" xml:space="preserve">
+	<value>Họ tên là bắt buộc</value>
+  </data>
+	<!-- Business Messages - TIẾNG VIỆT -->
+	<data name="BusinessUserCreationFailed" xml:space="preserve">
+  <value>Tạo người dùng thất bại</value>
+</data>
+	<data name="BusinessRegistrationFailed" xml:space="preserve">
+  <value>Đăng ký thất bại: {0}</value>
+</data>
+	<data name="BusinessLoginFailed" xml:space="preserve">
+  <value>Đăng nhập thất bại: {0}</value>
+</data>
+	<data name="BusinessUserNull" xml:space="preserve">
+  <value>Người dùng không được để trống</value>
+</data>
+	<data name="BusinessUserIdEmpty" xml:space="preserve">
+  <value>ID người dùng không được để trống</value>
+</data>
+	<data name="BusinessUserEmailEmpty" xml:space="preserve">
+  <value>Email người dùng không được để trống</value>
+</data>
+	<data name="BusinessJwtKeyNotConfigured" xml:space="preserve">
+  <value>Khóa JWT chưa được cấu hình</value>
+</data>
+
+	<!-- Log Messages - TIẾNG VIỆT -->
+	<data name="LogRegistrationSuccess" xml:space="preserve">
+  <value>Người dùng {0} đăng ký thành công</value>
+</data>
+	<data name="LogRegistrationError" xml:space="preserve">
+  <value>Lỗi đăng ký cho email {0}</value>
+</data>
+	<data name="LogLoginSuccess" xml:space="preserve">
+  <value>Người dùng {0} đăng nhập thành công</value>
+</data>
+	<data name="LogLoginError" xml:space="preserve">
+  <value>Lỗi đăng nhập cho email {0}</value>
+</data>
+	<data name="LogJwtKeyAutoGenerated" xml:space="preserve">
+  <value>Không tìm thấy khóa JWT trong cấu hình. Đã tự động tạo cho môi trường phát triển: {0}</value>
+</data>
+	<data name="LogJwtGenerationError" xml:space="preserve">
+  <value>Lỗi tạo JWT token cho người dùng {0}</value>
+</data>
+	<data name="ValidationValidationFailed" xml:space="preserve">
+  <value>Dữ liệu nhập vào không hợp lệ</value>
+</data>
+	<data name="ValidationEmailRequired" xml:space="preserve">
+  <value>Email là bắt buộc</value>
+</data>
+	<data name="ValidationEmailInvalid" xml:space="preserve">
+  <value>Email không đúng định dạng</value>
+</data>
+	<data name="ValidationPasswordRequired" xml:space="preserve">
+  <value>Mật khẩu là bắt buộc</value>
+</data>
+	<data name="ValidationPasswordMinLength" xml:space="preserve">
+  <value>Mật khẩu phải có ít nhất 6 ký tự</value>
+</data>
+	<data name="ValidationFullNameRequired" xml:space="preserve">
+  <value>Họ tên là bắt buộc</value>
+</data>
+</root>

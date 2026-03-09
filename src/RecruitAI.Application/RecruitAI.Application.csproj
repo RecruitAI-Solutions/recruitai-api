@@ -6,11 +6,27 @@
   </ItemGroup>
 
   <ItemGroup>
-	<Folder Include="Validators\" />
+	  <Compile Update="Resources\Messages.en.Designer.cs">
+		  <DesignTime>True</DesignTime>
+		  <AutoGen>True</AutoGen>
+		  <DependentUpon>Messages.en.resx</DependentUpon>
+	  </Compile>
+	  <Compile Update="Resources\Messages.vi.Designer.cs">
+		  <DesignTime>True</DesignTime>
+		  <AutoGen>True</AutoGen>
+		  <DependentUpon>Messages.vi.resx</DependentUpon>
+	  </Compile>
   </ItemGroup>
 
   <ItemGroup>
+	<PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
+	<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.1" />
+	<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+	<PackageReference Include="Microsoft.Extensions.Configuration" Version="10.0.3" />
+	<PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.3" />
+	<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="10.0.3" />
 	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3" />
+	<PackageReference Include="Microsoft.Extensions.Localization" Version="10.0.3" />
 	<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.3" />
   </ItemGroup>
 

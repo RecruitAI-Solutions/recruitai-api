@@ -1,0 +1,20 @@
+﻿using FluentValidation;
+using RecruitAI.Application.DTOs.Requests;
+using RecruitAI.Application.Interfaces;
+using RecruitAI.Application.Interfaces.Services;
+
+namespace RecruitAI.Application.Validators
+{
+	public class LoginRequestValidator : AbstractValidator<LoginRequestDto>
+	{
+		public LoginRequestValidator(IMessageService msg)
+		{
+			RuleFor(x => x.Email)
+				.NotEmpty().WithMessage(msg.Validation("EmailRequired"))
+				.EmailAddress().WithMessage(msg.Validation("EmailInvalid"));
+
+			RuleFor(x => x.Password)
+				.NotEmpty().WithMessage(msg.Validation("PasswordRequired"));
+		}
+	}
+}

@@ -13,8 +13,9 @@ namespace RecruitAI.Infrastructure
             this IServiceCollection services,
             IConfiguration configuration)
         {
-            // Register DbContext
-            services.AddDbContext<RecruitDevContext>(options =>
+
+			// Register DbContext
+			services.AddDbContext<RecruitDevContext>(options =>
                 options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
 
             // Register Repositories
