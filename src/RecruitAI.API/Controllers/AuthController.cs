@@ -4,7 +4,8 @@ using RecruitAI.Application.DTOs.Requests;
 using RecruitAI.Application.DTOs.Responses;  
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Exceptions;  
-using RecruitAI.Domain.Enums;  
+using RecruitAI.Domain.Enums;
+using RecruitAI.API.Extensions;
 
 namespace RecruitAI_API.Controllers
 {
@@ -32,7 +33,8 @@ namespace RecruitAI_API.Controllers
 		{
 			try
 			{
-				var result = await _authService.Register(request);
+				var ipAddress = HttpContext.GetClientIpAddress();
+				var result = await _authService.Register(request, ipAddress);
 				_logger.LogInformation(_msg.Log("RegistrationSuccess"), request.Email);
 				return Ok(result);
 			}
@@ -68,7 +70,8 @@ namespace RecruitAI_API.Controllers
 		{
 			try
 			{
-				var result = await _authService.Login(request);
+				var ipAddress = HttpContext.GetClientIpAddress();
+				var result = await _authService.Login(request, ipAddress);
 				_logger.LogInformation(_msg.Log("LoginSuccess"), request.Email);
 				return Ok(result);
 			}
@@ -87,6 +90,50 @@ namespace RecruitAI_API.Controllers
 			catch (Exception ex)
 			{
 				_logger.LogError(ex, _msg.Log("LoginError"), request.Email);
+				var response = new ErrorResponseDto
+				{
+					StatusCode = 500,
+					ErrorCode = ErrorCode.InternalServerError,
+					Message = _msg.Business("InternalServerError"),
+					TraceId = HttpContext.TraceIdentifier,
+					Timestamp = DateTime.UtcNow
+				};
+				return StatusCode(500, response);
+			}
+		}
+
+		[HttpPost("logout")]
+		public async Task<IActionResult> Logout(LogoutRequestDto request)
+		{
+			var ipAddress = HttpContext.GetClientIpAddress();
+			await _authService.Logout(request.RefreshToken, ipAddress);
+			return Ok(new { message = "Logged out successfully" });
+		}
+
+		[HttpPost("refresh-token")]
+		public async Task<IActionResult> RefreshToken(RefreshTokenRequestDto request)
+		{
+			try
+			{
+				var ipAddress = HttpContext.GetClientIpAddress();
+				var result = await _authService.RefreshToken(request.RefreshToken, ipAddress);
+				return Ok(result);
+			}
+			catch (BusinessException ex)
+			{
+				var response = new ErrorResponseDto
+				{
+					StatusCode = ex.StatusCode,
+					ErrorCode = ex.ErrorCode,
+					Message = ex.Message,
+					TraceId = HttpContext.TraceIdentifier,
+					Timestamp = DateTime.UtcNow
+				};
+				return StatusCode(ex.StatusCode, response);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, _msg.Log("RefreshTokenError"));
 				var response = new ErrorResponseDto
 				{
 					StatusCode = 500,

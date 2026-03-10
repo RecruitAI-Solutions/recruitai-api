@@ -262,4 +262,7 @@
 	<data name="ValidationFullNameRequired" xml:space="preserve">
   <value>Họ tên là bắt buộc</value>
 </data>
+<data name="BusinessInvalidRefreshToken" xml:space="preserve">
+  <value>Không thể làm mới token, vui lòng đăng nhập lại</value>
+</data>
 </root>

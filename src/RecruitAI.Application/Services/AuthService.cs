@@ -19,22 +19,25 @@ namespace RecruitAI.Application.Services
 		private readonly ILogger<AuthService> _logger;
 		private readonly IConfiguration _configuration;
 		private readonly IMessageService _msg;
+		private readonly IRefreshTokenService _refreshTokenService;
 
 		public AuthService(
 			RecruitDevContext context,
 			IJwtService jwtService,
 			ILogger<AuthService> logger,
 			IConfiguration configuration,
-			IMessageService messageService)
+			IMessageService messageService,
+			IRefreshTokenService refreshTokenService)
 		{
 			_context = context;
 			_jwtService = jwtService;
 			_logger = logger;
 			_configuration = configuration;
 			_msg = messageService;
+			_refreshTokenService = refreshTokenService;
 		}
 
-		public async Task<AuthResponseDto> Register(RegisterRequestDto request)
+		public async Task<AuthResponseDto> Register(RegisterRequestDto request, string ipAddress)
 		{
 			try
 			{
@@ -57,7 +60,7 @@ namespace RecruitAI.Application.Services
 
 				if (request.Gender != null)
 					user.Gender = request.Gender;
-				if(request.PhoneNumber != null)
+				if (request.PhoneNumber != null)
 					user.PhoneNumber = request.PhoneNumber;
 				if (request.DateOfBirth != null)
 					user.DateOfBirth = request.DateOfBirth;
@@ -75,9 +78,25 @@ namespace RecruitAI.Application.Services
 					ProviderEmail = request.Email
 				};
 
+				// Tạo refresh token với IP được truyền vào
+				var refreshToken = _refreshTokenService.GenerateToken();
+				var tokenEntity = new RefreshToken
+				{
+					Id = Guid.NewGuid(),
+					UserId = user.Id,
+					Token = refreshToken,
+					ExpireAt = DateTime.UtcNow.AddDays(7),
+					CreatedAt = DateTime.UtcNow,
+					CreatedByIp = ipAddress,
+					TokenType = TokenType.RefreshToken,
+					IsRevoked = false
+				};
+
+
 				// Thêm vào database
 				_context.Users.Add(user);
 				_context.AuthProviders.Add(provider);
+				_context.RefreshTokens.Add(tokenEntity);
 
 				await _context.SaveChangesAsync();
 
@@ -112,7 +131,7 @@ namespace RecruitAI.Application.Services
 			}
 		}
 
-		public async Task<AuthResponseDto> Login(LoginRequestDto request)
+		public async Task<AuthResponseDto> Login(LoginRequestDto request, string ipAddress)
 		{
 			try
 			{
@@ -138,15 +157,41 @@ namespace RecruitAI.Application.Services
 				provider.LastLoginAt = DateTime.UtcNow;
 				provider.ProviderEmail = request.Email;
 				user.LastLoginAt = DateTime.UtcNow;
-				
+
+				// Đọc expiry từ config
+				var accessTokenExpiryMinutes = _configuration.GetValue<int>("Jwt:AccessTokenExpiryMinutes", 15);
+				var refreshTokenExpiryDays = _configuration.GetValue<int>("Jwt:RefreshTokenExpiryDays", 7);
+
+				var refreshToken = _refreshTokenService.GenerateToken();
+
+				// Revoke tất cả refresh tokens cũ của user
+				await _context.RefreshTokens
+				.Where(rt => rt.UserId == user.Id && !rt.IsRevoked)
+				.ExecuteUpdateAsync(setters => setters
+					.SetProperty(rt => rt.IsRevoked, true)
+					.SetProperty(rt => rt.RevokedAt, DateTime.UtcNow)
+					.SetProperty(rt => rt.RevokedByIp, ipAddress)
+					.SetProperty(rt => rt.ReplacedByToken, refreshToken)
+				);
+
+				var tokenEntity = new RefreshToken
+				{
+					Id = Guid.NewGuid(),
+					UserId = user.Id,
+					Token = refreshToken,
+					ExpireAt = DateTime.UtcNow.AddDays(refreshTokenExpiryDays),
+					CreatedAt = DateTime.UtcNow,
+					TokenType = TokenType.RefreshToken,
+					CreatedByIp = ipAddress,
+					IsRevoked = false
+				};
+
+				_context.RefreshTokens.Add(tokenEntity);
 				await _context.SaveChangesAsync();
 
 				// Generate token
 				var token = await _jwtService.GenerateToken(user);
-
-				// Đọc expiry từ config
-				var expiryMinutes = _configuration.GetValue<int>("Jwt:ExpiryMinutes", 15);
-				var expirySeconds = expiryMinutes * 60;
+				var expirySeconds = accessTokenExpiryMinutes * 60;
 
 				// Log thành công
 				_logger.LogInformation(_msg.Log("LoginSuccess"), request.Email);
@@ -154,6 +199,7 @@ namespace RecruitAI.Application.Services
 				return new AuthResponseDto
 				{
 					AccessToken = token,
+					RefreshToken = refreshToken,
 					UserId = user.Id.ToString(),
 					Email = user.Email,
 					FullName = user.FullName,
@@ -169,6 +215,129 @@ namespace RecruitAI.Application.Services
 				_logger.LogError(ex, _msg.Log("LoginError"), request.Email);
 				_msg.Throw(ErrorCode.InternalServerError, "LoginFailed", ex, ex.Message);
 				return null; // Never reached
+			}
+		}
+
+		public async Task Logout(string refreshToken, string ipAddress)
+		{
+			try
+			{
+				// Tìm token trong database
+				var token = await _context.RefreshTokens
+					.Include(rt => rt.User)  // Load thêm thông tin user để log
+					.FirstOrDefaultAsync(rt => rt.Token == refreshToken);
+
+				if (token != null && !token.IsRevoked)
+				{
+					// 1. Revoke token hiện tại
+					token.IsRevoked = true;
+					token.RevokedAt = DateTime.UtcNow;
+					token.RevokedByIp = ipAddress;
+
+					// 2. Cập nhật thời gian logout của user (optional)
+					if (token.User != null)
+					{
+						token.User.LastLoginAt = null;
+					}
+
+					// 3. Lưu thay đổi
+					await _context.SaveChangesAsync();
+
+					// 4. Log hành động logout
+					_logger.LogInformation($"User {token.User?.Email} logged out successfully from IP: {ipAddress} at {DateTime.UtcNow}");
+				}
+				else
+				{
+					// 5. Log warning nếu token không hợp lệ
+					_logger.LogWarning($"Invalid logout attempt with token: {refreshToken} from IP: {ipAddress}");
+				}
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, $"Error during logout for token: {refreshToken} from IP: {ipAddress}");
+			}
+		}
+
+		public async Task<AuthResponseDto> RefreshToken(string refreshToken, string ipAddress)
+		{
+			try
+			{
+				// Tìm refresh token trong database
+				var token = await _context.RefreshTokens
+					.Include(rt => rt.User)
+					.FirstOrDefaultAsync(rt => rt.Token == refreshToken);
+
+				// Kiểm tra token hợp lệ
+				if (token == null || token.IsRevoked || token.IsExpired)
+				{
+					_logger.LogWarning($"Invalid refresh token attempt from IP: {ipAddress}");
+					_msg.Throw(ErrorCode.InvalidToken, "InvalidRefreshToken");
+				}
+
+				var user = token.User;
+
+				// Kiểm tra user còn active không
+				if (user.Status != UserStatus.Active)
+				{
+					_logger.LogWarning($"Inactive user {user.Email} tried to refresh token");
+					_msg.Throw(ErrorCode.AccountLocked, "AccountLocked");
+				}
+
+				// Đọc expiry từ config
+				var accessTokenExpiryMinutes = _configuration.GetValue<int>("Jwt:AccessTokenExpiryMinutes", 15);
+				var refreshTokenExpiryDays = _configuration.GetValue<int>("Jwt:RefreshTokenExpiryDays", 7);
+
+				// Tạo refresh token MỚI
+				var newRefreshToken = _refreshTokenService.GenerateToken();
+				var newTokenEntity = new RefreshToken
+				{
+					Id = Guid.NewGuid(),
+					UserId = user.Id,
+					Token = newRefreshToken,
+					ExpireAt = DateTime.UtcNow.AddDays(refreshTokenExpiryDays),
+					CreatedAt = DateTime.UtcNow,
+					CreatedByIp = ipAddress,
+					TokenType = TokenType.RefreshToken,
+					IsRevoked = false
+				};
+
+				// Revoke token CŨ (cái đang dùng)
+				token.IsRevoked = true;
+				token.RevokedAt = DateTime.UtcNow;
+				token.RevokedByIp = ipAddress;
+				token.ReplacedByToken = newRefreshToken;
+
+				// Thêm token mới vào database
+				_context.RefreshTokens.Add(newTokenEntity);
+				await _context.SaveChangesAsync();
+
+				// Generate access token MỚI
+				var accessToken = await _jwtService.GenerateToken(user);
+				var expirySeconds = accessTokenExpiryMinutes * 60;
+
+				// Log thành công
+				_logger.LogInformation($"Token refreshed for user: {user.Email} from IP: {ipAddress}");
+
+				// Trả về AuthResponseDto chứa token mới
+				return new AuthResponseDto
+				{
+					AccessToken = accessToken,
+					RefreshToken = newRefreshToken,
+					UserId = user.Id.ToString(),
+					Email = user.Email,
+					FullName = user.FullName,
+					ExpiresIn = expirySeconds
+				};
+			}
+			catch (BusinessException)
+			{
+				throw;
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error refreshing token");
+				_msg.Throw(ErrorCode.InternalServerError, "TokenRefreshFailed");
+				return null;
 			}
 		}
 	}
