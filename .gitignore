@@ -42,9 +42,9 @@ coverage/
 *.trx
 
 # User-specific files
-appsettings.Development.json
-appsettings.Production.json
-appsettings.*.json  # THÊM: tất cả appsettings riêng
+# appsettings.Development.json
+# appsettings.Production.json
+# appsettings.*.json  # THÊM: tất cả appsettings riêng
 
 # Docker
 docker-compose.override.yml

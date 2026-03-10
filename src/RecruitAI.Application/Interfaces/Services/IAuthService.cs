@@ -5,7 +5,10 @@ namespace RecruitAI.Application.Interfaces.Services
 {
     public interface IAuthService
     {
-        Task<AuthResponseDto> Register(RegisterRequestDto request);
-        Task<AuthResponseDto> Login(LoginRequestDto request);
+        Task<AuthResponseDto> Register(RegisterRequestDto request, string ipAddress);
+        Task<AuthResponseDto> Login(LoginRequestDto request, string ipAddress);
+        Task Logout(string refreshToken, string ipAddress);
+        Task<AuthResponseDto> RefreshToken(string refreshToken, string ipAddress);
+
     }
 }
