@@ -15,6 +15,8 @@ services:
     container_name: recruitai-sql-${ENVIRONMENT:-dev}
     networks:
       - recruitai-network
+    env_file:
+      - .env
     environment:
       SA_PASSWORD: ${DB_PASSWORD:-DevPass@8386}
       ACCEPT_EULA: "Y"
@@ -43,19 +45,27 @@ services:
     depends_on:
       sqlserver:
         condition: service_healthy
+    env_file:
+      - .env
     environment:
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ASPNETCORE_URLS: http://+:8080
       ASPNETCORE_HOSTINGSTARTUPASSEMBLIES: "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation"
       ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=${DB_NAME:-RecruitDev}${DB_SUFFIX:-};User Id=sa;Password=${DB_PASSWORD:-DevPass@8386};TrustServerCertificate=True;MultipleActiveResultSets=true"
-      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      CORS_ALLOWED_ORIGINS:
+        ${CORS_ALLOWED_ORIGINS}
+        # THÊM JWT CONFIGURATION - Đọc từ .env file
+      Jwt__Key: ${Jwt__Key}
+      Jwt__Issuer: ${Jwt__Issuer}
+      Jwt__Audience: ${Jwt__Audience}
+      Jwt__ExpiryMinutes: ${Jwt__ExpiryMinutes:-15}
     ports:
       - "${API_PORT:-5000}:8080"
     volumes:
       # Chỉ giữ lại volume logs, không mount source code để tránh conflict với watch
       - api_logs:/app/Logs
     restart: ${RESTART_POLICY:-no}
-    
+
     # Cấu hình Docker Watch cho development
     develop:
       watch:
@@ -67,7 +77,7 @@ services:
             - bin/
             - obj/
             - .vs/
-        
+
         # Theo dõi source code Application
         - path: ./src/RecruitAI.Application
           action: sync
@@ -75,7 +85,7 @@ services:
           ignore:
             - bin/
             - obj/
-        
+
         # Theo dõi source code Domain
         - path: ./src/RecruitAI.Domain
           action: sync
@@ -83,7 +93,7 @@ services:
           ignore:
             - bin/
             - obj/
-        
+
         # Theo dõi source code Infrastructure
         - path: ./src/RecruitAI.Infrastructure
           action: sync
@@ -91,17 +101,17 @@ services:
           ignore:
             - bin/
             - obj/
-        
+
         # Rebuild khi thay đổi file cấu hình
         - path: ./src/RecruitAI.API/Properties/launchSettings.json
           action: rebuild
-        
+
         # Liệt kê cụ thể các file appsettings (không dùng wildcard)
         - path: ./src/RecruitAI.API/appsettings.json
           action: rebuild
         - path: ./src/RecruitAI.API/appsettings.Development.json
           action: rebuild
-        
+
         # Liệt kê cụ thể các file project (không dùng wildcard)
         - path: ./src/RecruitAI.API/RecruitAI.API.csproj
           action: rebuild

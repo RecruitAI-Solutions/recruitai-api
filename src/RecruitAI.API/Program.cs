@@ -59,6 +59,9 @@ builder.Services.AddSwaggerGen(c =>
 	});
 });
 
+// Đăng ký HttpContextAccessor để lấy IP
+builder.Services.AddHttpContextAccessor();
+
 // 3.3 Localization
 builder.Services.AddLocalization();
 builder.Services.Configure<RequestLocalizationOptions>(options =>

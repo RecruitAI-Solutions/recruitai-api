@@ -267,4 +267,7 @@
 	<data name="ValidationFullNameRequired" xml:space="preserve">
   <value>Full name is required</value>
 </data>
+<data name="BusinessInvalidRefreshToken" xml:space="preserve">
+  <value>Unable to refresh token, please login again</value>
+</data>
 </root>
