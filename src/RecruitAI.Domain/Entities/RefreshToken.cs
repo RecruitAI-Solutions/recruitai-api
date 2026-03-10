@@ -1,24 +1,39 @@
-﻿using RecruitAI.Domain.Enums;
+// RecruitAI.Domain/Entities/RefreshToken.cs
+using RecruitAI.Domain.Enums;
 
 namespace RecruitAI.Domain.Entities
 {
     public class RefreshToken
     {
         public Guid Id { get; set; }
+
         public Guid UserId { get; set; }
+
         public string Token { get; set; }
+
         public DateTime ExpireAt { get; set; }
+
         public bool IsRevoked { get; set; }
-        public string CreatedByIp { get; set; }
+
+        public string? ReplacedByToken { get; set; }
+
+        public string? CreatedByIp { get; set; }
+
+        public string? RevokedByIp { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-        public TokenType TokenType { get; set; } = TokenType.RefreshToken;
+        public DateTime? RevokedAt { get; set; }
 
-        // Navigation
+        public TokenType TokenType { get; set; } = TokenType.RefreshToken;
+        // Navigation properties
+
         public virtual User User { get; set; }
+        // Computed properties
 
         public bool IsExpired => DateTime.UtcNow >= ExpireAt;
-        public bool IsActive => !IsRevoked && !IsExpired;
-    }
 
+        public bool IsActive => !IsRevoked && !IsExpired;
+
+    }
 }

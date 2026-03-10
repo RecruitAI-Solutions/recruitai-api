@@ -20,6 +20,7 @@ namespace RecruitAI.Application
 			services.AddScoped<IJwtService, JwtService>();
 			services.AddScoped<IMessageService, MessageService>();
 			services.AddScoped<IValidationService, ValidationService>();
+			services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 
 			//Validators
 			services.AddScoped<RegisterRequestValidator>();
