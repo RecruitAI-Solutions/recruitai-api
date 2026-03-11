@@ -1,5 +1,4 @@
-﻿using BCrypt.Net;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.DTOs;
 using RecruitAI.Application.DTOs.Requests;
@@ -22,6 +21,7 @@ namespace RecruitAI.Application.Services
 		private readonly IMessageService _msg;
 		private readonly IRefreshTokenService _refreshTokenService;
 		private readonly IValidationService _validationService;
+		private readonly IWorkContext _workContext;
 
 		public AuthService(
 			IUnitOfWork uow,
@@ -30,7 +30,8 @@ namespace RecruitAI.Application.Services
 			IConfiguration configuration,
 			IMessageService messageService,
 			IRefreshTokenService refreshTokenService,
-			IValidationService validationService)
+			IValidationService validationService,
+			IWorkContext workContext)
 		{
 			_uow = uow;
 			_jwtService = jwtService;
@@ -39,6 +40,7 @@ namespace RecruitAI.Application.Services
 			_msg = messageService;
 			_refreshTokenService = refreshTokenService;
 			_validationService = validationService;
+			_workContext = workContext;
 		}
 
 		public async Task<AuthResponseDto> Register(RegisterRequestDto request, string ipAddress, CancellationToken cancellationToken = default)
@@ -366,6 +368,123 @@ namespace RecruitAI.Application.Services
 				_logger.LogError(ex, "Error refreshing token");
 				_msg.Throw(ErrorCode.InternalServerError, "TokenRefreshFailed");
 				return null;
+			}
+		}
+
+		public async Task<ChangePasswordResponseDto> ChangePasswordAsync(
+	ChangePasswordRequestDto request,
+	Guid userId,
+	CancellationToken cancellationToken = default)
+		{
+			try
+			{
+				// Kiểm tra cancellation
+				if (cancellationToken.IsCancellationRequested)
+					cancellationToken.ThrowIfCancellationRequested();
+
+				// Lấy user từ database
+				var user = await _uow.Users.GetByIdAsync(userId, cancellationToken);
+				if (user == null)
+				{
+					_logger.LogWarning("User not found: {UserId}", userId);
+					return new ChangePasswordResponseDto
+					{
+						Success = false,
+						Message = _msg.Business("UserNotFound"),
+						Timestamp = DateTime.UtcNow
+					};
+				}
+
+				// Tìm auth provider local
+				var authProvider = await _uow.AuthProviders
+					.FirstOrDefaultAsync(ap =>
+						ap.UserId == userId &&
+						ap.Provider == AuthProviderType.Email,
+						cancellationToken);
+
+				if (authProvider == null)
+				{
+					_logger.LogWarning("No local auth provider found for user: {UserId}", userId);
+					return new ChangePasswordResponseDto
+					{
+						Success = false,
+						Message = _msg.Business("NoLocalAuthProvider"),
+						Timestamp = DateTime.UtcNow
+					};
+				}
+
+				// Kiểm tra mật khẩu cũ
+				if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, authProvider.PasswordHash))
+				{
+					_logger.LogWarning("Invalid current password for user: {UserId}", userId);
+					return new ChangePasswordResponseDto
+					{
+						Success = false,
+						Message = _msg.Business("InvalidCurrentPassword"),
+						Timestamp = DateTime.UtcNow
+					};
+				}
+
+				// Kiểm tra mật khẩu mới không giống mật khẩu cũ
+				if (request.CurrentPassword == request.NewPassword)
+				{
+					return new ChangePasswordResponseDto
+					{
+						Success = false,
+						Message = _msg.Business("NewPasswordSameAsOld"),
+						Timestamp = DateTime.UtcNow
+					};
+				}
+
+				// Kiểm tra độ mạnh của mật khẩu mới
+				if (!_validationService.IsStrongPassword(request.NewPassword))
+				{
+					return new ChangePasswordResponseDto
+					{
+						Success = false,
+						Message = _msg.Validation("PasswordTooWeak"),
+						Timestamp = DateTime.UtcNow
+					};
+				}
+
+				// Bắt đầu transaction
+				await _uow.BeginTransactionAsync(cancellationToken);
+
+				// Hash mật khẩu mới
+				authProvider.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+				_uow.AuthProviders.Update(authProvider);
+
+				// Revoke tất cả refresh tokens (bắt buộc đăng nhập lại)
+				await _uow.RefreshTokens.RevokeAllUserTokensAsync(userId, _workContext.GetCurrentIpAddress() ?? "unknown", cancellationToken: cancellationToken);
+
+				await _uow.CommitTransactionAsync(cancellationToken);
+
+				_logger.LogInformation("Password changed successfully for user: {UserId}", userId);
+
+				return new ChangePasswordResponseDto
+				{
+					Success = true,
+					Message = _msg.Success("PasswordChanged"),
+					Timestamp = DateTime.UtcNow
+				};
+			}
+			catch (OperationCanceledException)
+			{
+				await _uow.RollbackTransactionAsync(cancellationToken);
+				_logger.LogWarning("Change password cancelled for user: {UserId}", userId);
+				throw;
+			}
+			catch (Exception ex)
+			{
+				await _uow.RollbackTransactionAsync(cancellationToken);
+				_logger.LogError(ex, "Error changing password for user: {UserId}", userId);
+
+				return new ChangePasswordResponseDto
+				{
+					Success = false,
+					Message = _msg.Business("PasswordChangeFailed"),
+					Timestamp = DateTime.UtcNow
+				};
 			}
 		}
 

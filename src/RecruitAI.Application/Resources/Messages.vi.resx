@@ -171,4 +171,23 @@
 	<data name="LogJwtGenerationError" xml:space="preserve">
 		<value>Lỗi tạo JWT token cho người dùng {0}</value>
 	</data>
+
+	<data name="BusinessInvalidCurrentPassword" xml:space="preserve">
+		<value>Mật khẩu hiện tại không chính xác</value>
+	</data>
+		<data name="BusinessNewPasswordSameAsOld" xml:space="preserve">
+		<value>Mật khẩu mới không được giống mật khẩu cũ</value>
+	</data>
+		<data name="BusinessNoLocalAuthProvider" xml:space="preserve">
+		<value>Tài khoản không hỗ trợ đổi mật khẩu (đăng nhập qua mạng xã hội)</value>
+	</data>
+		<data name="BusinessPasswordChangeFailed" xml:space="preserve">
+		<value>Đổi mật khẩu thất bại, vui lòng thử lại</value>
+	</data>
+		<data name="SuccessPasswordChanged" xml:space="preserve">
+		<value>Đổi mật khẩu thành công</value>
+	</data>
+		<data name="ValidationPasswordMismatch" xml:space="preserve">
+		<value>Mật khẩu xác nhận không khớp</value>
+	</data>
 </root>

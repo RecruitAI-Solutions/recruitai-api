@@ -26,5 +26,5 @@
         /// Kiểm tra mật khẩu có đủ mạnh không
         /// </summary>
         bool IsStrongPassword(string password);
-    }
+	}
 }

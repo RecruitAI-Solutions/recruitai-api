@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using RecruitAI.API.Extensions;
 using RecruitAI.Application.DTOs.Requests;
 using RecruitAI.Application.DTOs.Responses;
+using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
@@ -19,15 +20,18 @@ namespace RecruitAI_API.Controllers
 		private readonly IAuthService _authService;
 		private readonly ILogger<AuthController> _logger;
 		private readonly IMessageService _msg;
+		private readonly IWorkContext _workContext;
 
 		public AuthController(
 			IAuthService authService,
 			ILogger<AuthController> logger,
-			IMessageService messageService)
+			IMessageService messageService,
+			IWorkContext workContext)
 		{
 			_authService = authService;
 			_logger = logger;
 			_msg = messageService;
+			_workContext = workContext;
 		}
 
 		[HttpPost("register")]
@@ -200,5 +204,40 @@ namespace RecruitAI_API.Controllers
 				return StatusCode(499, new { message = "Request cancelled" });
 			}
 		}
+
+		[HttpPost("change-password")]
+		[Authorize]
+		public async Task<IActionResult> ChangePassword(
+		[FromBody] ChangePasswordRequestDto request,
+		CancellationToken cancellationToken)
+			{
+				try
+				{
+					var userId = _workContext.GetCurrentUserId();
+					if (userId == null)
+					{
+						return Unauthorized(new { message = "User not authenticated" });
+					}
+
+					var result = await _authService.ChangePasswordAsync(request, userId.Value, cancellationToken);
+
+					if (!result.Success)
+					{
+						return BadRequest(result);
+					}
+
+					return Ok(result);
+				}
+				catch (OperationCanceledException)
+				{
+					_logger.LogWarning("Change password cancelled");
+					return StatusCode(499, new { message = "Request cancelled" });
+				}
+				catch (Exception ex)
+				{
+					_logger.LogError(ex, "Error in change password endpoint");
+					return StatusCode(500, new { message = "Internal server error" });
+				}
+			}
 	}
 }
