@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,6 +14,7 @@ using RecruitAI.Infrastructure.Data;
 using Serilog;
 using System.Globalization;
 using System.Text;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,21 +22,32 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
 	.SetBasePath(Directory.GetCurrentDirectory())
 	.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-	.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
-	.AddEnvironmentVariables();
+	.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+	.AddJsonFile("appsettings.Docker.json", optional: true, reloadOnChange: true) // Cho Docker
+	.AddEnvironmentVariables(); // Ưu tiên cao nhất
 
 // 2. LOGGING
 builder.Host.UseSerilog((context, config) =>
 {
 	config.ReadFrom.Configuration(context.Configuration)
 		  .Enrich.WithProperty("Application", "RecruitAI-API")
-		  .Enrich.WithEnvironmentName();
+		  .Enrich.WithEnvironmentName()
+		  .WriteTo.Console() // Fallback
+		  .WriteTo.File(
+			  path: "Logs/log-.txt",
+			  rollingInterval: RollingInterval.Day,
+			  retainedFileCountLimit: 7,
+			  outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}");
+
+	// Log cấu hình đã load
+	Console.WriteLine($"Serilog configured for environment: {builder.Environment.EnvironmentName}");
 });
 
 // Log thông tin môi trường
-Log.Information(ProgramMessages.Log("Environment"), builder.Environment.EnvironmentName);
-Log.Information(ProgramMessages.Log("ConnectionString"),
-	builder.Configuration.GetConnectionString("DefaultConnection"));
+Log.Information("=== APPLICATION STARTING ===");
+Log.Information("Environment: {Environment}", builder.Environment.EnvironmentName);
+Log.Information("Connection String: {ConnectionString}",
+	builder.Configuration.GetConnectionString("DefaultConnection")?.Replace(builder.Configuration.GetConnectionString("DefaultConnection")?.Split(';').FirstOrDefault() ?? "", "***hidden***"));
 
 // 3. THÊM SERVICES 
 // 3.1 MVC Controllers
