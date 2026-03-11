@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RecruitAI.Application.DTOs.Requests;
-using RecruitAI.Application.DTOs.Responses;  
-using RecruitAI.Application.Interfaces.Services;
-using RecruitAI.Domain.Exceptions;  
-using RecruitAI.Domain.Enums;
 using RecruitAI.API.Extensions;
+using RecruitAI.Application.DTOs.Requests;
+using RecruitAI.Application.DTOs.Responses;
+using RecruitAI.Application.Interfaces.Services;
+using RecruitAI.Domain.Enums;
+using RecruitAI.Domain.Exceptions;
+using System.Security.Claims;
 
 namespace RecruitAI_API.Controllers
 {
@@ -29,14 +30,21 @@ namespace RecruitAI_API.Controllers
 		}
 
 		[HttpPost("register")]
-		public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
+		public async Task<IActionResult> Register(
+			[FromBody] RegisterRequestDto request,
+			CancellationToken cancellationToken)  
 		{
 			try
 			{
 				var ipAddress = HttpContext.GetClientIpAddress();
-				var result = await _authService.Register(request, ipAddress);
+				var result = await _authService.Register(request, ipAddress, cancellationToken); 
 				_logger.LogInformation(_msg.Log("RegistrationSuccess"), request.Email);
 				return Ok(result);
+			}
+			catch (OperationCanceledException)
+			{
+				_logger.LogWarning("Registration cancelled for email {Email}", request.Email);
+				return StatusCode(499, new { message = "Request cancelled" }); // 499 Client Closed Request
 			}
 			catch (BusinessException ex)
 			{
@@ -66,14 +74,21 @@ namespace RecruitAI_API.Controllers
 		}
 
 		[HttpPost("login")]
-		public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
+		public async Task<IActionResult> Login(
+			[FromBody] LoginRequestDto request,
+			CancellationToken cancellationToken)  
 		{
 			try
 			{
 				var ipAddress = HttpContext.GetClientIpAddress();
-				var result = await _authService.Login(request, ipAddress);
+				var result = await _authService.Login(request, ipAddress, cancellationToken); 
 				_logger.LogInformation(_msg.Log("LoginSuccess"), request.Email);
 				return Ok(result);
+			}
+			catch (OperationCanceledException)
+			{
+				_logger.LogWarning("Login cancelled for email {Email}", request.Email);
+				return StatusCode(499, new { message = "Request cancelled" });
 			}
 			catch (BusinessException ex)
 			{
@@ -103,21 +118,38 @@ namespace RecruitAI_API.Controllers
 		}
 
 		[HttpPost("logout")]
-		public async Task<IActionResult> Logout(LogoutRequestDto request)
-		{
-			var ipAddress = HttpContext.GetClientIpAddress();
-			await _authService.Logout(request.RefreshToken, ipAddress);
-			return Ok(new { message = "Logged out successfully" });
-		}
-
-		[HttpPost("refresh-token")]
-		public async Task<IActionResult> RefreshToken(RefreshTokenRequestDto request)
+		public async Task<IActionResult> Logout(
+			LogoutRequestDto request,
+			CancellationToken cancellationToken)  
 		{
 			try
 			{
 				var ipAddress = HttpContext.GetClientIpAddress();
-				var result = await _authService.RefreshToken(request.RefreshToken, ipAddress);
+				await _authService.Logout(request.RefreshToken, ipAddress, cancellationToken); 
+				return Ok(new { message = "Logged out successfully" });
+			}
+			catch (OperationCanceledException)
+			{
+				_logger.LogWarning("Logout cancelled");
+				return StatusCode(499, new { message = "Request cancelled" });
+			}
+		}
+
+		[HttpPost("refresh-token")]
+		public async Task<IActionResult> RefreshToken(
+			RefreshTokenRequestDto request,
+			CancellationToken cancellationToken)  
+		{
+			try
+			{
+				var ipAddress = HttpContext.GetClientIpAddress();
+				var result = await _authService.RefreshToken(request.RefreshToken, ipAddress, cancellationToken); 
 				return Ok(result);
+			}
+			catch (OperationCanceledException)
+			{
+				_logger.LogWarning("Refresh token cancelled");
+				return StatusCode(499, new { message = "Request cancelled" });
 			}
 			catch (BusinessException ex)
 			{
@@ -143,6 +175,28 @@ namespace RecruitAI_API.Controllers
 					Timestamp = DateTime.UtcNow
 				};
 				return StatusCode(500, response);
+			}
+		}
+
+		[HttpGet("me")]
+		[Authorize]
+		public async Task<IActionResult> GetCurrentUser(
+			CancellationToken cancellationToken)  
+		{
+			try
+			{
+				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+				if (string.IsNullOrEmpty(userId))
+					return Unauthorized();
+
+				var result = await _authService.GetCurrentUserAsync(Guid.Parse(userId), cancellationToken); 
+				return Ok(result);
+			}
+			catch (OperationCanceledException)
+			{
+				_logger.LogWarning("Get current user cancelled");
+				return StatusCode(499, new { message = "Request cancelled" });
 			}
 		}
 	}

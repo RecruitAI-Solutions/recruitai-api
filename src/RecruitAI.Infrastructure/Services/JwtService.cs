@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using RecruitAI.Application.Helpers;  
+using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
@@ -9,8 +9,9 @@ using RecruitAI.Domain.Exceptions;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using RecruitAI.Application.Interfaces.Services;
 
-namespace RecruitAI.Application.Services
+namespace RecruitAI.Infrastructure.Services
 {
 	public class JwtService : IJwtService
 	{
@@ -51,18 +52,25 @@ namespace RecruitAI.Application.Services
 				.Select(s => s[random.Next(s.Length)]).ToArray());
 		}
 
-		public Task<string> GenerateToken(User user)
+		public Task<string> GenerateToken(User user, CancellationToken cancellationToken = default)
 		{
 			try
 			{
+				// Kiểm tra cancellation
+				if (cancellationToken.IsCancellationRequested)
+				{
+					_logger.LogWarning("Token generation cancelled");
+					cancellationToken.ThrowIfCancellationRequested();
+				}
+
 				if (user == null)
-					_msg.Throw(ErrorCode.ValidationFailed, "UserNull"); 
+					_msg.Throw(ErrorCode.ValidationFailed, "UserNull");
 
 				if (user.Id == Guid.Empty)
-					_msg.Throw(ErrorCode.ValidationFailed, "UserIdEmpty"); 
+					_msg.Throw(ErrorCode.ValidationFailed, "UserIdEmpty");
 
 				if (string.IsNullOrEmpty(user.Email))
-					_msg.Throw(ErrorCode.ValidationFailed, "UserEmailEmpty"); 
+					_msg.Throw(ErrorCode.ValidationFailed, "UserEmailEmpty");
 
 				var claims = new[]
 				{
@@ -74,9 +82,16 @@ namespace RecruitAI.Application.Services
 					new Claim("role", user.Role.ToString())
 				};
 
+				// Kiểm tra cancellation trước khi tạo token
+				if (cancellationToken.IsCancellationRequested)
+				{
+					_logger.LogWarning("Token generation cancelled before signing");
+					cancellationToken.ThrowIfCancellationRequested();
+				}
+
 				// Dùng _key đã được khởi tạo ở constructor
 				if (string.IsNullOrEmpty(_key))
-					_msg.Throw(ErrorCode.InternalServerError, "JwtKeyNotConfigured"); 
+					_msg.Throw(ErrorCode.InternalServerError, "JwtKeyNotConfigured");
 
 				var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_key));
 				var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -92,7 +107,15 @@ namespace RecruitAI.Application.Services
 					signingCredentials: creds
 				);
 
+				// Log thành công (không cần database)
+				_logger.LogDebug("Token generated successfully for user {UserId}", user.Id);
+
 				return Task.FromResult(new JwtSecurityTokenHandler().WriteToken(token));
+			}
+			catch (OperationCanceledException)
+			{
+				_logger.LogWarning("Token generation was cancelled");
+				throw;
 			}
 			catch (BusinessException)
 			{
@@ -101,8 +124,52 @@ namespace RecruitAI.Application.Services
 			catch (Exception ex)
 			{
 				_logger.LogError(ex, _msg.Log("JwtGenerationError"), user?.Id);
-				_msg.Throw(ErrorCode.InternalServerError, "JwtGenerationFailed", ex, ex.Message); 
+				_msg.Throw(ErrorCode.InternalServerError, "JwtGenerationFailed", ex, ex.Message);
 				return null; // Never reached
+			}
+		}
+
+		/// <summary>
+		/// Phương thức xác thực token (nếu cần)
+		/// </summary>
+		public Task<bool> ValidateTokenAsync(string token, CancellationToken cancellationToken = default)
+		{
+			try
+			{
+				if (cancellationToken.IsCancellationRequested)
+					cancellationToken.ThrowIfCancellationRequested();
+
+				if (string.IsNullOrEmpty(token))
+					return Task.FromResult(false);
+
+				var tokenHandler = new JwtSecurityTokenHandler();
+				var key = Encoding.UTF8.GetBytes(_key);
+
+				var validationParameters = new TokenValidationParameters
+				{
+					ValidateIssuerSigningKey = true,
+					IssuerSigningKey = new SymmetricSecurityKey(key),
+					ValidateIssuer = true,
+					ValidIssuer = _configuration["Jwt:Issuer"],
+					ValidateAudience = true,
+					ValidAudience = _configuration["Jwt:Audience"],
+					ValidateLifetime = true,
+					ClockSkew = TimeSpan.Zero
+				};
+
+				tokenHandler.ValidateToken(token, validationParameters, out _);
+
+				return Task.FromResult(true);
+			}
+			catch (OperationCanceledException)
+			{
+				_logger.LogWarning("Token validation cancelled");
+				throw;
+			}
+			catch (Exception ex)
+			{
+				_logger.LogDebug(ex, "Token validation failed");
+				return Task.FromResult(false);
 			}
 		}
 	}

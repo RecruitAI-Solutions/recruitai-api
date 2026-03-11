@@ -13,11 +13,9 @@ namespace RecruitAI.Application
 		public static IServiceCollection AddApplication(this IServiceCollection services)
 		{
 			// Register application services here
-			// e.g., services.AddScoped<ITestService, TestService>();
 			services.AddScoped<ITestService, TestService>();
 			services.AddScoped<ITestDomainService, TestDomainService>();
 			services.AddScoped<IAuthService, AuthService>();
-			services.AddScoped<IJwtService, JwtService>();
 			services.AddScoped<IMessageService, MessageService>();
 			services.AddScoped<IValidationService, ValidationService>();
 			services.AddScoped<IRefreshTokenService, RefreshTokenService>();

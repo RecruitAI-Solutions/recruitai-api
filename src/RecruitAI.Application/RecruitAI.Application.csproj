@@ -2,7 +2,6 @@
 
   <ItemGroup>
 	  <ProjectReference Include="..\RecruitAI.Domain\RecruitAI.Domain.csproj" />
-	  <ProjectReference Include="..\RecruitAI.Infrastructure\RecruitAI.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -28,6 +27,8 @@
 	<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3" />
 	<PackageReference Include="Microsoft.Extensions.Localization" Version="10.0.3" />
 	<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.3" />
+	<PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.16.0" />
+	<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
   </ItemGroup>
 
   <PropertyGroup>
