@@ -27,6 +27,7 @@ namespace RecruitAI.Infrastructure
 			services.AddScoped<IUserRepository, UserRepository>();
 			services.AddScoped<IAuthProviderRepository, AuthProviderRepository>();
 			services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+			services.AddScoped<IWorkContext, WorkContext>();
 
 			//Register other infrastructure services
 			services.AddScoped<IJwtService, JwtService>();

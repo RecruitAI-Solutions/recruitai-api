@@ -6,6 +6,7 @@ using RecruitAI.Application.DTOs.Responses;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace RecruitAI_API.Controllers
@@ -180,17 +181,17 @@ namespace RecruitAI_API.Controllers
 
 		[HttpGet("me")]
 		[Authorize]
-		public async Task<IActionResult> GetCurrentUser(
-			CancellationToken cancellationToken)  
+		public async Task<IActionResult> GetCurrentUser(CancellationToken cancellationToken)
 		{
 			try
 			{
-				var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+				var userId = User.GetUserId();
+				if (userId == null)
+				{
+					return Unauthorized(new { message = "Cannot identify user" });
+				}
 
-				if (string.IsNullOrEmpty(userId))
-					return Unauthorized();
-
-				var result = await _authService.GetCurrentUserAsync(Guid.Parse(userId), cancellationToken); 
+				var result = await _authService.GetCurrentUserAsync(userId.Value, cancellationToken);
 				return Ok(result);
 			}
 			catch (OperationCanceledException)
