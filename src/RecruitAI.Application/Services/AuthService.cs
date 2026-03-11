@@ -56,6 +56,7 @@ namespace RecruitAI.Application.Services
 					FullName = request.FullName,
 					CreatedAt = DateTime.UtcNow,
 					Status = UserStatus.Active,
+					Role = request.Role
 				};
 
 				if (request.Gender != null)
