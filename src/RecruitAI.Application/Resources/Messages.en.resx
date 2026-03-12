@@ -111,6 +111,13 @@
 	<data name="BusinessInvalidRole" xml:space="preserve">
 		<value>Invalid role. Accepted: Candidate, Recruiter, Admin</value>
 	</data>
+	<data name="BusinessUserNotAuthenticated" xml:space="preserve">
+		<value>User not authenticated</value>
+	</data>
+
+		<data name="BusinessCannotIdentifyUser" xml:space="preserve">
+		<value>Cannot identify user</value>
+	</data>
 
 	<!-- ===== VALIDATION MESSAGES - ENGLISH ===== -->
 	<data name="ValidationEmailRequired" xml:space="preserve">
@@ -189,5 +196,8 @@
 	</data>
 		<data name="ValidationPasswordMismatch" xml:space="preserve">
 		<value>Passwords do not match</value>
+	</data>
+	<data name="ValidationTokenRequired" xml:space="preserve">
+		<value>Token is required</value>
 	</data>
 </root>

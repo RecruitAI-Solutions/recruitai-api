@@ -111,6 +111,13 @@
 	<data name="BusinessInvalidRole" xml:space="preserve">
 		<value>Vai trò không hợp lệ. Chấp nhận: Candidate, Recruiter, Admin</value>
 	</data>
+	<data name="BusinessUserNotAuthenticated" xml:space="preserve">
+		<value>Người dùng chưa xác thực</value>
+	</data>
+
+		<data name="BusinessCannotIdentifyUser" xml:space="preserve">
+		<value>Không thể xác định người dùng</value>
+	</data>
 
 	<!-- ===== VALIDATION MESSAGES - TIẾNG VIỆT ===== -->
 	<data name="ValidationEmailRequired" xml:space="preserve">
@@ -189,5 +196,8 @@
 	</data>
 		<data name="ValidationPasswordMismatch" xml:space="preserve">
 		<value>Mật khẩu xác nhận không khớp</value>
+	</data>
+	<data name="ValidationTokenRequired" xml:space="preserve">
+		<value>Token là bắt buộc</value>
 	</data>
 </root>

@@ -58,7 +58,7 @@ namespace RecruitAI.Application.Services
 
 				// Kiểm tra password mạnh
 				if (!_validationService.IsStrongPassword(request.Password))
-					_msg.Throw(ErrorCode.ValidationFailed, "PasswordTooWeak");
+					_msg.Throw(ErrorCode.PasswordTooWeak, "PasswordTooWeak");
 
 				// Kiểm tra role hợp lệ
 				if (!_validationService.IsValidRole(request.Role.ToString()))
@@ -376,9 +376,9 @@ namespace RecruitAI.Application.Services
 		}
 
 		public async Task<ChangePasswordResponseDto> ChangePasswordAsync(
-	ChangePasswordRequestDto request,
-	Guid userId,
-	CancellationToken cancellationToken = default)
+			ChangePasswordRequestDto request,
+			Guid userId,
+			CancellationToken cancellationToken = default)
 		{
 			try
 			{
@@ -391,12 +391,7 @@ namespace RecruitAI.Application.Services
 				if (user == null)
 				{
 					_logger.LogWarning("User not found: {UserId}", userId);
-					return new ChangePasswordResponseDto
-					{
-						Success = false,
-						Message = _msg.Business("UserNotFound"),
-						Timestamp = DateTime.UtcNow
-					};
+					_msg.Throw(ErrorCode.UserNotFound, "UserNotFound");
 				}
 
 				// Tìm auth provider local
@@ -409,46 +404,26 @@ namespace RecruitAI.Application.Services
 				if (authProvider == null)
 				{
 					_logger.LogWarning("No local auth provider found for user: {UserId}", userId);
-					return new ChangePasswordResponseDto
-					{
-						Success = false,
-						Message = _msg.Business("NoLocalAuthProvider"),
-						Timestamp = DateTime.UtcNow
-					};
+					_msg.Throw(ErrorCode.ValidationFailed, "NoLocalAuthProvider");
 				}
 
 				// Kiểm tra mật khẩu cũ
 				if (!BCrypt.Net.BCrypt.Verify(request.CurrentPassword, authProvider.PasswordHash))
 				{
 					_logger.LogWarning("Invalid current password for user: {UserId}", userId);
-					return new ChangePasswordResponseDto
-					{
-						Success = false,
-						Message = _msg.Business("InvalidCurrentPassword"),
-						Timestamp = DateTime.UtcNow
-					};
+					_msg.Throw(ErrorCode.InvalidCredentials, "InvalidCurrentPassword");
 				}
 
 				// Kiểm tra mật khẩu mới không giống mật khẩu cũ
 				if (request.CurrentPassword == request.NewPassword)
 				{
-					return new ChangePasswordResponseDto
-					{
-						Success = false,
-						Message = _msg.Business("NewPasswordSameAsOld"),
-						Timestamp = DateTime.UtcNow
-					};
+					_msg.Throw(ErrorCode.ValidationFailed, "NewPasswordSameAsOld");
 				}
 
 				// Kiểm tra độ mạnh của mật khẩu mới
 				if (!_validationService.IsStrongPassword(request.NewPassword))
 				{
-					return new ChangePasswordResponseDto
-					{
-						Success = false,
-						Message = _msg.Validation("PasswordTooWeak"),
-						Timestamp = DateTime.UtcNow
-					};
+					_msg.Throw(ErrorCode.PasswordTooWeak, "PasswordTooWeak");
 				}
 
 				// Bắt đầu transaction
@@ -478,17 +453,17 @@ namespace RecruitAI.Application.Services
 				_logger.LogWarning("Change password cancelled for user: {UserId}", userId);
 				throw;
 			}
+			catch (BusinessException)
+			{
+				await _uow.RollbackTransactionAsync(cancellationToken);
+				throw;
+			}
 			catch (Exception ex)
 			{
 				await _uow.RollbackTransactionAsync(cancellationToken);
 				_logger.LogError(ex, "Error changing password for user: {UserId}", userId);
-
-				return new ChangePasswordResponseDto
-				{
-					Success = false,
-					Message = _msg.Business("PasswordChangeFailed"),
-					Timestamp = DateTime.UtcNow
-				};
+				_msg.Throw(ErrorCode.InternalServerError, "PasswordChangeFailed", ex, ex.Message);
+				return null;
 			}
 		}
 
@@ -497,7 +472,7 @@ namespace RecruitAI.Application.Services
 			var user = await _uow.Users.GetByIdAsync(userId, cancellationToken);
 
 			if (user == null)
-				_msg.Throw(ErrorCode.UserNotFound, "BusinessUserNotFound");
+				_msg.Throw(ErrorCode.UserNotFound, "UserNotFound");
 
 			return new UserProfileDto
 			{
@@ -516,9 +491,9 @@ namespace RecruitAI.Application.Services
 		}
 
 		public async Task<ForgotPasswordResponseDto> ForgotPasswordAsync(
-		ForgotPasswordRequestDto request,
-		string ipAddress,
-		CancellationToken cancellationToken = default)
+			ForgotPasswordRequestDto request,
+			string ipAddress,
+			CancellationToken cancellationToken = default)
 		{
 			try
 			{
@@ -548,7 +523,7 @@ namespace RecruitAI.Application.Services
 				var token = Convert.ToBase64String(bytes)
 					.Replace("/", "_")
 					.Replace("+", "-")
-					.Substring(0, 50); 
+					.Substring(0, 50);
 
 				var resetToken = new PasswordResetToken
 				{
@@ -590,7 +565,6 @@ namespace RecruitAI.Application.Services
 			string ipAddress,
 			CancellationToken cancellationToken = default)
 		{
-			// Sử dụng transaction để đảm bảo tính toàn vẹn
 			await _uow.BeginTransactionAsync(cancellationToken);
 			try
 			{
@@ -598,7 +572,7 @@ namespace RecruitAI.Application.Services
 				var user = await _uow.Users.GetByEmailAsync(request.Email, cancellationToken);
 				if (user == null)
 				{
-					return new ResetPasswordResponseDto { Success = false, Message = "Invalid reset attempt." };
+					_msg.Throw(ErrorCode.UserNotFound, "UserNotFound");
 				}
 
 				// 2. Tìm token hợp lệ
@@ -606,12 +580,14 @@ namespace RecruitAI.Application.Services
 				if (resetToken == null || resetToken.UserId != user.Id)
 				{
 					_logger.LogWarning("Invalid or expired reset token attempt for user: {UserId}", user.Id);
-					return new ResetPasswordResponseDto { Success = false, Message = "Invalid or expired reset token." };
+					_msg.Throw(ErrorCode.InvalidToken, "InvalidResetToken");
 				}
 
-				// 3. Kiểm tra password mạnh (nếu có service)
-				// if (!_validationService.IsStrongPassword(request.NewPassword))
-				//     return new ResetPasswordResponseDto { Success = false, Message = "Password is too weak." };
+				// 3. Kiểm tra password mạnh
+				if (!_validationService.IsStrongPassword(request.NewPassword))
+				{
+					_msg.Throw(ErrorCode.PasswordTooWeak, "PasswordTooWeak");
+				}
 
 				// 4. Tìm AuthProvider local
 				var authProvider = await _uow.AuthProviders
@@ -620,7 +596,7 @@ namespace RecruitAI.Application.Services
 				if (authProvider == null)
 				{
 					_logger.LogError("User {UserId} has no local auth provider to reset password", user.Id);
-					return new ResetPasswordResponseDto { Success = false, Message = "Cannot reset password for this account type." };
+					_msg.Throw(ErrorCode.ValidationFailed, "NoLocalAuthProvider");
 				}
 
 				// 5. Cập nhật mật khẩu mới
@@ -632,7 +608,7 @@ namespace RecruitAI.Application.Services
 				resetToken.UsedAt = DateTime.UtcNow;
 				_uow.PasswordResetTokens.Update(resetToken);
 
-				// 7. (Optional) Revoke tất cả refresh tokens của user để đăng xuất khỏi các thiết bị khác
+				// 7. Revoke tất cả refresh tokens
 				await _uow.RefreshTokens.RevokeAllUserTokensAsync(user.Id, ipAddress, cancellationToken: cancellationToken);
 
 				await _uow.CommitTransactionAsync(cancellationToken);
@@ -642,18 +618,27 @@ namespace RecruitAI.Application.Services
 				return new ResetPasswordResponseDto
 				{
 					Success = true,
-					Message = "Your password has been reset successfully. You can now log in with your new password."
+					Message = _msg.Success("PasswordReset"),
+					Timestamp = DateTime.UtcNow
 				};
+			}
+			catch (OperationCanceledException)
+			{
+				await _uow.RollbackTransactionAsync(cancellationToken);
+				_logger.LogWarning("Reset password cancelled for email: {Email}", request.Email);
+				throw;
+			}
+			catch (BusinessException)
+			{
+				await _uow.RollbackTransactionAsync(cancellationToken);
+				throw;
 			}
 			catch (Exception ex)
 			{
 				await _uow.RollbackTransactionAsync(cancellationToken);
 				_logger.LogError(ex, "Error in ResetPassword for email: {Email}", request.Email);
-				return new ResetPasswordResponseDto
-				{
-					Success = false,
-					Message = "An error occurred while resetting your password. Please try again."
-				};
+				_msg.Throw(ErrorCode.InternalServerError, "PasswordResetFailed", ex, ex.Message);
+				return null;
 			}
 		}
 	}

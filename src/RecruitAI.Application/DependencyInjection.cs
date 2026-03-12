@@ -26,6 +26,8 @@ namespace RecruitAI.Application
 			//Validators
 			services.AddScoped<RegisterRequestValidator>();
 			services.AddScoped<LoginRequestValidator>();
+			services.AddScoped<ForgotPasswordRequestValidator>();
+			services.AddScoped<ResetPasswordRequestValidator>();
 
 			services.AddLocalization();
 
