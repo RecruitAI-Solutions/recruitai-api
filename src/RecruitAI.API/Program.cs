@@ -23,8 +23,9 @@ builder.Configuration
 	.SetBasePath(Directory.GetCurrentDirectory())
 	.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
 	.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
-	.AddJsonFile("appsettings.Docker.json", optional: true, reloadOnChange: true) // Cho Docker
-	.AddEnvironmentVariables(); // Ưu tiên cao nhất
+	// Chỉ load Docker nếu thực sự cần
+	.AddJsonFile("appsettings.Docker.json", optional: true, reloadOnChange: true)
+	.AddEnvironmentVariables();
 
 // 2. LOGGING
 builder.Host.UseSerilog((context, config) =>

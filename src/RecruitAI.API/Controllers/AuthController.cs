@@ -210,34 +210,62 @@ namespace RecruitAI_API.Controllers
 		public async Task<IActionResult> ChangePassword(
 		[FromBody] ChangePasswordRequestDto request,
 		CancellationToken cancellationToken)
+		{
+			try
 			{
-				try
+				var userId = _workContext.GetCurrentUserId();
+				if (userId == null)
 				{
-					var userId = _workContext.GetCurrentUserId();
-					if (userId == null)
-					{
-						return Unauthorized(new { message = "User not authenticated" });
-					}
-
-					var result = await _authService.ChangePasswordAsync(request, userId.Value, cancellationToken);
-
-					if (!result.Success)
-					{
-						return BadRequest(result);
-					}
-
-					return Ok(result);
+					return Unauthorized(new { message = "User not authenticated" });
 				}
-				catch (OperationCanceledException)
+
+				var result = await _authService.ChangePasswordAsync(request, userId.Value, cancellationToken);
+
+				if (!result.Success)
 				{
-					_logger.LogWarning("Change password cancelled");
-					return StatusCode(499, new { message = "Request cancelled" });
+					return BadRequest(result);
 				}
-				catch (Exception ex)
-				{
-					_logger.LogError(ex, "Error in change password endpoint");
-					return StatusCode(500, new { message = "Internal server error" });
-				}
+
+				return Ok(result);
 			}
+			catch (OperationCanceledException)
+			{
+				_logger.LogWarning("Change password cancelled");
+				return StatusCode(499, new { message = "Request cancelled" });
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error in change password endpoint");
+				return StatusCode(500, new { message = "Internal server error" });
+			}
+		}
+
+		[HttpPost("forgot-password")]
+		[AllowAnonymous]
+		public async Task<IActionResult> ForgotPassword(ForgotPasswordRequestDto request, CancellationToken cancellationToken)
+		{
+			var ipAddress = HttpContext.GetClientIpAddress();
+			var result = await _authService.ForgotPasswordAsync(request, ipAddress, cancellationToken);
+
+			if (!result.Success)
+			{
+				return BadRequest(result);
+			}
+			return Ok(result);
+		}
+
+		[HttpPost("reset-password")]
+		[AllowAnonymous]
+		public async Task<IActionResult> ResetPassword(ResetPasswordRequestDto request, CancellationToken cancellationToken)
+		{
+			var ipAddress = HttpContext.GetClientIpAddress();
+			var result = await _authService.ResetPasswordAsync(request, ipAddress, cancellationToken);
+
+			if (!result.Success)
+			{
+				return BadRequest(result);
+			}
+			return Ok(result);
+		}
 	}
 }

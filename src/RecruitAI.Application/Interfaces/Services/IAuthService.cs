@@ -12,5 +12,7 @@ namespace RecruitAI.Application.Interfaces.Services
         Task<AuthResponseDto> RefreshToken(string refreshToken, string ipAddress, CancellationToken cancellationToken = default);
         Task<UserProfileDto> GetCurrentUserAsync(Guid userId, CancellationToken cancellationToken = default);
         Task<ChangePasswordResponseDto> ChangePasswordAsync(ChangePasswordRequestDto request, Guid userId, CancellationToken cancellationToken = default);
-    }
+		Task<ForgotPasswordResponseDto> ForgotPasswordAsync(ForgotPasswordRequestDto request, string ipAddress, CancellationToken cancellationToken = default);
+		Task<ResetPasswordResponseDto> ResetPasswordAsync(ResetPasswordRequestDto request, string ipAddress, CancellationToken cancellationToken = default);
+	}
 }

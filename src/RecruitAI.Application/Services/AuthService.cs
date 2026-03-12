@@ -9,6 +9,7 @@ using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
+using System.Security.Cryptography;
 
 namespace RecruitAI.Application.Services
 {
@@ -22,6 +23,7 @@ namespace RecruitAI.Application.Services
 		private readonly IRefreshTokenService _refreshTokenService;
 		private readonly IValidationService _validationService;
 		private readonly IWorkContext _workContext;
+		private readonly IEmailService _emailService;
 
 		public AuthService(
 			IUnitOfWork uow,
@@ -31,7 +33,8 @@ namespace RecruitAI.Application.Services
 			IMessageService messageService,
 			IRefreshTokenService refreshTokenService,
 			IValidationService validationService,
-			IWorkContext workContext)
+			IWorkContext workContext,
+			IEmailService emailService)
 		{
 			_uow = uow;
 			_jwtService = jwtService;
@@ -41,6 +44,7 @@ namespace RecruitAI.Application.Services
 			_refreshTokenService = refreshTokenService;
 			_validationService = validationService;
 			_workContext = workContext;
+			_emailService = emailService;
 		}
 
 		public async Task<AuthResponseDto> Register(RegisterRequestDto request, string ipAddress, CancellationToken cancellationToken = default)
@@ -509,6 +513,148 @@ namespace RecruitAI.Application.Services
 				LastLoginAt = user.LastLoginAt,
 				AvatarUrl = user.AvatarUrl
 			};
+		}
+
+		public async Task<ForgotPasswordResponseDto> ForgotPasswordAsync(
+		ForgotPasswordRequestDto request,
+		string ipAddress,
+		CancellationToken cancellationToken = default)
+		{
+			try
+			{
+				// 1. Tìm user theo email (không phân biệt case)
+				var user = await _uow.Users.GetByEmailAsync(request.Email, cancellationToken);
+
+				// 2. Luôn trả về thành công để tránh lộ thông tin email
+				if (user == null)
+				{
+					_logger.LogInformation("Password reset requested for non-existent email: {Email}", request.Email);
+					return new ForgotPasswordResponseDto
+					{
+						Success = true,
+						Message = "If your email is registered, you will receive a password reset link."
+					};
+				}
+
+				// 3. Vô hiệu hóa tất cả token cũ của user này
+				await _uow.PasswordResetTokens.InvalidateAllUserTokensAsync(user.Id, cancellationToken);
+
+				// 4. Tạo token mới
+				var bytes = new byte[48]; // 48 bytes → Base64 ~ 64 ký tự
+				using (var rng = RandomNumberGenerator.Create())
+				{
+					rng.GetBytes(bytes);
+				}
+				var token = Convert.ToBase64String(bytes)
+					.Replace("/", "_")
+					.Replace("+", "-")
+					.Substring(0, 50); 
+
+				var resetToken = new PasswordResetToken
+				{
+					Id = Guid.NewGuid(),
+					UserId = user.Id,
+					Token = token,
+					ExpiryDate = DateTime.UtcNow.AddHours(24),
+					CreatedByIp = ipAddress
+				};
+
+				await _uow.PasswordResetTokens.AddAsync(resetToken, cancellationToken);
+				await _uow.SaveChangesAsync(cancellationToken);
+
+				// 5. Tạo link reset và gửi email
+				var resetLink = $"{_configuration["App:ClientUrl"]}/reset-password?token={token}&email={user.Email}";
+				await _emailService.SendPasswordResetEmailAsync(user.Email, resetLink, cancellationToken);
+
+				_logger.LogInformation("Password reset token generated for user: {UserId}", user.Id);
+
+				return new ForgotPasswordResponseDto
+				{
+					Success = true,
+					Message = "If your email is registered, you will receive a password reset link."
+				};
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error in ForgotPassword for email: {Email}", request.Email);
+				return new ForgotPasswordResponseDto
+				{
+					Success = false,
+					Message = "An error occurred while processing your request. Please try again later."
+				};
+			}
+		}
+
+		public async Task<ResetPasswordResponseDto> ResetPasswordAsync(
+			ResetPasswordRequestDto request,
+			string ipAddress,
+			CancellationToken cancellationToken = default)
+		{
+			// Sử dụng transaction để đảm bảo tính toàn vẹn
+			await _uow.BeginTransactionAsync(cancellationToken);
+			try
+			{
+				// 1. Tìm user theo email
+				var user = await _uow.Users.GetByEmailAsync(request.Email, cancellationToken);
+				if (user == null)
+				{
+					return new ResetPasswordResponseDto { Success = false, Message = "Invalid reset attempt." };
+				}
+
+				// 2. Tìm token hợp lệ
+				var resetToken = await _uow.PasswordResetTokens.GetValidTokenAsync(request.Token, cancellationToken);
+				if (resetToken == null || resetToken.UserId != user.Id)
+				{
+					_logger.LogWarning("Invalid or expired reset token attempt for user: {UserId}", user.Id);
+					return new ResetPasswordResponseDto { Success = false, Message = "Invalid or expired reset token." };
+				}
+
+				// 3. Kiểm tra password mạnh (nếu có service)
+				// if (!_validationService.IsStrongPassword(request.NewPassword))
+				//     return new ResetPasswordResponseDto { Success = false, Message = "Password is too weak." };
+
+				// 4. Tìm AuthProvider local
+				var authProvider = await _uow.AuthProviders
+					.FirstOrDefaultAsync(ap => ap.UserId == user.Id && ap.Provider == AuthProviderType.Email, cancellationToken);
+
+				if (authProvider == null)
+				{
+					_logger.LogError("User {UserId} has no local auth provider to reset password", user.Id);
+					return new ResetPasswordResponseDto { Success = false, Message = "Cannot reset password for this account type." };
+				}
+
+				// 5. Cập nhật mật khẩu mới
+				authProvider.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+				_uow.AuthProviders.Update(authProvider);
+
+				// 6. Vô hiệu hóa token vừa dùng
+				resetToken.IsUsed = true;
+				resetToken.UsedAt = DateTime.UtcNow;
+				_uow.PasswordResetTokens.Update(resetToken);
+
+				// 7. (Optional) Revoke tất cả refresh tokens của user để đăng xuất khỏi các thiết bị khác
+				await _uow.RefreshTokens.RevokeAllUserTokensAsync(user.Id, ipAddress, cancellationToken: cancellationToken);
+
+				await _uow.CommitTransactionAsync(cancellationToken);
+
+				_logger.LogInformation("Password reset successful for user: {UserId}", user.Id);
+
+				return new ResetPasswordResponseDto
+				{
+					Success = true,
+					Message = "Your password has been reset successfully. You can now log in with your new password."
+				};
+			}
+			catch (Exception ex)
+			{
+				await _uow.RollbackTransactionAsync(cancellationToken);
+				_logger.LogError(ex, "Error in ResetPassword for email: {Email}", request.Email);
+				return new ResetPasswordResponseDto
+				{
+					Success = false,
+					Message = "An error occurred while resetting your password. Please try again."
+				};
+			}
 		}
 	}
 }
