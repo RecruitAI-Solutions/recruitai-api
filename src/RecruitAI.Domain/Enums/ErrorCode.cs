@@ -238,6 +238,9 @@
 		SmsServiceError = 9004,
 
 		/// <summary>Lỗi từ Email service (502)</summary>
-		EmailServiceError = 9005
+		EmailServiceError = 9005,
+
+		/// <summary>Request bị hủy bởi client (499)</summary>
+		OperationCancelled = 499,
 	}
 }

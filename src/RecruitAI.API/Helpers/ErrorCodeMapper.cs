@@ -1,5 +1,4 @@
-﻿// RecruitAI.API/Helpers/ErrorCodeMapper.cs
-using RecruitAI.Domain.Enums;
+﻿using RecruitAI.Domain.Enums;
 
 namespace RecruitAI.API.Helpers
 {
@@ -20,6 +19,9 @@ namespace RecruitAI.API.Helpers
 			["OtpExpired"] = (ErrorCode.OtpExpired, 410),
 			["EmailAlreadyVerified"] = (ErrorCode.EmailAlreadyVerified, 400),
 
+			// ===== CLIENT ERRORS (4900-4999) =====
+			["RequestCancelled"] = (ErrorCode.OperationCancelled, 499),
+
 			// ===== TOKEN (2000-2999) =====
 			["InvalidToken"] = (ErrorCode.InvalidToken, 401),
 			["TokenExpired"] = (ErrorCode.TokenExpired, 401),
@@ -29,13 +31,13 @@ namespace RecruitAI.API.Helpers
 			["TokenGenerationFailed"] = (ErrorCode.TokenGenerationFailed, 500),
 
 			// ===== VALIDATION (3000-3999) =====
-			["EmailRequired"] = (ErrorCode.ValidationFailed, 400),
-			["EmailInvalid"] = (ErrorCode.ValidationFailed, 400),
-			["PasswordRequired"] = (ErrorCode.ValidationFailed, 400),
-			["PasswordMinLength"] = (ErrorCode.ValidationFailed, 400),
-			["FullNameRequired"] = (ErrorCode.ValidationFailed, 400),
-			["InvalidLength"] = (ErrorCode.InvalidLength, 400),
-			["InvalidValue"] = (ErrorCode.InvalidValue, 400),
+			["ValidationFailed"] = (ErrorCode.ValidationFailed, 400),
+			["EmailRequired"] = (ErrorCode.RequiredFieldMissing, 400),
+			["EmailInvalid"] = (ErrorCode.InvalidEmail, 400),
+			["PasswordRequired"] = (ErrorCode.RequiredFieldMissing, 400),
+			["PasswordMinLength"] = (ErrorCode.InvalidLength, 400),
+			["PasswordTooWeak"] = (ErrorCode.PasswordTooWeak, 400),
+			["FullNameRequired"] = (ErrorCode.RequiredFieldMissing, 400),
 			["InvalidPhoneNumber"] = (ErrorCode.InvalidPhoneNumber, 400),
 			["InvalidDate"] = (ErrorCode.InvalidDate, 400),
 			["InvalidFile"] = (ErrorCode.InvalidFile, 400),
@@ -45,6 +47,10 @@ namespace RecruitAI.API.Helpers
 			["InvalidAddress"] = (ErrorCode.InvalidAddress, 400),
 			["InvalidTaxCode"] = (ErrorCode.InvalidTaxCode, 400),
 			["InvalidIdentityNumber"] = (ErrorCode.InvalidIdentityNumber, 400),
+			["PasswordMismatch"] = (ErrorCode.ValidationFailed, 400),
+			["TokenRequired"] = (ErrorCode.TokenMissing, 400),
+			["UserNotAuthenticated"] = (ErrorCode.Unauthorized, 401),
+			["CannotIdentifyUser"] = (ErrorCode.Unauthorized, 401),
 
 			// ===== AUTHORIZATION (4000-4999) =====
 			["Unauthorized"] = (ErrorCode.Unauthorized, 401),
@@ -80,6 +86,7 @@ namespace RecruitAI.API.Helpers
 			["InvalidState"] = (ErrorCode.InvalidState, 400),
 			["DataChanged"] = (ErrorCode.DataChanged, 409),
 			["ConfirmationRequired"] = (ErrorCode.ConfirmationRequired, 400),
+			["NewPasswordSameAsOld"] = (ErrorCode.ValidationFailed, 400),
 
 			// ===== FILE (7000-7999) =====
 			["FileNotFound"] = (ErrorCode.FileNotFound, 404),
@@ -96,18 +103,27 @@ namespace RecruitAI.API.Helpers
 			["TransactionAlreadyCompleted"] = (ErrorCode.TransactionAlreadyCompleted, 400),
 			["TransactionProcessing"] = (ErrorCode.TransactionProcessing, 409),
 
+			// ===== THIRD-PARTY (9000-9999) =====
+			["FacebookApiError"] = (ErrorCode.FacebookApiError, 502),
+			["GoogleApiError"] = (ErrorCode.GoogleApiError, 502),
+			["GithubApiError"] = (ErrorCode.GithubApiError, 502),
+			["SmsServiceError"] = (ErrorCode.SmsServiceError, 502),
+			["EmailServiceError"] = (ErrorCode.EmailServiceError, 502),
+
 			// ===== JWT MESSAGES =====
-			["JwtKeyNotConfigured"] = (ErrorCode.InternalServerError, 500),
+			["JwtKeyNotConfigured"] = (ErrorCode.ConfigurationError, 500),
 			["JwtGenerationFailed"] = (ErrorCode.TokenGenerationFailed, 500),
 			["UserNull"] = (ErrorCode.ValidationFailed, 400),
 			["UserIdEmpty"] = (ErrorCode.ValidationFailed, 400),
 			["UserEmailEmpty"] = (ErrorCode.ValidationFailed, 400),
 
 			// ===== SUCCESS MESSAGES (không phải lỗi) =====
-			// Có thể dùng cho response thành công nếu cần
-			["RegistrationSuccess"] = (ErrorCode.InternalServerError, 200), // Special case
-			["LoginSuccess"] = (ErrorCode.InternalServerError, 200),        // Special case
-			["LogoutSuccess"] = (ErrorCode.InternalServerError, 200)        // Special case
+			["RegistrationSuccess"] = (ErrorCode.ValidationFailed, 200),
+			["LoginSuccess"] = (ErrorCode.ValidationFailed, 200),
+			["LogoutSuccess"] = (ErrorCode.ValidationFailed, 200),
+			["PasswordChanged"] = (ErrorCode.ValidationFailed, 200),
+			["PasswordReset"] = (ErrorCode.ValidationFailed, 200),
+			["ResetPasswordEmailSent"] = (ErrorCode.ValidationFailed, 200),
 		};
 
 		public static (ErrorCode Code, int StatusCode) GetErrorInfo(string messageKey)
@@ -117,10 +133,15 @@ namespace RecruitAI.API.Helpers
 				: (ErrorCode.UnknownError, 500);
 		}
 
-		// Thêm method để kiểm tra có phải success không
+		public static (ErrorCode Code, int StatusCode) GetErrorInfo(ErrorCode errorCode)
+		{
+			var entry = _map.FirstOrDefault(x => x.Value.Code == errorCode);
+			return entry.Value != default ? entry.Value : (ErrorCode.UnknownError, 500);
+		}
+
 		public static bool IsSuccess(string messageKey)
 		{
-			return messageKey.Contains("Success") && _map.TryGetValue(messageKey, out var info) && info.StatusCode == 200;
+			return _map.TryGetValue(messageKey, out var info) && info.StatusCode == 200;
 		}
 	}
 }

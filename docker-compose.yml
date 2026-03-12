@@ -59,6 +59,12 @@ services:
       Jwt__Issuer: ${Jwt__Issuer}
       Jwt__Audience: ${Jwt__Audience}
       Jwt__ExpiryMinutes: ${Jwt__ExpiryMinutes:-15}
+      Authentication__Google__ClientId: ${Google__ClientId}
+      Authentication__Google__ClientSecret: ${Google__ClientSecret}
+      Authentication__Facebook__AppId: ${Facebook__AppId}
+      Authentication__Facebook__AppSecret: ${Facebook__AppSecret}
+      Authentication__Github__ClientId: ${Github__ClientId}
+      Authentication__Github__ClientSecret: ${Github__ClientSecret}
     ports:
       - "${API_PORT:-5000}:8080"
     volumes:

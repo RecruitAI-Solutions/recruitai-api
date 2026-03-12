@@ -2,8 +2,8 @@
 {
     public enum UserRole
     {
-        Candidate = 1,      // Ứng viên
-        Recruiter = 2,      // Nhà tuyển dụng
-        Admin = 3           // Quản trị viên
+        CANDIDATE = 1,      // Ứng viên
+        RECRUITER = 2,      // Nhà tuyển dụng
+        ADMIN = 3           // Quản trị viên
     }
 }
