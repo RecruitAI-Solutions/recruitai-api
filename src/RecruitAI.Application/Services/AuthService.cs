@@ -511,7 +511,7 @@ namespace RecruitAI.Application.Services
 				FullName = user.FullName,
 				Role = (int)user.Role,
 				RoleName = roleDef?.Name ?? roleCode,
-				Permissions = permissions, 
+				Permissions = permissions,
 				Gender = user.Gender,
 				PhoneNumber = user.PhoneNumber,
 				DateOfBirth = user.DateOfBirth,
@@ -822,6 +822,146 @@ namespace RecruitAI.Application.Services
 				await _uow.RollbackTransactionAsync(cancellationToken);
 				_logger.LogError(ex, "Error verifying email for: {Email}", request.Email);
 				_msg.Throw(ErrorCode.InternalServerError, "ProcessingError", ex, ex.Message);
+				return null;
+			}
+		}
+
+		public async Task<AuthResponseDto> ExternalLoginAsync(
+		string provider,
+		string providerUserId,
+		string email,
+		string name,
+		string ipAddress,
+		CancellationToken cancellationToken = default)
+		{
+			try
+			{
+				if (!Enum.TryParse<AuthProviderType>(provider, true, out var providerType))
+				{
+					_msg.Throw(ErrorCode.ValidationFailed, "InvalidProvider");
+				}
+
+				await _uow.BeginTransactionAsync(cancellationToken);
+
+				// Tìm auth provider
+				var authProvider = await _uow.AuthProviders
+					.GetByProviderAndUserIdAsync(providerType, providerUserId, cancellationToken);
+
+				User user;
+
+				if (authProvider == null)
+				{
+					// Chưa từng đăng nhập bằng provider này
+					user = await _uow.Users.GetByEmailAsync(email, cancellationToken);
+
+					if (user == null)
+					{
+						// Tạo user mới
+						user = new User
+						{
+							Id = Guid.NewGuid(),
+							Email = email,
+							FullName = name ?? email.Split('@')[0],
+							CreatedAt = DateTime.UtcNow,
+							Status = UserStatus.Active,
+							Role = UserRole.CANDIDATE, // Mặc định là Candidate
+							EmailVerified = true // Email từ OAuth đã được xác thực
+						};
+						await _uow.Users.AddAsync(user, cancellationToken);
+
+						await _uow.SaveChangesAsync(cancellationToken);
+
+						// Set permissions từ config
+						var newRoleCode = user.Role.ToString().ToUpper();
+						var newPermissions = _rolePermissionService.GetPermissionsForRole(newRoleCode);
+						user.SetPermissions(newPermissions);
+					}
+
+					// Tạo auth provider mới
+					authProvider = new AuthProvider
+					{
+						Id = Guid.NewGuid(),
+						UserId = user.Id,
+						Provider = providerType,
+						ProviderUserId = providerUserId,
+						ProviderEmail = email,
+						CreatedAt = DateTime.UtcNow,
+						LastLoginAt = DateTime.UtcNow
+					};
+					await _uow.AuthProviders.AddAsync(authProvider, cancellationToken);
+				}
+				else
+				{
+					// Đã từng đăng nhập
+					user = authProvider.User;
+					authProvider.LastLoginAt = DateTime.UtcNow;
+					authProvider.ProviderEmail = email;
+					_uow.AuthProviders.Update(authProvider);
+				}
+
+				// Cập nhật last login
+				user.LastLoginAt = DateTime.UtcNow;
+				_uow.Users.Update(user);
+
+				// Tạo refresh token
+				var refreshToken = _refreshTokenService.GenerateToken();
+				var refreshTokenExpiryDays = _configuration.GetValue<int>("Jwt:RefreshTokenExpiryDays", 7);
+
+				// Revoke tất cả token cũ
+				await _uow.RefreshTokens.RevokeAllUserTokensAsync(user.Id, ipAddress, refreshToken, cancellationToken);
+
+				// Tạo token mới
+				var tokenEntity = new RefreshToken
+				{
+					Id = Guid.NewGuid(),
+					UserId = user.Id,
+					Token = refreshToken,
+					ExpireAt = DateTime.UtcNow.AddDays(refreshTokenExpiryDays),
+					CreatedAt = DateTime.UtcNow,
+					CreatedByIp = ipAddress,
+					TokenType = TokenType.RefreshToken,
+					IsRevoked = false
+				};
+				await _uow.RefreshTokens.AddAsync(tokenEntity, cancellationToken);
+
+				await _uow.CommitTransactionAsync(cancellationToken);
+
+				// Generate access token
+				var accessToken = await _jwtService.GenerateToken(user);
+				var accessTokenExpiryMinutes = _configuration.GetValue<int>("Jwt:AccessTokenExpiryMinutes", 15);
+				var expirySeconds = accessTokenExpiryMinutes * 60;
+
+				// Lấy role definition
+				var roleCode = user.Role.ToString().ToUpper();
+				var roleDef = _rolePermissionService.GetRoleDefinition(roleCode);
+				var permissions = user.GetPermissionList();
+
+				_logger.LogInformation("User {Email} logged in via {Provider}", user.Email, provider);
+
+				return new AuthResponseDto
+				{
+					AccessToken = accessToken,
+					RefreshToken = refreshToken,
+					UserId = user.Id.ToString(),
+					Email = user.Email,
+					FullName = user.FullName,
+					Role = (int)user.Role,
+					RoleName = roleDef?.Name ?? user.Role.ToString(),
+					Permissions = permissions,
+					ExpiresIn = expirySeconds,
+					TokenType = "Bearer"
+				};
+			}
+			catch (BusinessException)
+			{
+				await _uow.RollbackTransactionAsync(cancellationToken);
+				throw;
+			}
+			catch (Exception ex)
+			{
+				await _uow.RollbackTransactionAsync(cancellationToken);
+				_logger.LogError(ex, "Error in external login");
+				_msg.Throw(ErrorCode.InternalServerError, "SocialLoginFailed", ex, ex.Message);
 				return null;
 			}
 		}

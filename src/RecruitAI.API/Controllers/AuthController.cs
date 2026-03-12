@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using RecruitAI.API.Extensions;
@@ -619,6 +621,75 @@ namespace RecruitAI_API.Controllers
 			}
 
 			var result = _rolePermissionService.GetUserPermissions(roles, language);
+			return Ok(result);
+		}
+
+		[HttpGet("login/{provider}")]
+		[AllowAnonymous]
+		public IActionResult ExternalLogin(string provider, string returnUrl = null)
+		{
+			// Kiểm tra provider hợp lệ
+			var providers = new[] { "Google", "Facebook", "GitHub" };
+			if (!providers.Contains(provider))
+			{
+				return BadRequest(new { message = "Invalid provider" });
+			}
+
+			// Cấu hình redirect URL
+			var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Auth",
+				new { returnUrl }, Request.Scheme);
+
+			// Gửi request xác thực đến provider
+			var properties = new AuthenticationProperties
+			{
+				RedirectUri = redirectUrl,
+				Items = { { "provider", provider } }
+			};
+
+			return Challenge(properties, provider);
+		}
+
+		[HttpGet("external-login-callback")]
+		[AllowAnonymous]
+		public async Task<IActionResult> ExternalLoginCallback(string returnUrl = null, string remoteError = null)
+		{
+			if (remoteError != null)
+			{
+				_logger.LogError("Error from external provider: {Error}", remoteError);
+				return BadRequest(new { message = $"External provider error: {remoteError}" });
+			}
+
+			var authenticateResult = await HttpContext.AuthenticateAsync(IdentityConstants.ExternalScheme);
+
+			if (!authenticateResult.Succeeded)
+			{
+				return BadRequest(new { message = "External authentication failed" });
+			}
+
+			var provider = authenticateResult.Properties.Items["provider"];
+			var providerKey = authenticateResult.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
+			var email = authenticateResult.Principal.FindFirstValue(ClaimTypes.Email)
+						?? authenticateResult.Principal.FindFirstValue("email");
+			var name = authenticateResult.Principal.FindFirstValue(ClaimTypes.Name);
+
+			_logger.LogInformation("Provider: {Provider}, Email: {Email}", provider, email);
+
+			if (string.IsNullOrEmpty(providerKey))
+			{
+				return BadRequest(new { message = "Could not get user info from provider" });
+			}
+
+			// Xóa cookie tạm
+			await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
+			var ipAddress = HttpContext.GetClientIpAddress();
+			var result = await _authService.ExternalLoginAsync(provider, providerKey, email, name, ipAddress);
+
+			if (!string.IsNullOrEmpty(returnUrl))
+			{
+				return Redirect($"{returnUrl}?token={result.AccessToken}&refreshToken={result.RefreshToken}");
+			}
+
 			return Ok(result);
 		}
 	}
