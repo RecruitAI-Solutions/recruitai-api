@@ -14,7 +14,7 @@ namespace RecruitAI.Application.Validators
 
 			//Có thể kiểm tra email có tồn tại không (tùy chọn)
 			RuleFor(x => x.Email)
-				 .MustAsync(async (email, ct) => await validationService.IsEmailUniqueAsync(email, ct))
+				 .MustAsync(async (email, ct) => !await validationService.IsEmailUniqueAsync(email, ct))
 				 .WithMessage(msg.Business("UserNotFound"));
 		}
 	}

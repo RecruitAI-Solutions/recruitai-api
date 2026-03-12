@@ -507,7 +507,7 @@ namespace RecruitAI.Application.Services
 					return new ForgotPasswordResponseDto
 					{
 						Success = true,
-						Message = "If your email is registered, you will receive a password reset link."
+						Message = _msg.Business("ResetPasswordEmailSent")
 					};
 				}
 
@@ -539,14 +539,14 @@ namespace RecruitAI.Application.Services
 
 				// 5. Tạo link reset và gửi email
 				var resetLink = $"{_configuration["App:ClientUrl"]}/reset-password?token={token}&email={user.Email}";
-				await _emailService.SendPasswordResetEmailAsync(user.Email, resetLink, cancellationToken);
+				await _emailService.SendPasswordResetEmailAsync(user.Email, resetLink, user.FullName, cancellationToken);
 
 				_logger.LogInformation("Password reset token generated for user: {UserId}", user.Id);
 
 				return new ForgotPasswordResponseDto
 				{
 					Success = true,
-					Message = "If your email is registered, you will receive a password reset link."
+					Message = _msg.Business("ResetPasswordEmailSent")
 				};
 			}
 			catch (Exception ex)
@@ -555,7 +555,7 @@ namespace RecruitAI.Application.Services
 				return new ForgotPasswordResponseDto
 				{
 					Success = false,
-					Message = "An error occurred while processing your request. Please try again later."
+					Message = _msg.Business("ProcessingError")
 				};
 			}
 		}
@@ -638,6 +638,158 @@ namespace RecruitAI.Application.Services
 				await _uow.RollbackTransactionAsync(cancellationToken);
 				_logger.LogError(ex, "Error in ResetPassword for email: {Email}", request.Email);
 				_msg.Throw(ErrorCode.InternalServerError, "PasswordResetFailed", ex, ex.Message);
+				return null;
+			}
+		}
+
+		public async Task<SendVerificationEmailResponseDto> SendVerificationEmailAsync(
+		SendVerificationEmailRequestDto request,
+		string ipAddress,
+		CancellationToken cancellationToken = default)
+		{
+			try
+			{
+				// 1. Tìm user theo email
+				var user = await _uow.Users.GetByEmailAsync(request.Email, cancellationToken);
+
+				if (user == null)
+				{
+					_logger.LogInformation("Verification email requested for non-existent email: {Email}", request.Email);
+					return new SendVerificationEmailResponseDto
+					{
+						Success = true, // Luôn trả true để tránh lộ email
+						Message = _msg.Business("VerificationEmailSent")
+					};
+				}
+
+				// 2. Kiểm tra email đã verified chưa
+				if (user.EmailVerified)
+				{
+					_msg.Throw(ErrorCode.EmailAlreadyVerified, "EmailAlreadyVerified");
+				}
+
+				// 3. Tạo verification token (có thể dùng chung bảng PasswordResetToken hoặc tạo bảng riêng)
+				var bytes = new byte[48];
+				using (var rng = RandomNumberGenerator.Create())
+				{
+					rng.GetBytes(bytes);
+				}
+				var token = Convert.ToBase64String(bytes)
+					.Replace("/", "_")
+					.Replace("+", "-")
+					.Substring(0, 50);
+
+				// 4. Lưu token (nên có bảng riêng hoặc dùng chung với expiration khác)
+				var verificationToken = new PasswordResetToken // Tạm dùng chung bảng
+				{
+					Id = Guid.NewGuid(),
+					UserId = user.Id,
+					Token = token,
+					ExpiryDate = DateTime.UtcNow.AddHours(24),
+					CreatedByIp = ipAddress,
+					IsUsed = false
+				};
+
+				await _uow.PasswordResetTokens.AddAsync(verificationToken, cancellationToken);
+				await _uow.SaveChangesAsync(cancellationToken);
+
+				// 5. Tạo link verification
+				var verificationLink = $"{_configuration["App:ClientUrl"]}/verify-email?token={token}&email={user.Email}";
+
+				// 6. Gửi email
+				await _emailService.SendVerificationEmailAsync(user.Email, verificationLink, user.FullName, cancellationToken);
+
+				_logger.LogInformation("Verification email sent to user: {UserId}", user.Id);
+
+				return new SendVerificationEmailResponseDto
+				{
+					Success = true,
+					Message = _msg.Business("VerificationEmailSent")
+				};
+			}
+			catch (BusinessException)
+			{
+				throw;
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error sending verification email to: {Email}", request.Email);
+				_msg.Throw(ErrorCode.InternalServerError, "EmailServiceError", ex, ex.Message);
+				return null;
+			}
+		}
+
+		public async Task<VerifyEmailResponseDto> VerifyEmailAsync(
+		VerifyEmailRequestDto request,
+		CancellationToken cancellationToken = default)
+		{
+			await _uow.BeginTransactionAsync(cancellationToken);
+			try
+			{
+				// 1. Tìm user theo email
+				var user = await _uow.Users.GetByEmailAsync(request.Email, cancellationToken);
+				if (user == null)
+				{
+					_logger.LogWarning("Verify email attempt for non-existent email: {Email}", request.Email);
+					_msg.Throw(ErrorCode.UserNotFound, "UserNotFound");
+				}
+
+				// 2. Kiểm tra email đã verified chưa
+				if (user.EmailVerified)
+				{
+					_logger.LogInformation("Email already verified for user: {UserId}", user.Id);
+					return new VerifyEmailResponseDto
+					{
+						Success = true,
+						Message = _msg.Success("EmailAlreadyVerified"),
+						Timestamp = DateTime.UtcNow
+					};
+				}
+
+				// 3. Tìm token hợp lệ
+				var token = await _uow.PasswordResetTokens.GetValidTokenAsync(request.Token, cancellationToken);
+				if (token == null || token.UserId != user.Id)
+				{
+					_logger.LogWarning("Invalid or expired verification token for user: {UserId}", user.Id);
+					_msg.Throw(ErrorCode.InvalidToken, "InvalidToken");
+				}
+
+				// 4. Cập nhật trạng thái verified
+				user.EmailVerified = true;
+				_uow.Users.Update(user);
+
+				// 5. Vô hiệu hóa token
+				token.IsUsed = true;
+				token.UsedAt = DateTime.UtcNow;
+				_uow.PasswordResetTokens.Update(token);
+
+				await _uow.CommitTransactionAsync(cancellationToken);
+
+				_logger.LogInformation("Email verified successfully for user: {UserId}", user.Id);
+
+				return new VerifyEmailResponseDto
+				{
+					Success = true,
+					Message = _msg.Success("EmailVerified"),
+					Timestamp = DateTime.UtcNow
+				};
+			}
+			catch (OperationCanceledException)
+			{
+				await _uow.RollbackTransactionAsync(cancellationToken);
+				_logger.LogWarning("Verify email cancelled");
+				throw;
+			}
+			catch (BusinessException)
+			{
+				await _uow.RollbackTransactionAsync(cancellationToken);
+				throw;
+			}
+			catch (Exception ex)
+			{
+				await _uow.RollbackTransactionAsync(cancellationToken);
+				_logger.LogError(ex, "Error verifying email for: {Email}", request.Email);
+				_msg.Throw(ErrorCode.InternalServerError, "ProcessingError", ex, ex.Message);
 				return null;
 			}
 		}

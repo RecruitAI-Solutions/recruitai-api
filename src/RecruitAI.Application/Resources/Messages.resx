@@ -200,4 +200,30 @@
 	<data name="ValidationTokenRequired" xml:space="preserve">
 		<value>Token là bắt buộc</value>
 	</data>
+	<!-- ===== FORGOT PASSWORD MESSAGES - TIẾNG VIỆT ===== -->
+	<data name="BusinessResetPasswordEmailSent" xml:space="preserve">
+		<value>Nếu email của bạn đã đăng ký, bạn sẽ nhận được link đặt lại mật khẩu</value>
+	</data>
+
+		<!-- ===== VERIFICATION EMAIL MESSAGES - TIẾNG VIỆT ===== -->
+		<data name="BusinessVerificationEmailSent" xml:space="preserve">
+		<value>Nếu email của bạn đã đăng ký, bạn sẽ nhận được link xác thực</value>
+	</data>
+
+		<!-- ===== GENERAL ERROR MESSAGES - TIẾNG VIỆT ===== -->
+		<data name="BusinessProcessingError" xml:space="preserve">
+		<value>Đã xảy ra lỗi trong quá trình xử lý. Vui lòng thử lại sau</value>
+	</data>
+	<data name="SuccessEmailVerified" xml:space="preserve">
+		<value>Xác thực email thành công</value>
+	</data>
+		<data name="SuccessEmailAlreadyVerified" xml:space="preserve">
+		<value>Email đã được xác thực trước đó</value>
+	</data>
+	<data name="BusinessEmailAlreadyVerified" xml:space="preserve">
+		<value>Email đã được xác thực trước đó</value>
+	</data>
+	<data name="SuccessPasswordReset" xml:space="preserve">
+		<value>Đặt lại mật khẩu thành công</value>
+	</data>
 </root>

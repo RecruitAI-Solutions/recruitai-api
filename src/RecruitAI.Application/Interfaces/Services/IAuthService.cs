@@ -14,5 +14,7 @@ namespace RecruitAI.Application.Interfaces.Services
 		Task<ChangePasswordResponseDto> ChangePasswordAsync(ChangePasswordRequestDto request, Guid userId, CancellationToken cancellationToken = default);
 		Task<ForgotPasswordResponseDto> ForgotPasswordAsync(ForgotPasswordRequestDto request, string ipAddress, CancellationToken cancellationToken = default);
 		Task<ResetPasswordResponseDto> ResetPasswordAsync(ResetPasswordRequestDto request, string ipAddress, CancellationToken cancellationToken = default);
+		Task<SendVerificationEmailResponseDto> SendVerificationEmailAsync(SendVerificationEmailRequestDto request, string ipAddress, CancellationToken cancellationToken = default);
+		Task<VerifyEmailResponseDto> VerifyEmailAsync(VerifyEmailRequestDto request, CancellationToken cancellationToken = default);
 	}
 }

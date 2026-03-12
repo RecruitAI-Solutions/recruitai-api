@@ -460,5 +460,108 @@ namespace RecruitAI_API.Controllers
 				return StatusCode(500, response);
 			}
 		}
+
+		[HttpPost("send-verification-email")]
+		[AllowAnonymous]
+		public async Task<IActionResult> SendVerificationEmail(
+		[FromBody] SendVerificationEmailRequestDto request,
+		CancellationToken cancellationToken)
+		{
+			try
+			{
+				var ipAddress = HttpContext.GetClientIpAddress();
+				var result = await _authService.SendVerificationEmailAsync(request, ipAddress, cancellationToken);
+				return Ok(result);
+			}
+			catch (OperationCanceledException)
+			{
+				_logger.LogWarning("Send verification email cancelled");
+				var response = new ErrorResponseDto
+				{
+					StatusCode = 499,
+					ErrorCode = ErrorCode.OperationCancelled,
+					Message = _msg.Business("RequestCancelled"),
+					TraceId = HttpContext.TraceIdentifier,
+					Timestamp = DateTime.UtcNow
+				};
+				return StatusCode(499, response);
+			}
+			catch (BusinessException ex)
+			{
+				var response = new ErrorResponseDto
+				{
+					StatusCode = ex.StatusCode,
+					ErrorCode = ex.ErrorCode,
+					Message = ex.Message,
+					TraceId = HttpContext.TraceIdentifier,
+					Timestamp = DateTime.UtcNow
+				};
+				return StatusCode(ex.StatusCode, response);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error sending verification email");
+				var response = new ErrorResponseDto
+				{
+					StatusCode = 500,
+					ErrorCode = ErrorCode.InternalServerError,
+					Message = _msg.Business("InternalServerError"),
+					TraceId = HttpContext.TraceIdentifier,
+					Timestamp = DateTime.UtcNow
+				};
+				return StatusCode(500, response);
+			}
+		}
+
+		[HttpPost("verify-email")]
+		[AllowAnonymous]
+		public async Task<IActionResult> VerifyEmail(
+	[FromBody] VerifyEmailRequestDto request,
+	CancellationToken cancellationToken)
+		{
+			try
+			{
+				var result = await _authService.VerifyEmailAsync(request, cancellationToken);
+				return Ok(result);
+			}
+			catch (OperationCanceledException)
+			{
+				_logger.LogWarning("Verify email cancelled");
+				var response = new ErrorResponseDto
+				{
+					StatusCode = 499,
+					ErrorCode = ErrorCode.OperationCancelled,
+					Message = "Request cancelled",
+					TraceId = HttpContext.TraceIdentifier,
+					Timestamp = DateTime.UtcNow
+				};
+				return StatusCode(499, response);
+			}
+			catch (BusinessException ex)
+			{
+				var response = new ErrorResponseDto
+				{
+					StatusCode = ex.StatusCode,
+					ErrorCode = ex.ErrorCode,
+					Message = ex.Message,
+					TraceId = HttpContext.TraceIdentifier,
+					Timestamp = DateTime.UtcNow
+				};
+				return StatusCode(ex.StatusCode, response);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error verifying email");
+				var response = new ErrorResponseDto
+				{
+					StatusCode = 500,
+					ErrorCode = ErrorCode.InternalServerError,
+					Message = _msg.Business("InternalServerError"),
+					TraceId = HttpContext.TraceIdentifier,
+					Timestamp = DateTime.UtcNow
+				};
+				return StatusCode(500, response);
+			}
+		}
 	}
 }

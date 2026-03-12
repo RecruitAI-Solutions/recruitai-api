@@ -3,6 +3,7 @@ using System.Net.Mail;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.Interfaces.Services;
+using Microsoft.AspNetCore.Http;
 
 namespace RecruitAI.Infrastructure.Services
 {
@@ -10,11 +11,25 @@ namespace RecruitAI.Infrastructure.Services
 	{
 		private readonly IConfiguration _configuration;
 		private readonly ILogger<EmailService> _logger;
+		private readonly IEmailTemplateService _templateService;
+		private readonly IHttpContextAccessor _httpContextAccessor;
 
-		public EmailService(IConfiguration configuration, ILogger<EmailService> logger)
+		public EmailService(
+			IConfiguration configuration,
+			ILogger<EmailService> logger,
+			IEmailTemplateService templateService,
+			IHttpContextAccessor httpContextAccessor)
 		{
 			_configuration = configuration;
 			_logger = logger;
+			_templateService = templateService;
+			_httpContextAccessor = httpContextAccessor;
+		}
+
+		private string GetUserLanguage()
+		{
+			var acceptLanguage = _httpContextAccessor.HttpContext?.Request.Headers["Accept-Language"].ToString();
+			return acceptLanguage?.StartsWith("vi") == true ? "vi" : "en";
 		}
 
 		public async Task SendEmailAsync(string to, string subject, string body, CancellationToken cancellationToken = default)
@@ -91,102 +106,42 @@ namespace RecruitAI.Infrastructure.Services
 			}
 		}
 
-		public async Task SendPasswordResetEmailAsync(string to, string resetLink, CancellationToken cancellationToken = default)
+		public async Task SendPasswordResetEmailAsync(string to, string resetLink, string? userName = null, CancellationToken cancellationToken = default)
 		{
-			var subject = "Reset Your Password - RecruitAI";
+			var language = GetUserLanguage();
+			var template = await _templateService.LoadTemplateAsync("reset-password", language, cancellationToken);
 
-			var htmlBody = $@"
-			<!DOCTYPE html>
-			<html>
-			<head>
-				<style>
-					body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-					.container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-					.header {{ background-color: #4a90e2; color: white; padding: 20px; text-align: center; }}
-					.content {{ padding: 20px; }}
-					.button {{
-						display: inline-block;
-						padding: 10px 20px;
-						background-color: #4a90e2;
-						color: white;
-						text-decoration: none;
-						border-radius: 5px;
-						margin-top: 20px;
-					}}
-					.footer {{ margin-top: 30px; font-size: 12px; color: #999; text-align: center; }}
-				</style>
-			</head>
-			<body>
-				<div class='container'>
-					<div class='header'>
-						<h2>RecruitAI - Reset Password</h2>
-					</div>
-					<div class='content'>
-						<p>Hello,</p>
-						<p>We received a request to reset your password. Click the button below to create a new password:</p>
-						<p style='text-align: center;'>
-							<a href='{resetLink}' class='button'>Reset Password</a>
-						</p>
-						<p>If the button doesn't work, copy and paste this link into your browser:</p>
-						<p style='word-break: break-all;'><small>{resetLink}</small></p>
-						<p>This link will expire in 24 hours.</p>
-						<p>If you didn't request this, please ignore this email.</p>
-					</div>
-					<div class='footer'>
-						<p>&copy; {DateTime.UtcNow.Year} RecruitAI. All rights reserved.</p>
-					</div>
-				</div>
-			</body>
-			</html>";
+			var displayName = userName ?? to.Split('@')[0];
+
+			var placeholders = new Dictionary<string, string>
+			{
+				["UserName"] = displayName,
+				["ResetLink"] = resetLink,
+				["Year"] = DateTime.UtcNow.Year.ToString()
+			};
+
+			var htmlBody = _templateService.ReplacePlaceholders(template, placeholders);
+			var subject = language == "vi" ? "Đặt lại mật khẩu - RecruitAI" : "Reset Your Password - RecruitAI";
 
 			await SendHtmlEmailAsync(to, subject, htmlBody, cancellationToken);
 		}
 
-		public async Task SendVerificationEmailAsync(string to, string verificationLink, CancellationToken cancellationToken = default)
+		public async Task SendVerificationEmailAsync(string to, string verificationLink, string? userName = null, CancellationToken cancellationToken = default)
 		{
-			var subject = "Verify Your Email - RecruitAI";
+			var language = GetUserLanguage();
+			var template = await _templateService.LoadTemplateAsync("verify-email", language, cancellationToken);
 
-			var htmlBody = $@"
-			<!DOCTYPE html>
-			<html>
-			<head>
-				<style>
-					body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
-					.container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-					.header {{ background-color: #4a90e2; color: white; padding: 20px; text-align: center; }}
-					.content {{ padding: 20px; }}
-					.button {{
-						display: inline-block;
-						padding: 10px 20px;
-						background-color: #4a90e2;
-						color: white;
-						text-decoration: none;
-						border-radius: 5px;
-						margin-top: 20px;
-					}}
-					.footer {{ margin-top: 30px; font-size: 12px; color: #999; text-align: center; }}
-				</style>
-			</head>
-			<body>
-				<div class='container'>
-					<div class='header'>
-						<h2>RecruitAI - Verify Your Email</h2>
-					</div>
-					<div class='content'>
-						<p>Welcome to RecruitAI!</p>
-						<p>Please verify your email address by clicking the button below:</p>
-						<p style='text-align: center;'>
-							<a href='{verificationLink}' class='button'>Verify Email</a>
-						</p>
-						<p>If the button doesn't work, copy and paste this link:</p>
-						<p style='word-break: break-all;'><small>{verificationLink}</small></p>
-					</div>
-					<div class='footer'>
-						<p>&copy; {DateTime.UtcNow.Year} RecruitAI. All rights reserved.</p>
-					</div>
-				</div>
-			</body>
-			</html>";
+			var displayName = userName ?? to.Split('@')[0];
+
+			var placeholders = new Dictionary<string, string>
+			{
+				["UserName"] = displayName,
+				["VerificationLink"] = verificationLink,
+				["Year"] = DateTime.UtcNow.Year.ToString()
+			};
+
+			var htmlBody = _templateService.ReplacePlaceholders(template, placeholders);
+			var subject = language == "vi" ? "Xác thực email - RecruitAI" : "Verify Your Email - RecruitAI";
 
 			await SendHtmlEmailAsync(to, subject, htmlBody, cancellationToken);
 		}
