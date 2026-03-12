@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,7 +22,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration
 	.SetBasePath(Directory.GetCurrentDirectory())
 	.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-	.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+	.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+	.AddJsonFile("appsettings.Docker.json", optional: true, reloadOnChange: true)
 	.AddEnvironmentVariables();
 
 // 2. LOGGING
@@ -30,22 +31,30 @@ builder.Host.UseSerilog((context, config) =>
 {
 	config.ReadFrom.Configuration(context.Configuration)
 		  .Enrich.WithProperty("Application", "RecruitAI-API")
-		  .Enrich.WithEnvironmentName();
+		  .Enrich.WithEnvironmentName()
+		  .WriteTo.Console()
+		  .WriteTo.File(
+			  path: "Logs/log-.txt",
+			  rollingInterval: RollingInterval.Day,
+			  retainedFileCountLimit: 7,
+			  outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}");
+
+	Console.WriteLine($"Serilog configured for environment: {builder.Environment.EnvironmentName}");
 });
 
-// Log thông tin môi trường
-Log.Information(ProgramMessages.Log("Environment"), builder.Environment.EnvironmentName);
-Log.Information(ProgramMessages.Log("ConnectionString"),
-	builder.Configuration.GetConnectionString("DefaultConnection"));
+Log.Information("=== APPLICATION STARTING ===");
+Log.Information("Environment: {Environment}", builder.Environment.EnvironmentName);
+Log.Information("Connection String: {ConnectionString}",
+	builder.Configuration.GetConnectionString("DefaultConnection")?.Replace(
+		builder.Configuration.GetConnectionString("DefaultConnection")?.Split(';').FirstOrDefault() ?? "", "***hidden***"));
 
-// 3. THÊM SERVICES 
+// 3. THÊM SERVICES
 // 3.1 MVC Controllers
 builder.Services.AddScoped<ValidationFilter>();
 builder.Services.AddControllers(options =>
 {
 	options.Filters.AddService<ValidationFilter>();
 });
-
 
 // 3.2 API Explorer & Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -56,6 +65,30 @@ builder.Services.AddSwaggerGen(c =>
 		Title = "Recruit AI API",
 		Version = "v1",
 		Description = "API for RecruitAI application"
+	});
+
+	c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+	{
+		Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+		Name = "Authorization",
+		In = ParameterLocation.Header,
+		Type = SecuritySchemeType.ApiKey,
+		Scheme = "Bearer"
+	});
+
+	c.AddSecurityRequirement(new OpenApiSecurityRequirement
+	{
+		{
+			new OpenApiSecurityScheme
+			{
+				Reference = new OpenApiReference
+				{
+					Type = ReferenceType.SecurityScheme,
+					Id = "Bearer"
+				}
+			},
+			Array.Empty<string>()
+		}
 	});
 });
 
@@ -126,9 +159,15 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 
-// 3.8 Authentication & Authorization
-builder.Services.AddAuthentication("Bearer")
-.AddJwtBearer("Bearer", options =>
+// 3.8 Authentication & Authorization - ĐÃ SỬA
+builder.Services.AddAuthentication(options =>
+{
+	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+})
+.AddCookie(IdentityConstants.ExternalScheme)
+.AddJwtBearer(options =>
 {
 	options.TokenValidationParameters = new TokenValidationParameters
 	{
@@ -161,10 +200,39 @@ builder.Services.AddAuthentication("Bearer")
 			return Task.CompletedTask;
 		}
 	};
+})
+.AddGoogle(options =>
+{
+	options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+	options.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+
+	// Callback path cố định, nhưng domain sẽ thay đổi theo môi trường
+	options.CallbackPath = "/signin-google";
+	options.SaveTokens = true;
+	options.Scope.Add("profile");
+	options.Scope.Add("email");
+})
+.AddFacebook(options =>
+{
+	options.AppId = builder.Configuration["Authentication:Facebook:AppId"];
+	options.AppSecret = builder.Configuration["Authentication:Facebook:AppSecret"];
+	options.CallbackPath = "/signin-facebook";
+	options.SaveTokens = true;
+	options.Scope.Add("email");
+	options.Scope.Add("public_profile");
+})
+.AddGitHub(options =>
+{
+	options.ClientId = builder.Configuration["Authentication:Github:ClientId"];
+	options.ClientSecret = builder.Configuration["Authentication:Github:ClientSecret"];
+	options.CallbackPath = "/signin-github";
+	options.SaveTokens = true;
+	options.Scope.Add("user:email");
 });
+
 builder.Services.AddAuthorization();
 
-// 4. RAZOR RUNTIME COMPILATION (CHỦ YẾU CHO DEVELOPMENT)
+// 4. RAZOR RUNTIME COMPILATION
 if (builder.Environment.IsDevelopment())
 {
 	builder.Services.AddControllersWithViews()
@@ -194,15 +262,13 @@ else
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseRequestLocalization();
-app.UseCors(); // Dùng policy mặc định
+app.UseCors();
 
-// 5.3 Authentication & Authorization 
+// 5.3 Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// 5.4 Custom Middleware
-
-// 5.5 Controllers
+// 5.4 Controllers
 app.MapControllers();
 
 // 6. DATABASE MIGRATION

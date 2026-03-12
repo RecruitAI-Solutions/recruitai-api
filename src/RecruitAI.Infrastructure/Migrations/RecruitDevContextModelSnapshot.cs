@@ -66,6 +66,50 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.ToTable("AuthProviders");
                 });
 
+            modelBuilder.Entity("RecruitAI.Domain.Entities.PasswordResetToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedByIp")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("ExpiryDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("UsedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ExpiryDate")
+                        .HasDatabaseName("IX_PasswordResetTokens_ExpiryDate");
+
+                    b.HasIndex("Token")
+                        .IsUnique()
+                        .HasDatabaseName("IX_PasswordResetTokens_Token");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PasswordResetToken");
+                });
+
             modelBuilder.Entity("RecruitAI.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -186,9 +230,18 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.Property<DateTime?>("LastLoginAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("PermissionCodes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
                     b.Property<string>("PhoneNumber")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("Role")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
@@ -211,6 +264,17 @@ namespace RecruitAI.Infrastructure.Migrations
                 {
                     b.HasOne("RecruitAI.Domain.Entities.User", "User")
                         .WithMany("AuthProviders")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("RecruitAI.Domain.Entities.PasswordResetToken", b =>
+                {
+                    b.HasOne("RecruitAI.Domain.Entities.User", "User")
+                        .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
