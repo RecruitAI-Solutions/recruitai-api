@@ -1,0 +1,171 @@
+﻿{
+	"roles": [
+		{
+			"code": "CANDIDATE",
+			"name": "Candidate",
+			"nameVi": "Ứng viên",
+			"permissions": [ "P001", "P002", "P003", "P004", "P005" ]
+		},
+		{
+			"code": "RECRUITER",
+			"name": "Recruiter",
+			"nameVi": "Nhà tuyển dụng",
+			"permissions": [ "P001", "P006", "P007", "P008", "P009", "P010" ]
+		},
+		{
+			"code": "ADMIN",
+			"name": "Administrator",
+			"nameVi": "Quản trị viên",
+			"permissions": [ "P001", "P002", "P003", "P004", "P005", "P006", "P007", "P008", "P009", "P010", "P011", "P012", "P013", "P014", "P015" ]
+		},
+		{
+			"code": "SUPER1",
+			"name": "Special Role 1",
+			"nameVi": "Vai trò đặc biệt 1",
+			"permissions": [ "P001", "P002", "P009" ]
+		},
+		{
+			"code": "SUPER2",
+			"name": "Special Role 2",
+			"nameVi": "Vai trò đặc biệt 2",
+			"permissions": [ "P006", "P007" ]
+		}
+	],
+	"permissions": [
+		{
+			"code": "P001",
+			"name": "View Jobs",
+			"nameVi": "Xem việc làm",
+			"group": "JOB",
+			"groupVi": "Công việc",
+			"description": "Allow user to view job listings",
+			"descriptionVi": "Cho phép xem danh sách việc làm"
+		},
+		{
+			"code": "P002",
+			"name": "Apply Job",
+			"nameVi": "Ứng tuyển",
+			"group": "JOB",
+			"groupVi": "Công việc",
+			"description": "Allow user to apply for jobs",
+			"descriptionVi": "Cho phép ứng tuyển vào công việc"
+		},
+		{
+			"code": "P003",
+			"name": "Upload CV",
+			"nameVi": "Tải lên CV",
+			"group": "PROFILE",
+			"groupVi": "Hồ sơ",
+			"description": "Allow user to upload CV",
+			"descriptionVi": "Cho phép tải lên CV"
+		},
+		{
+			"code": "P004",
+			"name": "View Profile",
+			"nameVi": "Xem hồ sơ",
+			"group": "PROFILE",
+			"groupVi": "Hồ sơ",
+			"description": "Allow user to view their profile",
+			"descriptionVi": "Cho phép xem hồ sơ cá nhân"
+		},
+		{
+			"code": "P005",
+			"name": "Edit Profile",
+			"nameVi": "Sửa hồ sơ",
+			"group": "PROFILE",
+			"groupVi": "Hồ sơ",
+			"description": "Allow user to edit their profile",
+			"descriptionVi": "Cho phép sửa hồ sơ cá nhân"
+		},
+		{
+			"code": "P006",
+			"name": "Create Job",
+			"nameVi": "Tạo việc làm",
+			"group": "JOB_MANAGEMENT",
+			"groupVi": "Quản lý công việc",
+			"description": "Allow recruiter to create new jobs",
+			"descriptionVi": "Cho phép nhà tuyển dụng tạo việc làm mới"
+		},
+		{
+			"code": "P007",
+			"name": "Edit Job",
+			"nameVi": "Sửa việc làm",
+			"group": "JOB_MANAGEMENT",
+			"groupVi": "Quản lý công việc",
+			"description": "Allow recruiter to edit jobs",
+			"descriptionVi": "Cho phép nhà tuyển dụng sửa việc làm"
+		},
+		{
+			"code": "P008",
+			"name": "Delete Job",
+			"nameVi": "Xóa việc làm",
+			"group": "JOB_MANAGEMENT",
+			"groupVi": "Quản lý công việc",
+			"description": "Allow recruiter to delete jobs",
+			"descriptionVi": "Cho phép nhà tuyển dụng xóa việc làm"
+		},
+		{
+			"code": "P009",
+			"name": "View Applications",
+			"nameVi": "Xem đơn ứng tuyển",
+			"group": "APPLICATION",
+			"groupVi": "Đơn ứng tuyển",
+			"description": "Allow user to view job applications",
+			"descriptionVi": "Cho phép xem đơn ứng tuyển"
+		},
+		{
+			"code": "P010",
+			"name": "Contact Candidates",
+			"nameVi": "Liên hệ ứng viên",
+			"group": "APPLICATION",
+			"groupVi": "Đơn ứng tuyển",
+			"description": "Allow recruiter to contact candidates",
+			"descriptionVi": "Cho phép nhà tuyển dụng liên hệ ứng viên"
+		},
+		{
+			"code": "P011",
+			"name": "Manage Users",
+			"nameVi": "Quản lý người dùng",
+			"group": "ADMIN",
+			"groupVi": "Quản trị",
+			"description": "Allow admin to manage users",
+			"descriptionVi": "Cho phép quản trị viên quản lý người dùng"
+		},
+		{
+			"code": "P012",
+			"name": "Manage Roles",
+			"nameVi": "Quản lý vai trò",
+			"group": "ADMIN",
+			"groupVi": "Quản trị",
+			"description": "Allow admin to manage roles and permissions",
+			"descriptionVi": "Cho phép quản trị viên quản lý vai trò và quyền"
+		},
+		{
+			"code": "P013",
+			"name": "View Analytics",
+			"nameVi": "Xem thống kê",
+			"group": "ADMIN",
+			"groupVi": "Quản trị",
+			"description": "Allow admin to view system analytics",
+			"descriptionVi": "Cho phép quản trị viên xem thống kê hệ thống"
+		},
+		{
+			"code": "P014",
+			"name": "Manage System",
+			"nameVi": "Quản lý hệ thống",
+			"group": "ADMIN",
+			"groupVi": "Quản trị",
+			"description": "Allow admin to manage system settings",
+			"descriptionVi": "Cho phép quản trị viên quản lý cài đặt hệ thống"
+		},
+		{
+			"code": "P015",
+			"name": "Full Access",
+			"nameVi": "Toàn quyền",
+			"group": "ADMIN",
+			"groupVi": "Quản trị",
+			"description": "Full system access",
+			"descriptionVi": "Toàn quyền truy cập hệ thống"
+		}
+	]
+}

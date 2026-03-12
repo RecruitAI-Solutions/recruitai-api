@@ -78,3 +78,18 @@ docker exec -it recruitai-sql-dev /opt/mssql-tools18/bin/sqlcmd \
 docker exec recruitai-api-dev dotnet ef database update \
   --project RecruitAI.Infrastructure \
   --startup-project RecruitAI.API
+  
+  
+  
+ =====================================================================
+ 
+ #Social login
+ 
+ #Google
+ https://localhost:7203/api/auth/login/Google?returnUrl=https://localhost:7203/swagger
+ 
+ #Facebook
+ https://localhost:7203/api/auth/login/Facebook?returnUrl=https://localhost:7203/swagger
+ 
+ #GitHub
+ https://localhost:7203/api/auth/login/GitHub?returnUrl=https://localhost:7203/swagger

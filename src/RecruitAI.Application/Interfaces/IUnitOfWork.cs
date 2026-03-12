@@ -13,6 +13,7 @@ namespace RecruitAI.Application.Interfaces
 		IAuthProviderRepository AuthProviders { get; }
 		IRefreshTokenRepository RefreshTokens { get; }
 		ITestRepository Tests { get; }
+		IPasswordResetTokenRepository PasswordResetTokens { get; }
 
 		Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 		Task BeginTransactionAsync(CancellationToken cancellationToken = default);

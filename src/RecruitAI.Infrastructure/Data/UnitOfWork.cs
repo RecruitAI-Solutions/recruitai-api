@@ -15,10 +15,11 @@ namespace RecruitAI.Infrastructure.Data
 		private readonly ILogger<TestRepository> _testLogger;
 
 		// Repositories
+		private ITestRepository _testRepository;
 		private IUserRepository _userRepository;
 		private IAuthProviderRepository _authProviderRepository;
 		private IRefreshTokenRepository _refreshTokenRepository;
-		private ITestRepository _testRepository;
+		private IPasswordResetTokenRepository? _passwordResetTokenRepository;
 
 		public UnitOfWork(RecruitDevContext context,
 			ILogger<UnitOfWork> logger)
@@ -28,6 +29,8 @@ namespace RecruitAI.Infrastructure.Data
 		}
 
 		// Properties - khởi tạo repository khi cần
+		public ITestRepository Tests =>
+			_testRepository ??= new TestRepository(_context, _testLogger);
 		public IUserRepository Users =>
 			_userRepository ??= new UserRepository(_context);
 
@@ -36,8 +39,9 @@ namespace RecruitAI.Infrastructure.Data
 
 		public IRefreshTokenRepository RefreshTokens =>
 			_refreshTokenRepository ??= new RefreshTokenRepository(_context);
-		public ITestRepository Tests =>  
-			_testRepository ??= new TestRepository(_context, _testLogger);
+		public IPasswordResetTokenRepository PasswordResetTokens =>
+			_passwordResetTokenRepository ??= new PasswordResetTokenRepository(_context);
+
 
 
 		public bool HasActiveTransaction => _currentTransaction != null;

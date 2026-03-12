@@ -111,6 +111,13 @@
 	<data name="BusinessInvalidRole" xml:space="preserve">
 		<value>Invalid role. Accepted: Candidate, Recruiter, Admin</value>
 	</data>
+	<data name="BusinessUserNotAuthenticated" xml:space="preserve">
+		<value>User not authenticated</value>
+	</data>
+
+		<data name="BusinessCannotIdentifyUser" xml:space="preserve">
+		<value>Cannot identify user</value>
+	</data>
 
 	<!-- ===== VALIDATION MESSAGES - ENGLISH ===== -->
 	<data name="ValidationEmailRequired" xml:space="preserve">
@@ -189,5 +196,34 @@
 	</data>
 		<data name="ValidationPasswordMismatch" xml:space="preserve">
 		<value>Passwords do not match</value>
+	</data>
+	<data name="ValidationTokenRequired" xml:space="preserve">
+		<value>Token is required</value>
+	</data>
+	<!-- ===== FORGOT PASSWORD MESSAGES - ENGLISH ===== -->
+	<data name="BusinessResetPasswordEmailSent" xml:space="preserve">
+		<value>If your email is registered, you will receive a password reset link</value>
+	</data>
+
+		<!-- ===== VERIFICATION EMAIL MESSAGES - ENGLISH ===== -->
+		<data name="BusinessVerificationEmailSent" xml:space="preserve">
+		<value>If your email is registered, you will receive a verification link</value>
+	</data>
+
+		<!-- ===== GENERAL ERROR MESSAGES - ENGLISH ===== -->
+		<data name="BusinessProcessingError" xml:space="preserve">
+		<value>An error occurred while processing your request. Please try again later</value>
+	</data>
+	<data name="SuccessEmailVerified" xml:space="preserve">
+		<value>Email verified successfully</value>
+	</data>
+		<data name="SuccessEmailAlreadyVerified" xml:space="preserve">
+		<value>Email already verified</value>
+	</data>
+	<data name="BusinessEmailAlreadyVerified" xml:space="preserve">
+		<value>Email already verified</value>
+	</data>
+	<data name="SuccessPasswordReset" xml:space="preserve">
+		<value>Password reset successfully</value>
 	</data>
 </root>

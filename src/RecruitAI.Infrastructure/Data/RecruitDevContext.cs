@@ -46,7 +46,11 @@ public partial class RecruitDevContext : DbContext
 			entity.Property(e => e.Role)
 				.IsRequired()
 				.HasConversion<int>() // Chuyển enum thành int để lưu trong DB
-				.HasDefaultValue(UserRole.Candidate); // Mặc định là Candidate
+				.HasDefaultValue(UserRole.CANDIDATE); // Mặc định là Candidate
+
+			entity.Property(e => e.PermissionCodes)
+				.HasMaxLength(1000)
+				.IsRequired(false);
 
 			// SỬA LỖI: Thêm HasConversion trước khi set default value
 			entity.Property(e => e.Status)
@@ -152,6 +156,30 @@ public partial class RecruitDevContext : DbContext
 
 			entity.HasIndex(e => e.ExpireAt)
 				.HasDatabaseName("IX_RefreshTokens_ExpireAt");
+		});
+
+		modelBuilder.Entity<PasswordResetToken>(entity =>
+		{
+			entity.HasKey(e => e.Id);
+
+			entity.Property(e => e.Token)
+				.IsRequired()
+				.HasMaxLength(500);
+
+			entity.Property(e => e.CreatedByIp)
+				.HasMaxLength(50);
+
+			entity.HasOne(e => e.User)
+				.WithMany()
+				.HasForeignKey(e => e.UserId)
+				.OnDelete(DeleteBehavior.Cascade);
+
+			entity.HasIndex(e => e.Token)
+				.IsUnique()
+				.HasDatabaseName("IX_PasswordResetTokens_Token");
+
+			entity.HasIndex(e => e.ExpiryDate)
+				.HasDatabaseName("IX_PasswordResetTokens_ExpiryDate");
 		});
 
 		OnModelCreatingPartial(modelBuilder);
