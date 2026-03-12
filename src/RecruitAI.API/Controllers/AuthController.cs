@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using RecruitAI.API.Extensions;
 using RecruitAI.Application.DTOs.Requests;
 using RecruitAI.Application.DTOs.Responses;
@@ -21,17 +22,20 @@ namespace RecruitAI_API.Controllers
 		private readonly ILogger<AuthController> _logger;
 		private readonly IMessageService _msg;
 		private readonly IWorkContext _workContext;
+		private readonly IRolePermissionService _rolePermissionService;
 
 		public AuthController(
 			IAuthService authService,
 			ILogger<AuthController> logger,
 			IMessageService messageService,
-			IWorkContext workContext)
+			IWorkContext workContext,
+			IRolePermissionService rolePermissionService)
 		{
 			_authService = authService;
 			_logger = logger;
 			_msg = messageService;
 			_workContext = workContext;
+			_rolePermissionService = rolePermissionService;
 		}
 
 		[HttpPost("register")]
@@ -516,8 +520,8 @@ namespace RecruitAI_API.Controllers
 		[HttpPost("verify-email")]
 		[AllowAnonymous]
 		public async Task<IActionResult> VerifyEmail(
-	[FromBody] VerifyEmailRequestDto request,
-	CancellationToken cancellationToken)
+		[FromBody] VerifyEmailRequestDto request,
+		CancellationToken cancellationToken)
 		{
 			try
 			{
@@ -562,6 +566,60 @@ namespace RecruitAI_API.Controllers
 				};
 				return StatusCode(500, response);
 			}
+		}
+
+		[HttpGet("config")]
+		[AllowAnonymous] // Hoặc [Authorize(Roles = "ADMIN")]
+		public async Task<IActionResult> GetConfig(CancellationToken cancellationToken, [FromQuery] string language = "vi")
+		{
+			var config = await _rolePermissionService.GetRoleConfigAsync(cancellationToken);
+
+			// Transform for UI based on language
+			var result = new
+			{
+				roles = config.Roles.Select(r => new
+				{
+					code = r.Code,
+					name = language == "vi" ? r.NameVi : r.Name,
+					permissions = r.Permissions
+				}),
+				permissions = config.Permissions.Select(p => new
+				{
+					code = p.Code,
+					name = language == "vi" ? p.NameVi : p.Name,
+					group = language == "vi" ? p.GroupVi : p.Group,
+					description = language == "vi" ? p.DescriptionVi : p.Description
+				})
+			};
+
+			return Ok(result);
+		}
+
+		[HttpGet("user-permissions")]
+		[Authorize]
+		public IActionResult GetUserPermissions([FromQuery] string language = "vi")
+		{
+			// Lấy roles từ claims - thử nhiều cách
+			var roles = User.Claims
+				.Where(c => c.Type == "role" ||
+							c.Type == "http://schemas.microsoft.com/ws/2008/06/identity/claims/role" ||
+							c.Type == ClaimTypes.Role)
+				.Select(c => c.Value)
+				.ToList();
+
+			if (!roles.Any())
+			{
+				_logger.LogWarning("No role claims found!");
+				return Ok(new
+				{
+					roles = new List<string>(),
+					permissions = new List<string>(),
+					groupedPermissions = new Dictionary<string, object>()
+				});
+			}
+
+			var result = _rolePermissionService.GetUserPermissions(roles, language);
+			return Ok(result);
 		}
 	}
 }

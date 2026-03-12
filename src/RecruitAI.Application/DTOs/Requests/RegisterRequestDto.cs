@@ -4,7 +4,7 @@ namespace RecruitAI.Application.DTOs.Requests
 {
     public class RegisterRequestDto
     {
-        public UserRole Role { get; set; } = UserRole.Candidate;
+        public UserRole Role { get; set; } = UserRole.CANDIDATE;
         public string Email { get; set; }
 
         public string Password { get; set; }

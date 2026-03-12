@@ -31,4 +31,8 @@
 		<ProjectReference Include="..\RecruitAI.Infrastructure\RecruitAI.Infrastructure.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Logs\" />
+	</ItemGroup>
+
 </Project>

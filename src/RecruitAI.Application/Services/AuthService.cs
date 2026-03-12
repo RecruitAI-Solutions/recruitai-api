@@ -24,6 +24,7 @@ namespace RecruitAI.Application.Services
 		private readonly IValidationService _validationService;
 		private readonly IWorkContext _workContext;
 		private readonly IEmailService _emailService;
+		private readonly IRolePermissionService _rolePermissionService;
 
 		public AuthService(
 			IUnitOfWork uow,
@@ -34,7 +35,8 @@ namespace RecruitAI.Application.Services
 			IRefreshTokenService refreshTokenService,
 			IValidationService validationService,
 			IWorkContext workContext,
-			IEmailService emailService)
+			IEmailService emailService,
+			IRolePermissionService rolePermissionService)
 		{
 			_uow = uow;
 			_jwtService = jwtService;
@@ -45,6 +47,7 @@ namespace RecruitAI.Application.Services
 			_validationService = validationService;
 			_workContext = workContext;
 			_emailService = emailService;
+			_rolePermissionService = rolePermissionService;
 		}
 
 		public async Task<AuthResponseDto> Register(RegisterRequestDto request, string ipAddress, CancellationToken cancellationToken = default)
@@ -66,6 +69,9 @@ namespace RecruitAI.Application.Services
 
 				await _uow.BeginTransactionAsync(cancellationToken);
 
+				var roleCode = request.Role.ToString(); // "CANDIDATE", "RECRUITER", "ADMIN"
+				var permissions = _rolePermissionService.GetPermissionsForRole(roleCode);
+
 				// Tạo user mới
 				var user = new User
 				{
@@ -74,7 +80,8 @@ namespace RecruitAI.Application.Services
 					FullName = request.FullName,
 					CreatedAt = DateTime.UtcNow,
 					Status = UserStatus.Active,
-					Role = request.Role
+					Role = request.Role,
+					PermissionCodes = string.Join(",", permissions) // Lưu permissions
 				};
 
 				// Gán các thuộc tính optional
@@ -127,6 +134,8 @@ namespace RecruitAI.Application.Services
 				var expiryMinutes = _configuration.GetValue<int>("Jwt:AccessTokenExpiryMinutes", 15);
 				var expirySeconds = expiryMinutes * 60;
 
+				var roleDef = _rolePermissionService.GetRoleDefinition(roleCode);
+
 				// Log thành công
 				_logger.LogInformation(_msg.Log("RegistrationSuccess"), request.Email);
 
@@ -137,6 +146,9 @@ namespace RecruitAI.Application.Services
 					UserId = user.Id.ToString(),
 					Email = user.Email,
 					FullName = user.FullName,
+					Role = (int)user.Role,
+					RoleName = roleDef?.Name ?? roleCode,
+					Permissions = permissions,
 					ExpiresIn = expirySeconds
 				};
 			}
@@ -183,6 +195,10 @@ namespace RecruitAI.Application.Services
 				await _uow.AuthProviders.UpdateLastLoginAsync(provider.Id, cancellationToken);
 				await _uow.Users.UpdateLastLoginAsync(user.Id, cancellationToken);
 
+				var roleCode = user.Role.ToString().ToUpper();
+				var permissions = user.GetPermissionList(); // Lấy từ user
+				var roleDef = _rolePermissionService.GetRoleDefinition(roleCode);
+
 				// Đọc expiry từ config
 				var accessTokenExpiryMinutes = _configuration.GetValue<int>("Jwt:AccessTokenExpiryMinutes", 15);
 				var refreshTokenExpiryDays = _configuration.GetValue<int>("Jwt:RefreshTokenExpiryDays", 7);
@@ -225,6 +241,9 @@ namespace RecruitAI.Application.Services
 					UserId = user.Id.ToString(),
 					Email = user.Email,
 					FullName = user.FullName,
+					Role = (int)user.Role,
+					RoleName = roleDef?.Name ?? roleCode,
+					Permissions = permissions,
 					ExpiresIn = expirySeconds
 				};
 			}
@@ -310,6 +329,10 @@ namespace RecruitAI.Application.Services
 					_msg.Throw(ErrorCode.AccountLocked, "AccountLocked");
 				}
 
+				var roleCode = user.Role.ToString().ToUpper();
+				var permissions = user.GetPermissionList(); // Lấy từ user
+				var roleDef = _rolePermissionService.GetRoleDefinition(roleCode);
+
 				// Đọc expiry từ config
 				var accessTokenExpiryMinutes = _configuration.GetValue<int>("Jwt:AccessTokenExpiryMinutes", 15);
 				var refreshTokenExpiryDays = _configuration.GetValue<int>("Jwt:RefreshTokenExpiryDays", 7);
@@ -352,6 +375,9 @@ namespace RecruitAI.Application.Services
 					UserId = user.Id.ToString(),
 					Email = user.Email,
 					FullName = user.FullName,
+					Role = (int)user.Role,
+					RoleName = roleDef?.Name ?? roleCode,
+					Permissions = permissions,
 					ExpiresIn = expirySeconds
 				};
 			}
@@ -474,12 +500,18 @@ namespace RecruitAI.Application.Services
 			if (user == null)
 				_msg.Throw(ErrorCode.UserNotFound, "UserNotFound");
 
+			var roleCode = user.Role.ToString().ToUpper();
+			var permissions = user.GetPermissionList(); // Lấy từ user
+			var roleDef = _rolePermissionService.GetRoleDefinition(roleCode);
+
 			return new UserProfileDto
 			{
 				UserId = user.Id,
 				Email = user.Email,
 				FullName = user.FullName,
-				Role = user.Role,
+				Role = (int)user.Role,
+				RoleName = roleDef?.Name ?? roleCode,
+				Permissions = permissions, 
 				Gender = user.Gender,
 				PhoneNumber = user.PhoneNumber,
 				DateOfBirth = user.DateOfBirth,

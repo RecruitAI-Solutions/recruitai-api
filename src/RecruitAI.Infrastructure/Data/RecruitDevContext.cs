@@ -46,7 +46,11 @@ public partial class RecruitDevContext : DbContext
 			entity.Property(e => e.Role)
 				.IsRequired()
 				.HasConversion<int>() // Chuyển enum thành int để lưu trong DB
-				.HasDefaultValue(UserRole.Candidate); // Mặc định là Candidate
+				.HasDefaultValue(UserRole.CANDIDATE); // Mặc định là Candidate
+
+			entity.Property(e => e.PermissionCodes)
+				.HasMaxLength(1000)
+				.IsRequired(false);
 
 			// SỬA LỖI: Thêm HasConversion trước khi set default value
 			entity.Property(e => e.Status)
