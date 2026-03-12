@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-	<ProjectReference Include="..\RecruitAI.Domain\RecruitAI.Domain.csproj" />
+	  <ProjectReference Include="..\RecruitAI.Domain\RecruitAI.Domain.csproj" />
+	  <ProjectReference Include="..\RecruitAI.Application\RecruitAI.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>
