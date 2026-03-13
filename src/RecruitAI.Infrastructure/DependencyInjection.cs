@@ -7,6 +7,9 @@ using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Repositories;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Infrastructure.Services;
+using RecruitAI.Infrastructure.Caching;
+using RecruitAI.Infrastructure.Services.Geocoding;
+
 
 namespace RecruitAI.Infrastructure
 {
@@ -31,6 +34,24 @@ namespace RecruitAI.Infrastructure
 			services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 			services.AddScoped<IRolePermissionService, RolePermissionService>();
 			services.AddSingleton<FileSystemWatcher>();
+
+			// Redis Cache
+			services.AddStackExchangeRedisCache(options =>
+			{
+				options.Configuration = configuration.GetConnectionString("Redis");
+				options.InstanceName = configuration["Redis:InstanceName"];
+			});
+			services.AddScoped<IRedisCacheService, RedisCacheService>();
+
+			// Geocoding Service
+			services.AddHttpClient("Vietmap", client =>
+			{
+				client.BaseAddress = new Uri(configuration["Vietmap:BaseUrl"] ?? "https://maps.vietmap.vn/api/v4");
+				client.DefaultRequestHeaders.Add("Accept", "application/json");
+				client.Timeout = TimeSpan.FromSeconds(10);
+			});
+			services.AddScoped<IGeocodingService, VietmapGeocodingService>();
+
 
 			//Register other infrastructure services
 			services.AddScoped<IJwtService, JwtService>();

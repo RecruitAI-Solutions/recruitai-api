@@ -17,7 +17,7 @@ namespace RecruitAI_API.Controllers
 {
 	[AllowAnonymous]
 	[ApiController]
-	[Route("api/auth")]
+	[Route("api/v1/auth")]
 	public class AuthController : ControllerBase
 	{
 		private readonly IAuthService _authService;
