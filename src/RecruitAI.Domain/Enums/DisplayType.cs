@@ -2,23 +2,33 @@
 namespace RecruitAI.Domain.Enums
 {
 	/// <summary>
-	/// Kiểu hiển thị địa chỉ
+	/// Kiểu hiển thị địa chỉ theo Vietmap API v4
 	/// </summary>
 	public enum DisplayType
 	{
 		/// <summary>
-		/// Chỉ hiển thị format mới (2 cấp)
+		/// Format mới (2 cấp: ward → city)
 		/// </summary>
 		NewOnly = 1,
 
 		/// <summary>
-		/// Chỉ hiển thị format cũ (3 cấp)
+		/// Format cũ (3 cấp: ward → district → city)
 		/// </summary>
 		OldOnly = 2,
 
 		/// <summary>
-		/// Hiển thị cả format cũ và mới
+		/// Tự động detect theo input
 		/// </summary>
-		Both = 6
+		Auto = 3,
+
+		/// <summary>
+		/// Trả về format mới, kèm old boundaries (khuyến nghị)
+		/// </summary>
+		BothNewWithOld = 5,
+
+		/// <summary>
+		/// Trả về format cũ, kèm new boundaries
+		/// </summary>
+		BothOldWithNew = 6
 	}
 }

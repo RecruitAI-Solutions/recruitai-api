@@ -3,7 +3,7 @@ namespace RecruitAI.Application.DTOs.Responses.Geocoding
 {
 	public class AddressFormatDto
 	{
-		public FormatDetailDto New { get; set; } = new();
+		public FormatDetailDto? New { get; set; }
 		public FormatDetailDto Old { get; set; } = new();
 	}
 

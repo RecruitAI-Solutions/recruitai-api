@@ -23,6 +23,6 @@ namespace RecruitAI.Application.DTOs.Requests.Geocoding
 		public string? WardId { get; set; }
 
 		[Range(1, 6)]
-		public DisplayType DisplayType { get; set; } = DisplayType.Both;
+		public DisplayType DisplayType { get; set; } = DisplayType.BothNewWithOld;
 	}
 }

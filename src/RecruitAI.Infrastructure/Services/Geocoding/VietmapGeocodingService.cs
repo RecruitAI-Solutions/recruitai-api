@@ -61,18 +61,18 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 
 		public async Task<List<AddressDto>> SearchAddressAsync(
 			string text,
-			int? limit = 10,
+			int? limit = 5,
 			double? lat = null,
 			double? lng = null,
 			string? cityId = null,
 			string? wardId = null,
-			DisplayType? displayType = DisplayType.Both,
+			DisplayType? displayType = DisplayType.BothNewWithOld,
 			CancellationToken cancellationToken = default)
 		{
 			try
 			{
 				// 1. Kiểm tra cache
-				var cacheKey = $"geocoding:search:{text}:{limit}:{lat}:{lng}:{cityId}:{wardId}";
+				var cacheKey = $"geocoding:search:{text}:{limit}:{lat}:{lng}:{cityId}:{wardId}:{displayType}";
 				var cached = await _cache.GetAsync<List<AddressDto>>(cacheKey, cancellationToken);
 				if (cached != null)
 				{
@@ -80,8 +80,8 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 					return cached;
 				}
 
-				// 2. Gọi Vietmap API
-				var queryString = BuildQueryString(text, limit, lat, lng, displayType);
+				// 2. Gọi Vietmap API (không truyền limit vì API không hỗ trợ)
+				var queryString = BuildQueryString(text, lat, lng, displayType);
 				var fullUrl = $"{_baseUrl}?apikey={_apiKey}{queryString}";
 
 				_logger.LogInformation("Calling Vietmap API: {FullUrl}", fullUrl);
@@ -91,8 +91,6 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 				if (string.IsNullOrEmpty(response))
 					return new List<AddressDto>();
 
-				_logger.LogDebug("Vietmap API raw response: {Response}", response);
-
 				var vietmapPlaces = JsonSerializer.Deserialize<List<VietmapPlace>>(response);
 				if (vietmapPlaces == null)
 					return new List<AddressDto>();
@@ -100,28 +98,31 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 				// 3. Transform dữ liệu
 				var results = vietmapPlaces.Select(MapToAddressDto).ToList();
 
-				// 4. Lọc kết quả (nếu có)
+				// 4. GIỚI HẠN SỐ LƯỢNG KẾT QUẢ THEO LIMIT
+				if (limit.HasValue && results.Count > limit.Value)
+				{
+					_logger.LogInformation("Limiting results from {OriginalCount} to {Limit}",
+						results.Count, limit.Value);
+					results = results.Take(limit.Value).ToList();
+				}
+
+				// 5. Lọc kết quả (nếu có)
 				if (!string.IsNullOrEmpty(cityId) || !string.IsNullOrEmpty(wardId))
 				{
 					results = FilterResults(results, cityId, wardId);
 				}
 
-				// 5. Sắp xếp theo khoảng cách nếu có tọa độ
+				// 6. Sắp xếp theo khoảng cách nếu có tọa độ
 				if (lat.HasValue && lng.HasValue && results.Any())
 				{
 					results = results.OrderBy(a => CalculateDistance(
 						lat.Value, lng.Value, a.Location.Lat, a.Location.Lng)).ToList();
 				}
 
-				// 6. Lưu cache (5 phút)
+				// 7. Lưu cache (5 phút)
 				await _cache.SetAsync(cacheKey, results, TimeSpan.FromMinutes(5), cancellationToken);
 
 				return results;
-			}
-			catch (BrokenCircuitException ex)
-			{
-				_logger.LogError(ex, "Circuit is open, using fallback");
-				return new List<AddressDto>();
 			}
 			catch (Exception ex)
 			{
@@ -192,9 +193,9 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 			}
 		}
 
-		private string BuildQueryString(string text, int? limit, double? lat, double? lng, DisplayType? displayType)
+		private string BuildQueryString(string text, double? lat, double? lng, DisplayType? displayType)
 		{
-			var query = $"&text={Uri.EscapeDataString(text)}&limit={limit ?? 10}";
+			var query = $"&text={Uri.EscapeDataString(text)}";
 
 			if (lat.HasValue && lng.HasValue)
 			{
@@ -202,9 +203,15 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 						$"{lng.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
 			}
 
+			// Sử dụng display_type theo enum
 			if (displayType.HasValue)
 			{
 				query += $"&display_type={(int)displayType.Value}";
+			}
+			else
+			{
+				// Mặc định dùng 5 (both new with old)
+				query += "&display_type=5";
 			}
 
 			return query;
@@ -241,16 +248,16 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 
 		private AddressDto MapToAddressDto(VietmapPlace place)
 		{
-			// Tách tọa độ từ đâu đó? Vietmap API autocomplete không trả về lat/lng
-			// Tạm thời để 0
-			var location = new LocationDto { Lat = 0, Lng = 0 };
-
 			return new AddressDto
 			{
 				RefId = place.RefId,
 				FullAddress = place.Address,
 				Display = place.Display,
-				Location = location,
+				Location = new LocationDto
+				{
+					Lat = 0, // API autocomplete không trả về location
+					Lng = 0
+				},
 				Boundaries = place.Boundaries?.Select(b => new BoundaryDto
 				{
 					Type = (BoundaryType)b.Type,
@@ -260,17 +267,29 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 				}).ToList() ?? new(),
 				Formats = new AddressFormatDto
 				{
-					New = new FormatDetailDto
+					// Format mới từ data_new nếu có
+					New = place.DataNew != null ? new FormatDetailDto
 					{
-						Address = place.DataNew?.Address ?? place.Address,
-						Boundaries = place.DataNew?.Boundaries?.Select(b => new BoundaryInfoDto
+						Address = place.DataNew.Address,
+						Boundaries = place.DataNew.Boundaries?.Select(b => new BoundaryInfoDto
 						{
 							Type = b.Type,
 							Name = b.Name,
 							Code = b.Id.ToString()
 						}).ToList() ?? new()
-					},
-					Old = new FormatDetailDto
+					} : null,
+
+					// Format cũ từ place chính hoặc data_old
+					Old = place.DataOld != null ? new FormatDetailDto
+					{
+						Address = place.DataOld.Address,
+						Boundaries = place.DataOld.Boundaries?.Select(b => new BoundaryInfoDto
+						{
+							Type = b.Type,
+							Name = b.Name,
+							Code = b.Id.ToString()
+						}).ToList() ?? new()
+					} : new FormatDetailDto
 					{
 						Address = place.Address,
 						Boundaries = place.Boundaries?.Select(b => new BoundaryInfoDto

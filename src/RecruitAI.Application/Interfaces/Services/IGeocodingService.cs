@@ -24,7 +24,7 @@ namespace RecruitAI.Application.Interfaces.Services
 			double? lng = null,
 			string? cityId = null,
 			string? wardId = null,
-			DisplayType? displayType = DisplayType.Both,
+			DisplayType? displayType = DisplayType.BothNewWithOld,
 			CancellationToken cancellationToken = default);
 
 		/// <summary>

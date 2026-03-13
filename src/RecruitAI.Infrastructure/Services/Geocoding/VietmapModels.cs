@@ -3,7 +3,6 @@ using System.Text.Json.Serialization;
 
 namespace RecruitAI.Infrastructure.Services.Geocoding
 {
-	// API trả về mảng trực tiếp
 	public class VietmapPlace
 	{
 		[JsonPropertyName("ref_id")]
@@ -25,16 +24,19 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 		public List<VietmapBoundary>? Boundaries { get; set; }
 
 		[JsonPropertyName("categories")]
-		public List<object>? Categories { get; set; }
+		public List<string>? Categories { get; set; }
 
 		[JsonPropertyName("entry_points")]
-		public List<object>? EntryPoints { get; set; }
+		public List<VietmapEntryPoint>? EntryPoints { get; set; }
+
+		[JsonPropertyName("data_old")]
+		public VietmapPlaceVariant? DataOld { get; set; }
 
 		[JsonPropertyName("data_new")]
-		public VietmapPlaceNew? DataNew { get; set; }
+		public VietmapPlaceVariant? DataNew { get; set; }
 	}
 
-	public class VietmapPlaceNew
+	public class VietmapPlaceVariant
 	{
 		[JsonPropertyName("ref_id")]
 		public string RefId { get; set; } = string.Empty;
@@ -55,10 +57,10 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 		public List<VietmapBoundary>? Boundaries { get; set; }
 
 		[JsonPropertyName("categories")]
-		public List<object>? Categories { get; set; }
+		public List<string>? Categories { get; set; }
 
 		[JsonPropertyName("entry_points")]
-		public List<object>? EntryPoints { get; set; }
+		public List<VietmapEntryPoint>? EntryPoints { get; set; }
 	}
 
 	public class VietmapBoundary
@@ -77,5 +79,14 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 
 		[JsonPropertyName("full_name")]
 		public string FullName { get; set; } = string.Empty;
+	}
+
+	public class VietmapEntryPoint
+	{
+		[JsonPropertyName("ref_id")]
+		public string RefId { get; set; } = string.Empty;
+
+		[JsonPropertyName("name")]
+		public string Name { get; set; } = string.Empty;
 	}
 }
