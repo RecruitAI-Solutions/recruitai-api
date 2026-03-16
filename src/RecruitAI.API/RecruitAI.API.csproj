@@ -5,6 +5,7 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<RootNamespace>RecruitAI_API</RootNamespace>
+		<EnableHotReload>true</EnableHotReload>
 	</PropertyGroup>
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
@@ -45,6 +46,7 @@
 
 	<ItemGroup>
 		<Folder Include="Logs\" />
+		<Folder Include="wwwroot\uploads\cvs\" />
 	</ItemGroup>
 
 </Project>
