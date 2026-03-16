@@ -290,4 +290,7 @@
 		<data name="BusinessDatabaseError" xml:space="preserve">
 		<value>Lỗi database khi lưu CV</value>
 	</data>
+	<data name="BusinessUnauthorized" xml:space="preserve">
+		<value>Bạn không có quyền truy cập tài nguyên này</value>
+	</data>
 </root>
