@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FluentValidation;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Services;
@@ -6,6 +8,8 @@ using RecruitAI.Application.Validators;
 using RecruitAI.Domain.Interfaces.Services;
 using RecruitAI.Domain.Services;
 using RecruitAI.Infrastructure.Services;
+using System.Reflection;
+using RecruitAI.Application.Behaviors;
 
 namespace RecruitAI.Application
 {
@@ -13,6 +17,17 @@ namespace RecruitAI.Application
 	{
 		public static IServiceCollection AddApplication(this IServiceCollection services)
 		{
+			services.AddMediatR(cfg =>
+			{
+				cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
+				cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+				cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
+			});
+
+			services.AddAutoMapper(typeof(DependencyInjection));
+
+			services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
+
 			// Register application services here
 			services.AddScoped<ITestService, TestService>();
 			services.AddScoped<ITestDomainService, TestDomainService>();
@@ -22,12 +37,12 @@ namespace RecruitAI.Application
 			services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 			services.AddScoped<IEmailService, EmailService>();
 
-
 			//Validators
 			services.AddScoped<RegisterRequestValidator>();
 			services.AddScoped<LoginRequestValidator>();
 			services.AddScoped<ForgotPasswordRequestValidator>();
 			services.AddScoped<ResetPasswordRequestValidator>();
+			services.AddScoped<UploadCVCommandValidator>();
 
 			services.AddLocalization();
 

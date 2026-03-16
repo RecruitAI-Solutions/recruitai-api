@@ -15,6 +15,7 @@ public partial class RecruitDevContext : DbContext
 	public DbSet<User> Users { get; set; }
 	public DbSet<AuthProvider> AuthProviders { get; set; }
 	public DbSet<RefreshToken> RefreshTokens { get; set; }
+	public DbSet<CV> CVs { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -180,6 +181,37 @@ public partial class RecruitDevContext : DbContext
 
 			entity.HasIndex(e => e.ExpiryDate)
 				.HasDatabaseName("IX_PasswordResetTokens_ExpiryDate");
+		});
+
+		modelBuilder.Entity<CV>(entity =>
+		{
+			entity.HasKey(e => e.Id);
+
+			entity.Property(e => e.FileName)
+				.IsRequired()
+				.HasMaxLength(255);
+
+			entity.Property(e => e.StoredFileName)
+				.IsRequired()
+				.HasMaxLength(255);
+
+			entity.Property(e => e.FilePath)
+				.IsRequired()
+				.HasMaxLength(500);
+
+			entity.Property(e => e.ContentType)
+				.IsRequired()
+				.HasMaxLength(100);
+
+			entity.Property(e => e.Status)
+				.HasConversion<int>()
+				.HasDefaultValue(CVStatus.Pending);
+
+			entity.Property(e => e.UploadedAt)
+				.HasDefaultValueSql("GETUTCDATE()");
+
+			entity.HasIndex(e => e.UserId);
+			entity.HasIndex(e => e.Status);
 		});
 
 		OnModelCreatingPartial(modelBuilder);

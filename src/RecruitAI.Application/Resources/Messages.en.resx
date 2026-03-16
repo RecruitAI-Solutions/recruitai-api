@@ -226,4 +226,74 @@
 	<data name="SuccessPasswordReset" xml:space="preserve">
 		<value>Password reset successfully</value>
 	</data>
+	<data name="NoFileUploaded" xml:space="preserve">
+		<value>No file uploaded</value>
+	</data>
+		<data name="OnlyPdfAllowed" xml:space="preserve">
+		<value>Only PDF files are allowed</value>
+	</data>
+		<data name="CVNotFound" xml:space="preserve">
+		<value>CV not found</value>
+	</data>
+		<data name="CVFileMissing" xml:space="preserve">
+		<value>CV file is missing</value>
+	</data>
+		<data name="AccessDenied" xml:space="preserve">
+		<value>You don't have permission to access this CV</value>
+	</data>
+		<data name="UploadingCV" xml:space="preserve">
+		<value>Uploading file: {0}, Size: {1} bytes</value>
+	</data>
+		<data name="UploadCVSuccess" xml:space="preserve">
+		<value>CV uploaded successfully for user {0}, CV ID: {1}</value>
+	</data>
+		<data name="UploadCVError" xml:space="preserve">
+		<value>Error uploading CV</value>
+	</data>
+		<data name="DownloadCVError" xml:space="preserve">
+		<value>Error downloading CV {0}</value>
+	</data>
+		<data name="GetMyCVsError" xml:space="preserve">
+		<value>Error getting user CVs</value>
+	</data>
+	<data name="FileRequired" xml:space="preserve">
+		<value>File is required</value>
+	</data>
+		<data name="FileNameRequired" xml:space="preserve">
+		<value>File name is required</value>
+	</data>
+		<data name="FileEmpty" xml:space="preserve">
+		<value>File cannot be empty</value>
+	</data>
+	<!-- ===== BUSINESS MESSAGES - CV RELATED ===== -->
+	<data name="BusinessNoFileUploaded" xml:space="preserve">
+		<value>No file uploaded</value>
+	</data>
+		<data name="BusinessOnlyPdfAllowed" xml:space="preserve">
+		<value>Only PDF files are allowed</value>
+	</data>
+		<data name="BusinessCVNotFound" xml:space="preserve">
+		<value>CV not found</value>
+	</data>
+		<data name="BusinessCVFileMissing" xml:space="preserve">
+		<value>CV file is missing</value>
+	</data>
+		<data name="BusinessAccessDenied" xml:space="preserve">
+		<value>You don't have permission to access this CV</value>
+	</data>
+		<data name="BusinessFileTooLarge" xml:space="preserve">
+		<value>File too large, maximum size is 10MB</value>
+	</data>
+		<data name="BusinessFileUploadFailed" xml:space="preserve">
+		<value>Failed to upload file</value>
+	</data>
+		<data name="BusinessDatabaseError" xml:space="preserve">
+		<value>Database error while saving CV</value>
+	</data>
+	<data name="BusinessUnauthorized" xml:space="preserve">
+		<value>You are not authorized to access this resource</value>
+	</data>
+	<data name="BusinessForbidden" xml:space="preserve">
+		<value>You don't have permission to perform this action.</value>
+	</data>
 </root>
