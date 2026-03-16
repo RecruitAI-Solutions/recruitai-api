@@ -8,8 +8,11 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RecruitAI.API.Middleware;
 using RecruitAI.Application;
+using RecruitAI.Application.DTOs.Responses;
 using RecruitAI.Application.Helpers;
+using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Validators;
+using RecruitAI.Domain.Enums;
 using RecruitAI.Infrastructure;
 using RecruitAI.Infrastructure.Data;
 using Serilog;
@@ -197,7 +200,47 @@ builder.Services.AddAuthentication(options =>
 		{
 			var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
 			logger.LogWarning(ProgramMessages.Log("AuthChallenge"), context.Error, context.ErrorDescription);
-			return Task.CompletedTask;
+
+			// 👇 THÊM XỬ LÝ TRẢ VỀ JSON
+			context.HandleResponse(); // Chặn response mặc định
+
+			var messageService = context.HttpContext.RequestServices.GetService<IMessageService>();
+			var errorMessage = messageService?.Business("Unauthorized") ?? "Bạn không có quyền truy cập";
+
+			var response = new ErrorResponseDto
+			{
+				StatusCode = StatusCodes.Status401Unauthorized,
+				ErrorCode = ErrorCode.Unauthorized,
+				Message = errorMessage,
+				TraceId = context.HttpContext.TraceIdentifier,
+				Timestamp = DateTime.UtcNow
+			};
+
+			context.HttpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+			context.HttpContext.Response.ContentType = "application/json";
+
+			var json = System.Text.Json.JsonSerializer.Serialize(response);
+			return context.HttpContext.Response.WriteAsync(json);
+		},
+		OnForbidden = context =>
+		{
+			var messageService = context.HttpContext.RequestServices.GetService<IMessageService>();
+			var errorMessage = messageService?.Business("Forbidden") ?? "Bạn không có quyền thực hiện hành động này";
+
+			var response = new ErrorResponseDto
+			{
+				StatusCode = StatusCodes.Status403Forbidden,
+				ErrorCode = ErrorCode.Forbidden,
+				Message = errorMessage,
+				TraceId = context.HttpContext.TraceIdentifier,
+				Timestamp = DateTime.UtcNow
+			};
+
+			context.HttpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
+			context.HttpContext.Response.ContentType = "application/json";
+
+			var json = System.Text.Json.JsonSerializer.Serialize(response);
+			return context.HttpContext.Response.WriteAsync(json);
 		}
 	};
 })

@@ -5,19 +5,26 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<RootNamespace>RecruitAI_API</RootNamespace>
+		<EnableHotReload>true</EnableHotReload>
 	</PropertyGroup>
-
 	<ItemGroup>
+		<FrameworkReference Include="Microsoft.AspNetCore.App" />
+	</ItemGroup>
+	<ItemGroup>
+
 		<PackageReference Include="AspNet.Security.OAuth.GitHub" Version="10.0.0" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.3.9" />
+
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" Version="10.0.4" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="10.0.4" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.3" />
+
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 			<PrivateAssets>all</PrivateAssets>
 		</PackageReference>
+
 		<PackageReference Include="Microsoft.Extensions.Localization" Version="10.0.3" />
+
 		<PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
 		<PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
 		<PackageReference Include="Serilog.Enrichers.Thread" Version="4.0.0" />
@@ -25,9 +32,11 @@
 		<PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
 		<PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
 		<PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0" />
+
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="10.0.0" />
-		<!-- 👇 THÊM 1 DÒNG NÀY -->
+
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="7.0.0" />
+
 	</ItemGroup>
 
 	<ItemGroup>
@@ -36,7 +45,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="Logs\" />
+		<Folder Include="Logs\" />
+		<Folder Include="wwwroot\uploads\cvs\" />
 	</ItemGroup>
 
 </Project>
