@@ -104,6 +104,9 @@
 		/// <summary>CCCD/CMND không hợp lệ (400)</summary>
 		InvalidIdentityNumber = 3015,
 
+		/// <summary>Request không hợp lệ (400)</summary>
+		InvalidRequest = 3016,
+
 		// ===== AUTHORIZATION ERRORS (4000-4999) =====
 		/// <summary>Không có quyền truy cập (401)</summary>
 		Unauthorized = 4001,
@@ -241,6 +244,16 @@
 		EmailServiceError = 9005,
 
 		/// <summary>Request bị hủy bởi client (499)</summary>
-		OperationCancelled = 499,
+		OperationCancelled = 499,  
+
+		// ===== CV RELATED ERRORS (2000-2999) =====
+		/// <summary>Không tìm thấy CV</summary>
+		CVNotFound = 2001,
+
+		/// <summary>File CV bị thiếu</summary>
+		CVFileMissing = 2002,
+
+		/// <summary>Loại file không hợp lệ</summary>
+		InvalidFileType = 2003,
 	}
 }

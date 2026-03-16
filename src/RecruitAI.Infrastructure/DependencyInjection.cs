@@ -9,6 +9,7 @@ using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Infrastructure.Services;
 using RecruitAI.Infrastructure.Caching;
 using RecruitAI.Infrastructure.Services.Geocoding;
+using RecruitAI.Domain.Interfaces;
 
 
 namespace RecruitAI.Infrastructure
@@ -30,6 +31,8 @@ namespace RecruitAI.Infrastructure
 			services.AddScoped<IUserRepository, UserRepository>();
 			services.AddScoped<IAuthProviderRepository, AuthProviderRepository>();
 			services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+			services.AddScoped<ICVRepository, CVRepository>();
+
 			services.AddScoped<IWorkContext, WorkContext>();
 			services.AddScoped<IEmailTemplateService, EmailTemplateService>();
 			services.AddScoped<IRolePermissionService, RolePermissionService>();
