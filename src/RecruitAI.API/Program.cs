@@ -273,7 +273,98 @@ builder.Services.AddAuthentication(options =>
 	options.Scope.Add("user:email");
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+	// ===== AUTH PERMISSIONS =====
+	options.AddPolicy("ViewProfile", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P004") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	options.AddPolicy("ChangePassword", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P005") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	options.AddPolicy("ViewPermissions", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P012") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	// ===== CV PERMISSIONS =====
+	options.AddPolicy("UploadCV", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P003") ||
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P101") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	options.AddPolicy("ViewOwnCVs", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P102") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	options.AddPolicy("DownloadOwnCV", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P103") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	options.AddPolicy("ExtractCVText", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P105") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	// ===== JOB PERMISSIONS =====
+	options.AddPolicy("CreateJob", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P006") ||
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P201") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	options.AddPolicy("EditOwnJob", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P007") ||
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P202") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	options.AddPolicy("DeleteOwnJob", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P008") ||
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P203") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	options.AddPolicy("ViewAllJobs", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P001") ||
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P204") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	// ===== ADMIN PERMISSIONS =====
+	options.AddPolicy("AdminOnly", policy =>
+		policy.RequireRole("ADMIN"));
+
+	options.AddPolicy("ManageUsers", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P011") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	options.AddPolicy("ManageRoles", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P012") ||
+			context.User.IsInRole("ADMIN")
+		));
+});
 
 // 4. RAZOR RUNTIME COMPILATION
 if (builder.Environment.IsDevelopment())

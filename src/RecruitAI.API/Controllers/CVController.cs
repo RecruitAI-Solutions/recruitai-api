@@ -27,6 +27,7 @@ public class CVController : BaseController
 	}
 
 	[HttpPost("upload")]
+	[Authorize(Policy = "UploadCV")]
 	[RequestSizeLimit(10 * 1024 * 1024)]
 	public async Task<ActionResult<UploadCVResponseDto>> UploadCV(IFormFile file)
 	{
@@ -63,6 +64,7 @@ public class CVController : BaseController
 	}
 
 	[HttpGet("{id}")]
+	[Authorize(Policy = "DownloadOwnCV")]
 	public async Task<IActionResult> DownloadCV(Guid id)
 	{
 		// Xác thực user
@@ -135,6 +137,7 @@ public class CVController : BaseController
 	}
 
 	[HttpGet("my-cvs")]
+	[Authorize(Policy = "ViewOwnCVs")]
 	public async Task<ActionResult<IEnumerable<CV>>> GetMyCVs()
 	{
 		return await ExecuteAsync<IEnumerable<CV>>(async () =>
