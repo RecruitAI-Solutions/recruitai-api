@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using RecruitAI.Application.Interfaces.Services;
-using RecruitAI.Application.Commands.CVs;
+using RecruitAI.Application.Commands;
 
 namespace RecruitAI.Application.Validators;
 

@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RecruitAI.Application.Commands.CVs;
+using RecruitAI.Application.Commands;
 using RecruitAI.Application.DTOs.Responses;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Queries.CVs;
@@ -28,9 +28,9 @@ public class CVController : BaseController
 
 	[HttpPost("upload")]
 	[RequestSizeLimit(10 * 1024 * 1024)]
-	public async Task<ActionResult<UploadCVResponse>> UploadCV(IFormFile file)
+	public async Task<ActionResult<UploadCVResponseDto>> UploadCV(IFormFile file)
 	{
-		return await ExecuteAsync<UploadCVResponse>(async () =>
+		return await ExecuteAsync<UploadCVResponseDto>(async () =>
 		{
 			var userId = GetCurrentUserId();
 			if (userId == null)

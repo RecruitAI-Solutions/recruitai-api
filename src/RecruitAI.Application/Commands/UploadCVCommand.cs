@@ -7,10 +7,11 @@ using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using RecruitAI.Domain.Interfaces;
+using RecruitAI.Application.DTOs.Responses;
 
-namespace RecruitAI.Application.Commands.CVs;
+namespace RecruitAI.Application.Commands;
 
-public class UploadCVCommand : IRequest<UploadCVResponse>
+public class UploadCVCommand : IRequest<UploadCVResponseDto>
 {
 	public Guid UserId { get; set; }
 	public string FileName { get; set; } = string.Empty;
@@ -19,17 +20,7 @@ public class UploadCVCommand : IRequest<UploadCVResponse>
 	public string ContentType { get; set; } = string.Empty;
 }
 
-public class UploadCVResponse
-{
-	public Guid CvId { get; set; }
-	public string FileName { get; set; } = string.Empty;
-	public string FilePath { get; set; } = string.Empty;
-	public long FileSize { get; set; }
-	public DateTime UploadedAt { get; set; }
-	public string Status { get; set; } = string.Empty;
-}
-
-public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVResponse>
+public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVResponseDto>
 {
 	private readonly ICVRepository _cvRepository;
 	private readonly IWebHostEnvironment _env;
@@ -48,7 +39,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 		_msg = messageService;
 	}
 
-	public async Task<UploadCVResponse> Handle(UploadCVCommand request, CancellationToken cancellationToken)
+	public async Task<UploadCVResponseDto> Handle(UploadCVCommand request, CancellationToken cancellationToken)
 	{
 		try
 		{
@@ -147,7 +138,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 					_msg.Business("DatabaseError"));  
 			}
 
-			return new UploadCVResponse
+			return new UploadCVResponseDto
 			{
 				CvId = cvId,
 				FileName = request.FileName,
