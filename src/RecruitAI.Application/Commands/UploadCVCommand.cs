@@ -6,7 +6,7 @@ using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
-using RecruitAI.Domain.Interfaces;
+using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Application.DTOs.Responses;
 
 namespace RecruitAI.Application.Commands;
