@@ -70,7 +70,7 @@ public class JobsController : BaseController
 			// Tăng lượt xem
 			if (result != null)
 			{
-				// Có thể gửi command tăng view ở đây
+				// command tăng view ở đây
 				// await _mediator.Send(new IncrementJobViewsCommand { Id = id }, cancellationToken);
 			}
 
