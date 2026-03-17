@@ -123,6 +123,128 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.ToTable("CVs");
                 });
 
+            modelBuilder.Entity("RecruitAI.Domain.Entities.Job", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Applications")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Benefits")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int>("Currency")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<int?>("EmploymentType")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ExperienceLevel")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("ExpirationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Location")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<Guid>("RecruiterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Requirements")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<decimal?>("SalaryMax")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal?>("SalaryMin")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("Skills")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Views")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("IX_Jobs_CreatedAt");
+
+                    b.HasIndex("EmploymentType")
+                        .HasDatabaseName("IX_Jobs_EmploymentType");
+
+                    b.HasIndex("ExperienceLevel")
+                        .HasDatabaseName("IX_Jobs_ExperienceLevel");
+
+                    b.HasIndex("ExpirationDate")
+                        .HasDatabaseName("IX_Jobs_ExpirationDate");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Jobs_IsDeleted");
+
+                    b.HasIndex("Location")
+                        .HasDatabaseName("IX_Jobs_Location");
+
+                    b.HasIndex("RecruiterId")
+                        .HasDatabaseName("IX_Jobs_RecruiterId");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_Jobs_Status");
+
+                    b.HasIndex("Title")
+                        .HasDatabaseName("IX_Jobs_Title");
+
+                    b.ToTable("Jobs");
+                });
+
             modelBuilder.Entity("RecruitAI.Domain.Entities.PasswordResetToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -328,6 +450,17 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("RecruitAI.Domain.Entities.Job", b =>
+                {
+                    b.HasOne("RecruitAI.Domain.Entities.User", "Recruiter")
+                        .WithMany()
+                        .HasForeignKey("RecruiterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Recruiter");
+                });
+
             modelBuilder.Entity("RecruitAI.Domain.Entities.PasswordResetToken", b =>
                 {
                     b.HasOne("RecruitAI.Domain.Entities.User", "User")
@@ -356,7 +489,6 @@ namespace RecruitAI.Infrastructure.Migrations
 
                     b.Navigation("RefreshTokens");
                 });
-#pragma warning restore 612, 618
         }
     }
 }

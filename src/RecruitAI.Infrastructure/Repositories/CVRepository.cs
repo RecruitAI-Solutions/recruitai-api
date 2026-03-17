@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RecruitAI.Domain.Common;
 using RecruitAI.Domain.Entities;
-using RecruitAI.Domain.Interfaces;
+using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Infrastructure.Data;
 
 namespace RecruitAI.Infrastructure.Repositories;
@@ -16,7 +17,8 @@ public class CVRepository : ICVRepository
 
 	public async Task<CV?> GetByIdAsync(Guid id)
 	{
-		return await _context.CVs.FindAsync(id);
+		return await _context.CVs
+			.FirstOrDefaultAsync(c => c.Id == id);
 	}
 
 	public async Task<IEnumerable<CV>> GetByUserIdAsync(Guid userId)
@@ -25,6 +27,69 @@ public class CVRepository : ICVRepository
 			.Where(c => c.UserId == userId)
 			.OrderByDescending(c => c.UploadedAt)
 			.ToListAsync();
+	}
+
+	public async Task<(IEnumerable<CV> Items, int Total)> GetUserCVsAsync(
+		Guid userId,
+		CVFilter filter,
+		CancellationToken cancellationToken = default)
+	{
+		// Bắt đầu query với điều kiện userId
+		var query = _context.CVs
+			.Where(c => c.UserId == userId);
+
+		// Filter by status
+		if (filter.Status.HasValue)
+		{
+			query = query.Where(c => c.Status == filter.Status.Value);
+		}
+
+		// Filter by date range
+		if (filter.FromDate.HasValue)
+		{
+			var fromDateUtc = filter.FromDate.Value.ToUniversalTime();
+			query = query.Where(c => c.UploadedAt >= fromDateUtc);
+		}
+
+		if (filter.ToDate.HasValue)
+		{
+			var toDateUtc = filter.ToDate.Value.ToUniversalTime().Date.AddDays(1).AddTicks(-1);
+			query = query.Where(c => c.UploadedAt <= toDateUtc);
+		}
+
+		// Filter by file name
+		if (!string.IsNullOrWhiteSpace(filter.FileName))
+		{
+			query = query.Where(c => c.FileName.Contains(filter.FileName));
+		}
+
+		// Get total count before pagination
+		var total = await query.CountAsync(cancellationToken);
+
+		// Apply sorting
+		query = filter.SortBy?.ToLower() switch
+		{
+			"filename" => filter.SortOrder?.ToLower() == "asc"
+				? query.OrderBy(c => c.FileName)
+				: query.OrderByDescending(c => c.FileName),
+			"filesize" => filter.SortOrder?.ToLower() == "asc"
+				? query.OrderBy(c => c.FileSize)
+				: query.OrderByDescending(c => c.FileSize),
+			"status" => filter.SortOrder?.ToLower() == "asc"
+				? query.OrderBy(c => c.Status)
+				: query.OrderByDescending(c => c.Status),
+			_ => filter.SortOrder?.ToLower() == "asc"
+				? query.OrderBy(c => c.UploadedAt)
+				: query.OrderByDescending(c => c.UploadedAt)
+		};
+
+		// Apply pagination
+		var items = await query
+			.Skip((filter.Page - 1) * filter.PageSize)
+			.Take(filter.PageSize)
+			.ToListAsync(cancellationToken);
+
+		return (items, total);
 	}
 
 	public async Task AddAsync(CV cv)

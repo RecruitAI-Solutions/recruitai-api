@@ -1,4 +1,4 @@
-﻿using RecruitAI.Application.Interfaces.Repositories;
+﻿using RecruitAI.Domain.Interfaces.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,6 +14,8 @@ namespace RecruitAI.Application.Interfaces
 		IRefreshTokenRepository RefreshTokens { get; }
 		ITestRepository Tests { get; }
 		IPasswordResetTokenRepository PasswordResetTokens { get; }
+		IJobRepository Jobs { get; }
+		ICVRepository CVs{ get; }
 
 		Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 		Task BeginTransactionAsync(CancellationToken cancellationToken = default);

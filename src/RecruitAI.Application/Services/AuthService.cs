@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using RecruitAI.Application.DTOs;
+using RecruitAI.Application.DTOs.Auths;
 using RecruitAI.Application.DTOs.Requests;
 using RecruitAI.Application.DTOs.Responses;
 using RecruitAI.Application.Helpers;

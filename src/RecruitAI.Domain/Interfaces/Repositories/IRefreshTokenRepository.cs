@@ -1,6 +1,6 @@
 ﻿using RecruitAI.Domain.Entities;
 
-namespace RecruitAI.Application.Interfaces.Repositories
+namespace RecruitAI.Domain.Interfaces.Repositories
 {
 	public interface IRefreshTokenRepository : IBaseRepository<RefreshToken>
 	{

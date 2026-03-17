@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using RecruitAI.Application.DTOs;
+using RecruitAI.Application.DTOs.Auths;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
 
