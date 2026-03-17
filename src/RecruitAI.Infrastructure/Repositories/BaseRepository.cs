@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using RecruitAI.Application.Interfaces.Repositories;
+using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Infrastructure.Data;
 
 namespace RecruitAI.Infrastructure.Repositories

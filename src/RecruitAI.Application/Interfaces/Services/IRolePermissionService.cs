@@ -1,4 +1,4 @@
-﻿using RecruitAI.Application.DTOs;
+﻿using RecruitAI.Application.DTOs.Auths;
 using RecruitAI.Domain.Enums;
 
 namespace RecruitAI.Application.Interfaces.Services

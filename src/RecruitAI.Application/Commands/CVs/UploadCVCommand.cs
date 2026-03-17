@@ -8,8 +8,9 @@ using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using RecruitAI.Domain.Interfaces;
 using RecruitAI.Application.DTOs.Responses;
+using RecruitAI.Application.Interfaces;
 
-namespace RecruitAI.Application.Commands;
+namespace RecruitAI.Application.Commands.CVs;
 
 public class UploadCVCommand : IRequest<UploadCVResponseDto>
 {
@@ -22,18 +23,18 @@ public class UploadCVCommand : IRequest<UploadCVResponseDto>
 
 public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVResponseDto>
 {
-	private readonly ICVRepository _cvRepository;
+	private readonly IUnitOfWork _uow;
 	private readonly IWebHostEnvironment _env;
 	private readonly ILogger<UploadCVCommandHandler> _logger;
 	private readonly IMessageService _msg;
 
 	public UploadCVCommandHandler(
-		ICVRepository cvRepository,
+		IUnitOfWork uow,
 		IWebHostEnvironment env,
 		ILogger<UploadCVCommandHandler> logger,
 		IMessageService messageService)
 	{
-		_cvRepository = cvRepository;
+		_uow = uow;
 		_env = env;
 		_logger = logger;
 		_msg = messageService;
@@ -121,7 +122,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 
 			try
 			{
-				await _cvRepository.AddAsync(cv);
+				await _uow.CVs.AddAsync(cv);
 			}
 			catch (Exception ex)
 			{
