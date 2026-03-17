@@ -209,4 +209,28 @@ public class JobsController : BaseController
 			return result;
 		});
 	}
+
+	/// <summary>
+	/// Lấy danh sách jobs đã xóa (chỉ Admin)
+	/// </summary>
+	/// <param name="filter">Bộ lọc tìm kiếm</param>
+	/// <param name="cancellationToken">Cancellation token</param>
+	/// <returns>Danh sách jobs đã xóa</returns>
+	[HttpGet("deleted")]
+	[Authorize(Roles = "ADMIN")]
+	[ProducesResponseType(typeof(PaginationResponseDto<JobListDto>), StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+	[ProducesResponseType(StatusCodes.Status403Forbidden)]
+	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
+	public async Task<ActionResult<PaginationResponseDto<JobListDto>>> GetDeletedJobs(
+		[FromQuery] JobFilterDto filter,
+		CancellationToken cancellationToken)
+	{
+		return await ExecuteAsync<PaginationResponseDto<JobListDto>>(async () =>
+		{
+			var query = new GetDeletedJobsQuery { Filter = filter };
+			var result = await _mediator.Send(query, cancellationToken);
+			return result;
+		});
+	}
 }

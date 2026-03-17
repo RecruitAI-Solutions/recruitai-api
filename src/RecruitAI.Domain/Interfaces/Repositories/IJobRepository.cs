@@ -16,4 +16,7 @@ public interface IJobRepository
 		Guid recruiterId,
 		JobFilter filter,
 		CancellationToken cancellationToken = default);
+	Task<PagedResult<Job>> GetDeletedJobsAsync(
+	JobFilter filter,
+	CancellationToken cancellationToken = default);
 }
