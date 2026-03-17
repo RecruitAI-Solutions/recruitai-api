@@ -2,13 +2,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using RecruitAI.Application.DTOs;
 using RecruitAI.Application.DTOs.Requests;
 using RecruitAI.Application.DTOs.Responses;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using RecruitAI.Application.DTOs.Auths;
 
 namespace RecruitAI.API.Controllers;
 
@@ -91,7 +91,7 @@ public class AuthController : BaseController
 	#region User Profile Endpoints
 
 	[HttpGet("me")]
-	[Authorize]
+	[Authorize(Policy = "ViewProfile")]
 	public async Task<ActionResult<UserProfileDto>> GetCurrentUser(CancellationToken cancellationToken)
 	{
 		return await ExecuteAsync<UserProfileDto>(async () =>
@@ -106,7 +106,7 @@ public class AuthController : BaseController
 	}
 
 	[HttpPost("change-password")]
-	[Authorize]
+	[Authorize(Policy = "ChangePassword")]
 	public async Task<ActionResult<ChangePasswordResponseDto>> ChangePassword(
 		[FromBody] ChangePasswordRequestDto request,
 		CancellationToken cancellationToken)
@@ -217,7 +217,7 @@ public class AuthController : BaseController
 	}
 
 	[HttpGet("user-permissions")]
-	[Authorize]
+	[Authorize(Policy = "ViewPermissions")]
 	public IActionResult GetUserPermissions([FromQuery] string language = "vi")
 	{
 		// Lấy roles từ claims - thử nhiều cách

@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using RecruitAI.Infrastructure.Data;
 using RecruitAI.Infrastructure.Repositories;
 using RecruitAI.Application.Interfaces;
-using RecruitAI.Application.Interfaces.Repositories;
+using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Infrastructure.Services;
 using RecruitAI.Infrastructure.Caching;
@@ -32,6 +32,8 @@ namespace RecruitAI.Infrastructure
 			services.AddScoped<IAuthProviderRepository, AuthProviderRepository>();
 			services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 			services.AddScoped<ICVRepository, CVRepository>();
+			services.AddScoped<IJobRepository, JobRepository>();
+
 
 			services.AddScoped<IWorkContext, WorkContext>();
 			services.AddScoped<IEmailTemplateService, EmailTemplateService>();

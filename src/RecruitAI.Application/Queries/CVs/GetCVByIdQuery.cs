@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
@@ -15,20 +16,20 @@ public class GetCVByIdQuery : IRequest<CV?>
 
 public class GetCVByIdQueryHandler : IRequestHandler<GetCVByIdQuery, CV?>
 {
-	private readonly ICVRepository _cvRepository;
+	private readonly IUnitOfWork _uow;
 	private readonly IMessageService _msg;
 
 	public GetCVByIdQueryHandler(
-		ICVRepository cvRepository,
+		IUnitOfWork uow,
 		IMessageService messageService)
 	{
-		_cvRepository = cvRepository;
+		_uow = uow;
 		_msg = messageService;
 	}
 
 	public async Task<CV?> Handle(GetCVByIdQuery request, CancellationToken cancellationToken)
 	{
-		var cv = await _cvRepository.GetByIdAsync(request.Id);
+		var cv = await _uow.CVs.GetByIdAsync(request.Id);
 
 		// Kiểm tra CV có tồn tại không
 		if (cv == null)

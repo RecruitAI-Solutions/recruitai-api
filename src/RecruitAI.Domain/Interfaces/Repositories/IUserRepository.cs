@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace RecruitAI.Application.Interfaces.Repositories
+namespace RecruitAI.Domain.Interfaces.Repositories
 {
 	public interface IUserRepository : IBaseRepository<User>
 	{

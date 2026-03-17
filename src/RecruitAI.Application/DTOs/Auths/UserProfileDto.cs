@@ -1,6 +1,6 @@
 ﻿using RecruitAI.Domain.Enums;
 
-namespace RecruitAI.Application.DTOs
+namespace RecruitAI.Application.DTOs.Auths
 {
 	public class UserProfileDto
 	{
