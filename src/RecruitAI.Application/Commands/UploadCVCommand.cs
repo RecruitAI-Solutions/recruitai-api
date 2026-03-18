@@ -1,13 +1,12 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using RecruitAI.Application.DTOs.Responses;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
-using RecruitAI.Domain.Interfaces;
-using RecruitAI.Application.DTOs.Responses;
+using RecruitAI.Domain.Interfaces.Repositories;
 
 namespace RecruitAI.Application.Commands;
 
@@ -48,21 +47,21 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 			{
 				throw new BusinessException(
 					ErrorCode.InvalidFile,
-					_msg.Business("EmptyFile")); 
+					_msg.Business("EmptyFile"));
 			}
 
 			if (request.FileSize > 10 * 1024 * 1024) // 10MB
 			{
 				throw new BusinessException(
 					ErrorCode.FileTooLarge,
-					_msg.Business("FileTooLarge"));  
+					_msg.Business("FileTooLarge"));
 			}
 
 			if (!request.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase))
 			{
 				throw new BusinessException(
 					ErrorCode.InvalidFileType,
-					_msg.Business("OnlyPdfAllowed"));  
+					_msg.Business("OnlyPdfAllowed"));
 			}
 
 			var cvId = Guid.NewGuid();
@@ -75,7 +74,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 			{
 				throw new BusinessException(
 					ErrorCode.ConfigurationError,
-					"Web root path not configured");  
+					"Web root path not configured");
 			}
 
 			var fileName = $"{cvId}_{Guid.NewGuid()}.pdf";
@@ -102,7 +101,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 				_logger.LogError(ex, "Failed to save file to disk");
 				throw new BusinessException(
 					ErrorCode.FileUploadFailed,
-					_msg.Business("FileUploadFailed"));  
+					_msg.Business("FileUploadFailed"));
 			}
 
 			// Lưu database
@@ -135,7 +134,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 
 				throw new BusinessException(
 					ErrorCode.DatabaseError,
-					_msg.Business("DatabaseError"));  
+					_msg.Business("DatabaseError"));
 			}
 
 			return new UploadCVResponseDto
@@ -158,7 +157,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 			_logger.LogError(ex, "Unexpected error uploading CV for user {UserId}", request.UserId);
 			throw new BusinessException(
 				ErrorCode.InternalServerError,
-				_msg.Business("InternalServerError"));  
+				_msg.Business("InternalServerError"));
 		}
 	}
 
@@ -170,7 +169,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 		{
 			throw new BusinessException(
 				ErrorCode.ConfigurationError,
-				"Web root path not configured");  
+				"Web root path not configured");
 		}
 
 		return Path.Combine(
