@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RecruitAI.Application.Interfaces.Repositories;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
+using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Infrastructure.Data;
 
 namespace RecruitAI.Infrastructure.Repositories

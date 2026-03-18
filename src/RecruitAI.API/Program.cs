@@ -162,7 +162,33 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 
-// 3.8 Authentication & Authorization - ĐÃ SỬA
+// 3.8 Authentication & Authorization 
+
+// Lấy key theo logic giống JwtService
+var jwtKey = Environment.GetEnvironmentVariable("Jwt__Key");
+if (string.IsNullOrEmpty(jwtKey))
+	jwtKey = builder.Configuration["Jwt:Key"];
+
+// Auto-generate cho development nếu cần
+if (string.IsNullOrEmpty(jwtKey) && builder.Environment.IsDevelopment())
+{
+	jwtKey = GenerateRandomKey(32);
+	builder.Configuration["Jwt:Key"] = jwtKey; // Lưu lại để dùng
+	Console.WriteLine($"Auto-generated JWT Key: {jwtKey}");
+}
+
+if (string.IsNullOrEmpty(jwtKey))
+	throw new InvalidOperationException("JWT Key is not configured");
+
+// Thêm method GenerateRandomKey (giống trong JwtService)
+string GenerateRandomKey(int length)
+{
+	const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+	var random = new Random();
+	return new string(Enumerable.Repeat(chars, length)
+		.Select(s => s[random.Next(s.Length)]).ToArray());
+}
+
 builder.Services.AddAuthentication(options =>
 {
 	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -170,80 +196,79 @@ builder.Services.AddAuthentication(options =>
 	options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
 })
 .AddCookie(IdentityConstants.ExternalScheme)
-.AddJwtBearer(options =>
-{
-	options.TokenValidationParameters = new TokenValidationParameters
-	{
-		ValidateIssuer = !builder.Environment.IsDevelopment(),
-		ValidateAudience = !builder.Environment.IsDevelopment(),
-		ValidateLifetime = true,
-		ValidateIssuerSigningKey = true,
-		ValidIssuer = builder.Environment.IsDevelopment()
-			? null
-			: builder.Configuration["Jwt:Issuer"],
-		ValidAudience = builder.Environment.IsDevelopment()
-			? null
-			: builder.Configuration["Jwt:Audience"],
-		IssuerSigningKey = new SymmetricSecurityKey(
-			Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
-	};
+ .AddJwtBearer(options =>
+ {
+	 options.TokenValidationParameters = new TokenValidationParameters
+	 {
+		 ValidateIssuer = !builder.Environment.IsDevelopment(),
+		 ValidateAudience = !builder.Environment.IsDevelopment(),
+		 ValidateLifetime = true,
+		 ValidateIssuerSigningKey = true,
+		 ValidIssuer = builder.Environment.IsDevelopment()
+			 ? null
+			 : builder.Configuration["Jwt:Issuer"],
+		 ValidAudience = builder.Environment.IsDevelopment()
+			 ? null
+			 : builder.Configuration["Jwt:Audience"],
+		 IssuerSigningKey = new SymmetricSecurityKey(
+			 Encoding.UTF8.GetBytes(jwtKey)) 
+	 };
 
-	options.Events = new JwtBearerEvents
-	{
-		OnAuthenticationFailed = context =>
-		{
-			var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-			logger.LogError(context.Exception, ProgramMessages.Log("AuthFailed"));
-			return Task.CompletedTask;
-		},
-		OnChallenge = context =>
-		{
-			var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
-			logger.LogWarning(ProgramMessages.Log("AuthChallenge"), context.Error, context.ErrorDescription);
+	 options.Events = new JwtBearerEvents
+	 {
+		 OnAuthenticationFailed = context =>
+		 {
+			 var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+			 logger.LogError(context.Exception, ProgramMessages.Log("AuthFailed"));
+			 return Task.CompletedTask;
+		 },
+		 OnChallenge = context =>
+		 {
+			 var logger = context.HttpContext.RequestServices.GetRequiredService<ILogger<Program>>();
+			 logger.LogWarning(ProgramMessages.Log("AuthChallenge"), context.Error, context.ErrorDescription);
 
-			// 👇 THÊM XỬ LÝ TRẢ VỀ JSON
-			context.HandleResponse(); // Chặn response mặc định
+			 context.HandleResponse();
 
-			var messageService = context.HttpContext.RequestServices.GetService<IMessageService>();
-			var errorMessage = messageService?.Business("Unauthorized") ?? "Bạn không có quyền truy cập";
+			 var messageService = context.HttpContext.RequestServices.GetService<IMessageService>();
+			 var errorMessage = messageService?.Business("Unauthorized") ?? "Bạn không có quyền truy cập";
 
-			var response = new ErrorResponseDto
-			{
-				StatusCode = StatusCodes.Status401Unauthorized,
-				ErrorCode = ErrorCode.Unauthorized,
-				Message = errorMessage,
-				TraceId = context.HttpContext.TraceIdentifier,
-				Timestamp = DateTime.UtcNow
-			};
+			 var response = new ErrorResponseDto
+			 {
+				 StatusCode = StatusCodes.Status401Unauthorized,
+				 ErrorCode = ErrorCode.Unauthorized,
+				 Message = errorMessage,
+				 TraceId = context.HttpContext.TraceIdentifier,
+				 Timestamp = DateTime.UtcNow
+			 };
 
-			context.HttpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
-			context.HttpContext.Response.ContentType = "application/json";
+			 context.HttpContext.Response.StatusCode = StatusCodes.Status401Unauthorized;
+			 context.HttpContext.Response.ContentType = "application/json";
 
-			var json = System.Text.Json.JsonSerializer.Serialize(response);
-			return context.HttpContext.Response.WriteAsync(json);
-		},
-		OnForbidden = context =>
-		{
-			var messageService = context.HttpContext.RequestServices.GetService<IMessageService>();
-			var errorMessage = messageService?.Business("Forbidden") ?? "Bạn không có quyền thực hiện hành động này";
+			 var json = System.Text.Json.JsonSerializer.Serialize(response);
+			 return context.HttpContext.Response.WriteAsync(json);
+		 },
+		 OnForbidden = context =>
+		 {
+			 var messageService = context.HttpContext.RequestServices.GetService<IMessageService>();
+			 var errorMessage = messageService?.Business("Forbidden") ?? "Bạn không có quyền thực hiện hành động này";
 
-			var response = new ErrorResponseDto
-			{
-				StatusCode = StatusCodes.Status403Forbidden,
-				ErrorCode = ErrorCode.Forbidden,
-				Message = errorMessage,
-				TraceId = context.HttpContext.TraceIdentifier,
-				Timestamp = DateTime.UtcNow
-			};
+			 var response = new ErrorResponseDto
+			 {
+				 StatusCode = StatusCodes.Status403Forbidden,
+				 ErrorCode = ErrorCode.Forbidden,
+				 Message = errorMessage,
+				 TraceId = context.HttpContext.TraceIdentifier,
+				 Timestamp = DateTime.UtcNow
+			 };
 
-			context.HttpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
-			context.HttpContext.Response.ContentType = "application/json";
+			 context.HttpContext.Response.StatusCode = StatusCodes.Status403Forbidden;
+			 context.HttpContext.Response.ContentType = "application/json";
 
-			var json = System.Text.Json.JsonSerializer.Serialize(response);
-			return context.HttpContext.Response.WriteAsync(json);
-		}
-	};
-})
+			 var json = System.Text.Json.JsonSerializer.Serialize(response);
+			 return context.HttpContext.Response.WriteAsync(json);
+		 }
+	 };
+ })
 .AddGoogle(options =>
 {
 	options.ClientId = builder.Configuration["Authentication:Google:ClientId"];
@@ -273,7 +298,111 @@ builder.Services.AddAuthentication(options =>
 	options.Scope.Add("user:email");
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+	// ===== AUTH PERMISSIONS =====
+	options.AddPolicy("ViewProfile", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P004") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	options.AddPolicy("ChangePassword", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P005") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	options.AddPolicy("ViewPermissions", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P012") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	// ===== CV PERMISSIONS =====
+	// ===== CV PERMISSIONS =====
+	options.AddPolicy("UploadCV", policy =>
+		policy.RequireAssertion(context =>
+		{
+			// Log để debug
+			var permissions = context.User.Claims
+				.Where(c => c.Type == "permission")
+				.Select(c => c.Value)
+				.ToList();
+
+			Console.WriteLine($"User permissions: {string.Join(", ", permissions)}");
+			Console.WriteLine($"Has P003: {permissions.Contains("P003")}");
+			Console.WriteLine($"Has P101: {permissions.Contains("P101")}");
+			Console.WriteLine($"Is Admin: {context.User.IsInRole("ADMIN")}");
+
+			return permissions.Contains("P003") ||
+				   permissions.Contains("P101") ||
+				   context.User.IsInRole("ADMIN");
+		}));
+
+	options.AddPolicy("ViewOwnCVs", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P102") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	options.AddPolicy("DownloadOwnCV", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P103") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	options.AddPolicy("ExtractCVText", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P105") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	// ===== JOB PERMISSIONS =====
+	options.AddPolicy("CreateJob", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P006") ||
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P201") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	options.AddPolicy("EditOwnJob", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P007") ||
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P202") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	options.AddPolicy("DeleteOwnJob", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P008") ||
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P203") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	options.AddPolicy("ViewAllJobs", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P001") ||
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P204") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	// ===== ADMIN PERMISSIONS =====
+	options.AddPolicy("AdminOnly", policy =>
+		policy.RequireRole("ADMIN"));
+
+	options.AddPolicy("ManageUsers", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P011") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	options.AddPolicy("ManageRoles", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P012") ||
+			context.User.IsInRole("ADMIN")
+		));
+});
 
 // 4. RAZOR RUNTIME COMPILATION
 if (builder.Environment.IsDevelopment())

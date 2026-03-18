@@ -1,7 +1,7 @@
 ﻿using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 
-namespace RecruitAI.Application.Interfaces.Repositories
+namespace RecruitAI.Domain.Interfaces.Repositories
 {
 	public interface IAuthProviderRepository : IBaseRepository<AuthProvider>
 	{
