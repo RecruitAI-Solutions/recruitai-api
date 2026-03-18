@@ -72,15 +72,31 @@ namespace RecruitAI.Infrastructure.Services
 				if (string.IsNullOrEmpty(user.Email))
 					_msg.Throw(ErrorCode.ValidationFailed, "UserEmailEmpty");
 
-				var claims = new[]
+				var claims = new List<Claim>
+		{
+				new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+				new Claim(JwtRegisteredClaimNames.Email, user.Email),
+				new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+				new Claim(ClaimTypes.Name, user.FullName),
+				new Claim(ClaimTypes.Role, user.Role.ToString()),
+				new Claim("role", user.Role.ToString())
+		};
+
+				// Thêm permissions vào claims
+				var permissions = user.GetPermissionList();
+				if (permissions != null && permissions.Any())
 				{
-					new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-					new Claim(JwtRegisteredClaimNames.Email, user.Email),
-					new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-					new Claim(ClaimTypes.Name, user.FullName),
-					new Claim(ClaimTypes.Role, user.Role.ToString()),
-					new Claim("role", user.Role.ToString())
-				};
+					foreach (var permission in permissions)
+					{
+						if (!string.IsNullOrWhiteSpace(permission))
+						{
+							claims.Add(new Claim("permission", permission.Trim()));
+						}
+					}
+					_logger.LogInformation("Added {Count} permission claims for user {UserId}",
+						permissions.Count, user.Id);
+				}
+
 
 				// Kiểm tra cancellation trước khi tạo token
 				if (cancellationToken.IsCancellationRequested)

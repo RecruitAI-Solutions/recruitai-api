@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace RecruitAI.Application.Interfaces.Repositories
+namespace RecruitAI.Domain.Interfaces.Repositories
 {
 	public interface IBaseRepository<T> where T : class
 	{

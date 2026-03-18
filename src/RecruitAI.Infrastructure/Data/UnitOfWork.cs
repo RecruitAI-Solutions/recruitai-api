@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.Interfaces;
-using RecruitAI.Application.Interfaces.Repositories;
+using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Infrastructure.Repositories;
 
 namespace RecruitAI.Infrastructure.Data
@@ -19,7 +19,9 @@ namespace RecruitAI.Infrastructure.Data
 		private IUserRepository _userRepository;
 		private IAuthProviderRepository _authProviderRepository;
 		private IRefreshTokenRepository _refreshTokenRepository;
-		private IPasswordResetTokenRepository? _passwordResetTokenRepository;
+		private IPasswordResetTokenRepository _passwordResetTokenRepository;
+		private IJobRepository _jobRepository;
+		private ICVRepository _cvRepository;
 
 		public UnitOfWork(RecruitDevContext context,
 			ILogger<UnitOfWork> logger)
@@ -41,7 +43,10 @@ namespace RecruitAI.Infrastructure.Data
 			_refreshTokenRepository ??= new RefreshTokenRepository(_context);
 		public IPasswordResetTokenRepository PasswordResetTokens =>
 			_passwordResetTokenRepository ??= new PasswordResetTokenRepository(_context);
-
+		public IJobRepository Jobs =>
+			_jobRepository ??= new JobRepository(_context);
+		public ICVRepository CVs =>
+			_cvRepository ??= new CVRepository(_context);
 
 
 		public bool HasActiveTransaction => _currentTransaction != null;

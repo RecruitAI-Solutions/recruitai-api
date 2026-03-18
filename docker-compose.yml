@@ -8,8 +8,10 @@ networks:
 volumes:
   sql_data:
   api_logs:
+  redis_data: 
 
 services:
+  # ===== SQL SERVER =====
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: recruitai-sql-${ENVIRONMENT:-dev}
@@ -33,6 +35,28 @@ services:
       start_period: 10s
     restart: ${RESTART_POLICY:-no}
 
+  # ===== REDIS CACHE =====
+  redis:
+    image: redis:7-alpine
+    container_name: recruitai-redis-${ENVIRONMENT:-dev}
+    networks:
+      - recruitai-network
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes ${REDIS_PASSWORD:-}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-}", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    restart: ${RESTART_POLICY:-no}
+    env_file:
+      - .env
+
+  # ===== API BACKEND =====
   api:
     build:
       context: .
@@ -45,37 +69,52 @@ services:
     depends_on:
       sqlserver:
         condition: service_healthy
+      redis:
+        condition: service_healthy
     env_file:
       - .env
     environment:
+      # Environment
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ASPNETCORE_URLS: http://+:8080
       ASPNETCORE_HOSTINGSTARTUPASSEMBLIES: "Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation"
+
+      # Database
       ConnectionStrings__DefaultConnection: "Server=sqlserver;Database=${DB_NAME:-RecruitDev}${DB_SUFFIX:-};User Id=sa;Password=${DB_PASSWORD:-DevPass@8386};TrustServerCertificate=True;MultipleActiveResultSets=true"
-      CORS_ALLOWED_ORIGINS:
-        ${CORS_ALLOWED_ORIGINS}
-        # THÊM JWT CONFIGURATION - Đọc từ .env file
+
+      # CORS
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+
+      # JWT Configuration
       Jwt__Key: ${Jwt__Key}
       Jwt__Issuer: ${Jwt__Issuer}
       Jwt__Audience: ${Jwt__Audience}
       Jwt__ExpiryMinutes: ${Jwt__ExpiryMinutes:-15}
+
+      # Social Login - Google
       Authentication__Google__ClientId: ${Google__ClientId}
       Authentication__Google__ClientSecret: ${Google__ClientSecret}
+
+      # Social Login - Facebook
       Authentication__Facebook__AppId: ${Facebook__AppId}
       Authentication__Facebook__AppSecret: ${Facebook__AppSecret}
+
+      # Social Login - Github
       Authentication__Github__ClientId: ${Github__ClientId}
       Authentication__Github__ClientSecret: ${Github__ClientSecret}
-      # Vietmap Configuration
+
+      # Vietmap Configuration (Geocoding)
       Vietmap__ApiKey: ${Vietmap__ApiKey}
       Vietmap__BaseUrl: ${Vietmap__BaseUrl}
-      
+
       # Redis Configuration
-      ConnectionStrings__Redis: ${REDIS_CONNECTION_STRING}
-      Redis__InstanceName: ${Redis__InstanceName}
+      ConnectionStrings__Redis: redis:6379
+      Redis__InstanceName: ${Redis__InstanceName:-RecruitAI}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+
     ports:
       - "${API_PORT:-5000}:8080"
     volumes:
-      # Chỉ giữ lại volume logs, không mount source code để tránh conflict với watch
       - api_logs:/app/Logs
     restart: ${RESTART_POLICY:-no}
 
@@ -119,13 +158,13 @@ services:
         - path: ./src/RecruitAI.API/Properties/launchSettings.json
           action: rebuild
 
-        # Liệt kê cụ thể các file appsettings (không dùng wildcard)
+        # Các file appsettings
         - path: ./src/RecruitAI.API/appsettings.json
           action: rebuild
         - path: ./src/RecruitAI.API/appsettings.Development.json
           action: rebuild
 
-        # Liệt kê cụ thể các file project (không dùng wildcard)
+        # Các file project
         - path: ./src/RecruitAI.API/RecruitAI.API.csproj
           action: rebuild
         - path: ./src/RecruitAI.Application/RecruitAI.Application.csproj
