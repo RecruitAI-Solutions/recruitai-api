@@ -187,15 +187,12 @@ namespace RecruitAI.Infrastructure.Migrations
                         .HasColumnType("nvarchar(4000)");
 
                     b.Property<decimal?>("SalaryMax")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal?>("SalaryMin")
+                        .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Skills")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
@@ -243,6 +240,25 @@ namespace RecruitAI.Infrastructure.Migrations
                         .HasDatabaseName("IX_Jobs_Title");
 
                     b.ToTable("Jobs");
+                });
+
+            modelBuilder.Entity("RecruitAI.Domain.Entities.JobSkill", b =>
+                {
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("SkillId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("bit");
+
+                    b.HasKey("JobId", "SkillId");
+
+                    b.HasIndex("SkillId")
+                        .HasDatabaseName("IX_JobSkills_SkillId");
+
+                    b.ToTable("JobSkills");
                 });
 
             modelBuilder.Entity("RecruitAI.Domain.Entities.PasswordResetToken", b =>
@@ -348,6 +364,608 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.ToTable("RefreshTokens");
                 });
 
+            modelBuilder.Entity("RecruitAI.Domain.Entities.Skill", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Aliases")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Category")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ContextKeywords")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Category")
+                        .HasDatabaseName("IX_Skills_Category");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("IX_Skills_IsActive");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Skills_Name");
+
+                    b.ToTable("Skills");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Aliases = "CSharp,C Sharp",
+                            Category = "Programming Language",
+                            ContextKeywords = "c#,csharp,c sharp",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "C#"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Category = "Programming Language",
+                            ContextKeywords = "java,java 8,java 11",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Java"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Aliases = "py",
+                            Category = "Programming Language",
+                            ContextKeywords = "python,py,django",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Python"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Aliases = "js",
+                            Category = "Programming Language",
+                            ContextKeywords = "javascript,js,ecmascript",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "JavaScript"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Aliases = "ts",
+                            Category = "Programming Language",
+                            ContextKeywords = "typescript,ts",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "TypeScript"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Aliases = "structured query language",
+                            Category = "Programming Language",
+                            ContextKeywords = "sql,tsql,plsql",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "SQL"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Aliases = "golang",
+                            Category = "Programming Language",
+                            ContextKeywords = "go,golang",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Go"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            Category = "Programming Language",
+                            ContextKeywords = "rust",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Rust"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            Category = "Programming Language",
+                            ContextKeywords = "php,laravel",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "PHP"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            Category = "Programming Language",
+                            ContextKeywords = "swift,ios",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Swift"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Category = "Programming Language",
+                            ContextKeywords = "kotlin,android",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Kotlin"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Category = "Programming Language",
+                            ContextKeywords = "ruby,rails",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Ruby"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            Aliases = "dotnet core",
+                            Category = "Framework",
+                            ContextKeywords = ".net core,asp.net core",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = ".NET Core"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            Aliases = "reactjs",
+                            Category = "Framework",
+                            ContextKeywords = "react,reactjs,react.js",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "React"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Aliases = "angularjs",
+                            Category = "Framework",
+                            ContextKeywords = "angular,angular 2+",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Angular"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Aliases = "vue",
+                            Category = "Framework",
+                            ContextKeywords = "vue,vuejs",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Vue.js"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Aliases = "spring",
+                            Category = "Framework",
+                            ContextKeywords = "spring,spring boot",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Spring Boot"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Aliases = "node",
+                            Category = "Framework",
+                            ContextKeywords = "node,nodejs",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Node.js"
+                        },
+                        new
+                        {
+                            Id = 19,
+                            Category = "Framework",
+                            ContextKeywords = "django,python web",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Django"
+                        },
+                        new
+                        {
+                            Id = 20,
+                            Category = "Framework",
+                            ContextKeywords = "flask",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Flask"
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Aliases = "express",
+                            Category = "Framework",
+                            ContextKeywords = "express,expressjs",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Express.js"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Aliases = "ef",
+                            Category = "Framework",
+                            ContextKeywords = "entity framework,ef core",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Entity Framework"
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Category = "Framework",
+                            ContextKeywords = "hibernate,jpa",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Hibernate"
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Aliases = "mssql",
+                            Category = "Database",
+                            ContextKeywords = "sql server,mssql",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "SQL Server"
+                        },
+                        new
+                        {
+                            Id = 25,
+                            Category = "Database",
+                            ContextKeywords = "mysql",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "MySQL"
+                        },
+                        new
+                        {
+                            Id = 26,
+                            Aliases = "postgres",
+                            Category = "Database",
+                            ContextKeywords = "postgresql,postgres",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "PostgreSQL"
+                        },
+                        new
+                        {
+                            Id = 27,
+                            Aliases = "mongo",
+                            Category = "Database",
+                            ContextKeywords = "mongodb,mongo",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "MongoDB"
+                        },
+                        new
+                        {
+                            Id = 28,
+                            Category = "Database",
+                            ContextKeywords = "redis,cache",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Redis"
+                        },
+                        new
+                        {
+                            Id = 29,
+                            Aliases = "es",
+                            Category = "Database",
+                            ContextKeywords = "elasticsearch,es",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Elasticsearch"
+                        },
+                        new
+                        {
+                            Id = 30,
+                            Category = "Database",
+                            ContextKeywords = "oracle",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Oracle"
+                        },
+                        new
+                        {
+                            Id = 31,
+                            Category = "Database",
+                            ContextKeywords = "cassandra",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Cassandra"
+                        },
+                        new
+                        {
+                            Id = 32,
+                            Aliases = "dynamo",
+                            Category = "Database",
+                            ContextKeywords = "dynamodb,aws dynamo",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "DynamoDB"
+                        },
+                        new
+                        {
+                            Id = 33,
+                            Aliases = "microsoft azure",
+                            Category = "Cloud",
+                            ContextKeywords = "azure,azure devops",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Azure"
+                        },
+                        new
+                        {
+                            Id = 34,
+                            Aliases = "amazon web services",
+                            Category = "Cloud",
+                            ContextKeywords = "aws,ec2,s3,lambda",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "AWS"
+                        },
+                        new
+                        {
+                            Id = 35,
+                            Aliases = "gcp",
+                            Category = "Cloud",
+                            ContextKeywords = "gcp,google cloud",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Google Cloud"
+                        },
+                        new
+                        {
+                            Id = 36,
+                            Category = "DevOps",
+                            ContextKeywords = "docker,container",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Docker"
+                        },
+                        new
+                        {
+                            Id = 37,
+                            Aliases = "k8s",
+                            Category = "DevOps",
+                            ContextKeywords = "kubernetes,k8s",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Kubernetes"
+                        },
+                        new
+                        {
+                            Id = 38,
+                            Category = "DevOps",
+                            ContextKeywords = "jenkins,ci/cd",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Jenkins"
+                        },
+                        new
+                        {
+                            Id = 39,
+                            Category = "DevOps",
+                            ContextKeywords = "git,github,gitlab",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Git"
+                        },
+                        new
+                        {
+                            Id = 40,
+                            Category = "DevOps",
+                            ContextKeywords = "terraform,iac",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Terraform"
+                        },
+                        new
+                        {
+                            Id = 41,
+                            Category = "DevOps",
+                            ContextKeywords = "ansible",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Ansible"
+                        },
+                        new
+                        {
+                            Id = 42,
+                            Aliases = "collaboration",
+                            Category = "Soft Skill",
+                            ContextKeywords = "teamwork,team work",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Teamwork"
+                        },
+                        new
+                        {
+                            Id = 43,
+                            Category = "Soft Skill",
+                            ContextKeywords = "communication,verbal,written",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Communication"
+                        },
+                        new
+                        {
+                            Id = 44,
+                            Aliases = "analytical",
+                            Category = "Soft Skill",
+                            ContextKeywords = "problem solving,analytical",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Problem Solving"
+                        },
+                        new
+                        {
+                            Id = 45,
+                            Category = "Soft Skill",
+                            ContextKeywords = "leadership,lead",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Leadership"
+                        },
+                        new
+                        {
+                            Id = 46,
+                            Category = "Soft Skill",
+                            ContextKeywords = "time management,organize",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Time Management"
+                        },
+                        new
+                        {
+                            Id = 47,
+                            Category = "Language",
+                            ContextKeywords = "english,ielts,toeic",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "English"
+                        },
+                        new
+                        {
+                            Id = 48,
+                            Aliases = "tiếng việt",
+                            Category = "Language",
+                            ContextKeywords = "vietnamese,tieng viet",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Vietnamese"
+                        },
+                        new
+                        {
+                            Id = 49,
+                            Aliases = "日本語",
+                            Category = "Language",
+                            ContextKeywords = "japanese,nihongo,jlpt",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Japanese"
+                        },
+                        new
+                        {
+                            Id = 50,
+                            Aliases = "mandarin",
+                            Category = "Language",
+                            ContextKeywords = "chinese,mandarin",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Chinese"
+                        },
+                        new
+                        {
+                            Id = 51,
+                            Aliases = "한국어",
+                            Category = "Language",
+                            ContextKeywords = "korean,topik",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Korean"
+                        });
+                });
+
             modelBuilder.Entity("RecruitAI.Domain.Entities.Test", b =>
                 {
                     b.Property<int>("Id")
@@ -450,6 +1068,17 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("RecruitAI.Domain.Entities.CV", b =>
+                {
+                    b.HasOne("RecruitAI.Domain.Entities.User", "User")
+                        .WithMany("CVs")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("RecruitAI.Domain.Entities.Job", b =>
                 {
                     b.HasOne("RecruitAI.Domain.Entities.User", "Recruiter")
@@ -459,6 +1088,25 @@ namespace RecruitAI.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Recruiter");
+                });
+
+            modelBuilder.Entity("RecruitAI.Domain.Entities.JobSkill", b =>
+                {
+                    b.HasOne("RecruitAI.Domain.Entities.Job", "Job")
+                        .WithMany("JobSkills")
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RecruitAI.Domain.Entities.Skill", "Skill")
+                        .WithMany("JobSkills")
+                        .HasForeignKey("SkillId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Job");
+
+                    b.Navigation("Skill");
                 });
 
             modelBuilder.Entity("RecruitAI.Domain.Entities.PasswordResetToken", b =>
@@ -483,9 +1131,21 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("RecruitAI.Domain.Entities.Job", b =>
+                {
+                    b.Navigation("JobSkills");
+                });
+
+            modelBuilder.Entity("RecruitAI.Domain.Entities.Skill", b =>
+                {
+                    b.Navigation("JobSkills");
+                });
+
             modelBuilder.Entity("RecruitAI.Domain.Entities.User", b =>
                 {
                     b.Navigation("AuthProviders");
+
+                    b.Navigation("CVs");
 
                     b.Navigation("RefreshTokens");
                 });

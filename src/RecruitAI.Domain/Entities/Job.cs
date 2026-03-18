@@ -28,8 +28,10 @@ public class Job
 	public ExperienceLevel? ExperienceLevel { get; set; }
 	public string Department { get; set; } = string.Empty;
 
-	// Kỹ năng (lưu dạng JSON hoặc CSV)
-	public string Skills { get; set; } = string.Empty; // ".NET,React,SQL"
+	// Kỹ năng - Dùng bảng trung gian thay vì string
+	public virtual ICollection<JobSkill> JobSkills { get; set; } = new HashSet<JobSkill>();
+
+	// Phúc lợi
 	public string Benefits { get; set; } = string.Empty;
 
 	// Thời gian
@@ -46,17 +48,111 @@ public class Job
 	public int Views { get; set; }
 	public int Applications { get; set; }
 
-	// Helper methods
-	public List<string> GetSkillsList()
+	// ===== HELPER METHODS MỚI =====
+
+	/// <summary>
+	/// Lấy danh sách ID của các skill
+	/// </summary>
+	public List<int> GetSkillIds()
 	{
-		return string.IsNullOrEmpty(Skills)
-			? new List<string>()
-			: Skills.Split(',').Select(s => s.Trim()).ToList();
+		return JobSkills?.Select(js => js.SkillId).ToList() ?? new List<int>();
 	}
 
-	public void SetSkills(List<string> skills)
+	/// <summary>
+	/// Lấy danh sách tên skill
+	/// </summary>
+	public List<string> GetSkillNames()
 	{
-		Skills = string.Join(",", skills);
+		return JobSkills?
+			.Where(js => js.Skill != null)
+			.Select(js => js.Skill.Name)
+			.ToList() ?? new List<string>();
+	}
+
+	/// <summary>
+	/// Lấy danh sách skill kèm theo IsRequired
+	/// </summary>
+	public List<(int SkillId, string SkillName, bool IsRequired)> GetSkillDetails()
+	{
+		return JobSkills?
+			.Where(js => js.Skill != null)
+			.Select(js => (js.SkillId, js.Skill.Name, js.IsRequired))
+			.ToList() ?? new List<(int, string, bool)>();
+	}
+
+	/// <summary>
+	/// Thêm skill vào job
+	/// </summary>
+	public void AddSkill(int skillId, bool isRequired = true)
+	{
+		if (JobSkills == null)
+			JobSkills = new HashSet<JobSkill>();
+
+		if (!JobSkills.Any(js => js.SkillId == skillId))
+		{
+			JobSkills.Add(new JobSkill
+			{
+				JobId = this.Id,
+				SkillId = skillId,
+				IsRequired = isRequired
+			});
+		}
+	}
+
+	/// <summary>
+	/// Thêm nhiều skill cùng lúc
+	/// </summary>
+	public void AddSkills(List<int> skillIds, bool isRequired = true)
+	{
+		foreach (var skillId in skillIds)
+		{
+			AddSkill(skillId, isRequired);
+		}
+	}
+
+	/// <summary>
+	/// Xóa skill khỏi job
+	/// </summary>
+	public void RemoveSkill(int skillId)
+	{
+		var skill = JobSkills?.FirstOrDefault(js => js.SkillId == skillId);
+		if (skill != null)
+		{
+			JobSkills.Remove(skill);
+		}
+	}
+
+	/// <summary>
+	/// Cập nhật danh sách skill (xóa cũ, thêm mới)
+	/// </summary>
+	public void UpdateSkills(List<int> newSkillIds, bool isRequired = true)
+	{
+		JobSkills?.Clear();
+		AddSkills(newSkillIds, isRequired);
+	}
+
+	/// <summary>
+	/// Kiểm tra job có skill không
+	/// </summary>
+	public bool HasSkills()
+	{
+		return JobSkills != null && JobSkills.Any();
+	}
+
+	/// <summary>
+	/// Kiểm tra job có skill cụ thể không
+	/// </summary>
+	public bool HasSkill(int skillId)
+	{
+		return JobSkills != null && JobSkills.Any(js => js.SkillId == skillId);
+	}
+
+	/// <summary>
+	/// Đếm số lượng skill
+	/// </summary>
+	public int SkillCount()
+	{
+		return JobSkills?.Count ?? 0;
 	}
 
 	public void MarkAsDeleted()

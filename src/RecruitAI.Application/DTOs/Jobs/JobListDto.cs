@@ -15,5 +15,7 @@ public class JobListDto
 	public string RecruiterName { get; set; } = string.Empty;
 	public DateTime CreatedAt { get; set; }
 	public DateTime ExpirationDate { get; set; }
-	public bool IsActive { get; set; } 
+	public bool IsActive { get; set; }
+
+	public List<string> SkillNames { get; set; } = new();
 }

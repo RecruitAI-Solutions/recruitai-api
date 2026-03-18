@@ -7,7 +7,7 @@ using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using System.Security.Claims;
 
-namespace RecruitAI.API.Controllers;
+namespace RecruitAI_API.Controllers.v1;
 
 [ApiController]
 [Route("api/v1/[controller]")]

@@ -58,6 +58,87 @@
 		/// <summary>Không thể tạo token (500)</summary>
 		TokenGenerationFailed = 2006,
 
+		// ===== CV RELATED ERRORS (2100-2199) =====
+		/// <summary>Không tìm thấy CV (404)</summary>
+		CVNotFound = 2101,
+
+		/// <summary>File CV bị thiếu (404)</summary>
+		CVFileMissing = 2102,
+
+		/// <summary>Loại file không hợp lệ (400)</summary>
+		InvalidFileType = 2103,
+
+		/// <summary>Không thể upload CV (500)</summary>
+		CVUploadFailed = 2104,
+
+		/// <summary>Xử lý CV thất bại (500)</summary>
+		CVProcessingFailed = 2105,
+
+		/// <summary>File CV quá lớn (400)</summary>
+		CVFileTooLarge = 2106,
+
+		/// <summary>CV đã tồn tại (409)</summary>
+		CVAlreadyExists = 2107,
+
+		/// <summary>Không có quyền truy cập CV (403)</summary>
+		CVAccessDenied = 2108,
+
+		// ===== SKILL RELATED ERRORS (2200-2299) =====
+		/// <summary>Không tìm thấy skill (404)</summary>
+		SkillNotFound = 2201,
+
+		/// <summary>Skill đã tồn tại (409)</summary>
+		SkillAlreadyExists = 2202,
+
+		/// <summary>Skill đang được sử dụng, không thể xóa (409)</summary>
+		SkillInUse = 2203,
+
+		/// <summary>Dữ liệu skill không hợp lệ (400)</summary>
+		InvalidSkillData = 2204,
+
+		/// <summary>Không tìm thấy category skill (404)</summary>
+		SkillCategoryNotFound = 2205,
+
+		/// <summary>Không thể xóa skill (409)</summary>
+		SkillCannotDelete = 2206,
+
+		/// <summary>Skill không hoạt động (400)</summary>
+		SkillNotActive = 2207,
+
+		/// <summary>Alias skill bị trùng (409)</summary>
+		SkillDuplicateAlias = 2208,
+
+		/// <summary>Import skill thất bại (500)</summary>
+		SkillImportFailed = 2209,
+
+		/// <summary>Export skill thất bại (500)</summary>
+		SkillExportFailed = 2210,
+
+		/// <summary>Validate skill thất bại (400)</summary>
+		SkillValidationFailed = 2211,
+
+		/// <summary>Gợi ý skill thất bại (500)</summary>
+		SkillSuggestionFailed = 2212,
+
+		/// <summary>Match skill thất bại (500)</summary>
+		SkillMatchFailed = 2213,
+
+		// ===== JOB RELATED ERRORS (2300-2399) =====
+		/// <summary>Không tìm thấy job (404)</summary>
+		JobNotFound = 2301,
+
+		/// <summary>Job đã hết hạn (410)</summary>
+		JobExpired = 2302,
+
+		/// <summary>Job đã đóng (400)</summary>
+		JobClosed = 2303,
+
+		/// <summary>Job đã được publish rồi (400)</summary>
+		JobAlreadyPublished = 2304,
+
+		/// <summary>Không thể chỉnh sửa job (400)</summary>
+		JobNotEditable = 2305,
+
 		// ===== VALIDATION ERRORS (3000-3999) =====
 		/// <summary>Dữ liệu đầu vào không hợp lệ (400)</summary>
 		ValidationFailed = 3001,
@@ -244,16 +325,6 @@
 		EmailServiceError = 9005,
 
 		/// <summary>Request bị hủy bởi client (499)</summary>
-		OperationCancelled = 499,  
-
-		// ===== CV RELATED ERRORS (2000-2999) =====
-		/// <summary>Không tìm thấy CV</summary>
-		CVNotFound = 2001,
-
-		/// <summary>File CV bị thiếu</summary>
-		CVFileMissing = 2002,
-
-		/// <summary>Loại file không hợp lệ</summary>
-		InvalidFileType = 2003,
+		OperationCancelled = 499,
 	}
 }

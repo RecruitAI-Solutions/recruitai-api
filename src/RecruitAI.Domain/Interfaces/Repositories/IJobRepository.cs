@@ -19,4 +19,7 @@ public interface IJobRepository
 	Task<PagedResult<Job>> GetDeletedJobsAsync(
 	JobFilter filter,
 	CancellationToken cancellationToken = default);
+	Task AddJobSkillsAsync(Guid jobId, List<int> skillIds, bool isRequired = true);
+	Task UpdateJobSkillsAsync(Guid jobId, List<int> skillIds);
+	Task RemoveJobSkillsAsync(Guid jobId);
 }

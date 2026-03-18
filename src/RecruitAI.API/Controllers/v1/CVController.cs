@@ -12,7 +12,7 @@ using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using AutoMapper;
 
-namespace RecruitAI.API.Controllers;
+namespace RecruitAI_API.Controllers.v1;
 
 [Authorize]
 [Route("api/v1/[controller]")]

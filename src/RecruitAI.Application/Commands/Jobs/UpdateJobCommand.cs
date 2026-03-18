@@ -27,7 +27,7 @@ public class UpdateJobCommand : IRequest<JobDetailDto>
 	public string Department { get; set; } = string.Empty;
 
 	// Kỹ năng
-	public List<string> Skills { get; set; } = new();
+	public List<int> SkillIds { get; set; } = new();
 	public string Benefits { get; set; } = string.Empty;
 
 	// Thời gian

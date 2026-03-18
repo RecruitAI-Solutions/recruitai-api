@@ -6,24 +6,21 @@ using RecruitAI.Infrastructure.Data;
 
 namespace RecruitAI.Infrastructure.Repositories;
 
-public class CVRepository : ICVRepository
+public class CVRepository : BaseRepository<CV>, ICVRepository
 {
-	private readonly RecruitDevContext _context;
-
-	public CVRepository(RecruitDevContext context)
+	public CVRepository(RecruitDevContext context) : base(context)
 	{
-		_context = context;
 	}
 
 	public async Task<CV?> GetByIdAsync(Guid id)
 	{
-		return await _context.CVs
+		return await _dbSet
 			.FirstOrDefaultAsync(c => c.Id == id);
 	}
 
 	public async Task<IEnumerable<CV>> GetByUserIdAsync(Guid userId)
 	{
-		return await _context.CVs
+		return await _dbSet
 			.Where(c => c.UserId == userId)
 			.OrderByDescending(c => c.UploadedAt)
 			.ToListAsync();
@@ -35,7 +32,7 @@ public class CVRepository : ICVRepository
 		CancellationToken cancellationToken = default)
 	{
 		// Bắt đầu query với điều kiện userId
-		var query = _context.CVs
+		var query = _dbSet
 			.Where(c => c.UserId == userId);
 
 		// Filter by status
@@ -94,14 +91,14 @@ public class CVRepository : ICVRepository
 
 	public async Task AddAsync(CV cv)
 	{
-		await _context.CVs.AddAsync(cv);
-		await _context.SaveChangesAsync();
+		await _dbSet.AddAsync(cv);
+		
 	}
 
 	public async Task UpdateAsync(CV cv)
 	{
-		_context.CVs.Update(cv);
-		await _context.SaveChangesAsync();
+		_dbSet.Update(cv);
+		
 	}
 
 	public async Task DeleteAsync(Guid id)
@@ -109,8 +106,8 @@ public class CVRepository : ICVRepository
 		var cv = await GetByIdAsync(id);
 		if (cv != null)
 		{
-			_context.CVs.Remove(cv);
-			await _context.SaveChangesAsync();
+			_dbSet.Remove(cv);
+			
 
 			// Xóa file vật lý
 			var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", cv.FilePath);
