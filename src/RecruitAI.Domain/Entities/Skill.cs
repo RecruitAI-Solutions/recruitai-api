@@ -14,5 +14,6 @@ namespace RecruitAI.Domain.Entities
 		public DateTime? UpdatedAt { get; set; }
 		public string? CreatedBy { get; set; }
 		public string? UpdatedBy { get; set; }
+		public virtual ICollection<JobSkill> JobSkills { get; set; } = new HashSet<JobSkill>();
 	}
 }

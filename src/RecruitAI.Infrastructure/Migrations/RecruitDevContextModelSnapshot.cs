@@ -194,11 +194,6 @@ namespace RecruitAI.Infrastructure.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Skills")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
@@ -245,6 +240,25 @@ namespace RecruitAI.Infrastructure.Migrations
                         .HasDatabaseName("IX_Jobs_Title");
 
                     b.ToTable("Jobs");
+                });
+
+            modelBuilder.Entity("RecruitAI.Domain.Entities.JobSkill", b =>
+                {
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("SkillId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("bit");
+
+                    b.HasKey("JobId", "SkillId");
+
+                    b.HasIndex("SkillId")
+                        .HasDatabaseName("IX_JobSkills_SkillId");
+
+                    b.ToTable("JobSkills");
                 });
 
             modelBuilder.Entity("RecruitAI.Domain.Entities.PasswordResetToken", b =>
@@ -1076,6 +1090,25 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.Navigation("Recruiter");
                 });
 
+            modelBuilder.Entity("RecruitAI.Domain.Entities.JobSkill", b =>
+                {
+                    b.HasOne("RecruitAI.Domain.Entities.Job", "Job")
+                        .WithMany("JobSkills")
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RecruitAI.Domain.Entities.Skill", "Skill")
+                        .WithMany("JobSkills")
+                        .HasForeignKey("SkillId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Job");
+
+                    b.Navigation("Skill");
+                });
+
             modelBuilder.Entity("RecruitAI.Domain.Entities.PasswordResetToken", b =>
                 {
                     b.HasOne("RecruitAI.Domain.Entities.User", "User")
@@ -1096,6 +1129,16 @@ namespace RecruitAI.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("RecruitAI.Domain.Entities.Job", b =>
+                {
+                    b.Navigation("JobSkills");
+                });
+
+            modelBuilder.Entity("RecruitAI.Domain.Entities.Skill", b =>
+                {
+                    b.Navigation("JobSkills");
                 });
 
             modelBuilder.Entity("RecruitAI.Domain.Entities.User", b =>

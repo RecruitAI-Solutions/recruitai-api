@@ -48,9 +48,6 @@ namespace RecruitAI.Infrastructure.Data.Configurations
 				.HasConversion<int>()
 				.HasDefaultValue(JobStatus.Draft);
 
-			entity.Property(e => e.Skills)
-				.HasMaxLength(500);
-
 			entity.Property(e => e.Benefits)
 				.HasMaxLength(2000);
 
@@ -60,11 +57,19 @@ namespace RecruitAI.Infrastructure.Data.Configurations
 			entity.Property(e => e.IsDeleted)
 				.HasDefaultValue(false);
 
+			// Quan hệ với User (Recruiter)
 			entity.HasOne(e => e.Recruiter)
 				.WithMany()
 				.HasForeignKey(e => e.RecruiterId)
 				.OnDelete(DeleteBehavior.Restrict);
 
+			// THÊM cấu hình cho JobSkills (quan hệ nhiều-nhiều)
+			entity.HasMany(e => e.JobSkills)
+				.WithOne(js => js.Job)
+				.HasForeignKey(js => js.JobId)
+				.OnDelete(DeleteBehavior.Cascade);
+
+			// Indexes
 			entity.HasIndex(e => e.RecruiterId).HasDatabaseName("IX_Jobs_RecruiterId");
 			entity.HasIndex(e => e.Title).HasDatabaseName("IX_Jobs_Title");
 			entity.HasIndex(e => e.Location).HasDatabaseName("IX_Jobs_Location");
