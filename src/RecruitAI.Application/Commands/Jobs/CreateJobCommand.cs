@@ -26,7 +26,7 @@ public class CreateJobCommand : IRequest<JobDetailDto>
 	public string Department { get; set; } = string.Empty;
 
 	// Kỹ năng
-	public List<string> Skills { get; set; } = new();
+	public List<int> SkillIds { get; set; } = new();
 	public string Benefits { get; set; } = string.Empty;
 
 	// Thời gian
@@ -62,7 +62,14 @@ public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobDeta
 			job.Id = Guid.NewGuid();
 			job.CreatedAt = DateTime.UtcNow;
 
+			// Lưu job trước
 			await _uow.Jobs.AddAsync(job, cancellationToken);
+
+			// JobSkills
+			if (request.SkillIds.Any())
+			{
+				await _uow.Jobs.AddJobSkillsAsync(job.Id, request.SkillIds);
+			}
 
 			_logger.LogInformation("Job created successfully with ID: {JobId}", job.Id);
 

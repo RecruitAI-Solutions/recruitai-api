@@ -8,19 +8,21 @@ using RecruitAI.Infrastructure.Data;
 
 namespace RecruitAI.Infrastructure.Repositories;
 
-public class JobRepository : IJobRepository
+public class JobRepository : BaseRepository<Job>, IJobRepository
 {
 	private readonly RecruitDevContext _context;
 
-	public JobRepository(RecruitDevContext context)
+	public JobRepository(RecruitDevContext context) : base(context)
 	{
-		_context = context;
+		_context = context; 
 	}
 
 	public async Task<Job?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
 	{
-		return await _context.Jobs
+		return await _dbSet
 			.Include(j => j.Recruiter)
+			.Include(j => j.JobSkills)
+				.ThenInclude(js => js.Skill)
 			.FirstOrDefaultAsync(j => j.Id == id && !j.IsDeleted, cancellationToken);
 	}
 
@@ -28,8 +30,10 @@ public class JobRepository : IJobRepository
 		JobFilter filter,
 		CancellationToken cancellationToken = default)
 	{
-		var query = _context.Jobs
+		var query = _dbSet
 			.Include(j => j.Recruiter)
+			.Include(j => j.JobSkills)
+				.ThenInclude(js => js.Skill)
 			.Where(j => !j.IsDeleted);
 
 		// Apply filters
@@ -65,7 +69,9 @@ public class JobRepository : IJobRepository
 
 		if (!string.IsNullOrWhiteSpace(filter.Skill))
 		{
-			query = query.Where(j => j.Skills.Contains(filter.Skill));
+			query = query.Where(j => j.JobSkills.Any(js =>
+				js.Skill.Name.Contains(filter.Skill) ||
+				(js.Skill.Aliases != null && js.Skill.Aliases.Contains(filter.Skill))));
 		}
 
 		// Get total count before pagination
@@ -100,14 +106,12 @@ public class JobRepository : IJobRepository
 
 	public async Task AddAsync(Job job, CancellationToken cancellationToken = default)
 	{
-		await _context.Jobs.AddAsync(job, cancellationToken);
-		await _context.SaveChangesAsync(cancellationToken);
+		await _dbSet.AddAsync(job, cancellationToken);
 	}
 
 	public async Task UpdateAsync(Job job, CancellationToken cancellationToken = default)
 	{
-		_context.Jobs.Update(job);
-		await _context.SaveChangesAsync(cancellationToken);
+		_dbSet.Update(job);
 	}
 
 	public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
@@ -116,33 +120,34 @@ public class JobRepository : IJobRepository
 		if (job != null)
 		{
 			job.IsDeleted = true;
-			_context.Jobs.Update(job);
-			await _context.SaveChangesAsync(cancellationToken);
+			_dbSet.Update(job);
 		}
 	}
 
 	public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
 	{
-		return await _context.Jobs
+		return await _dbSet
 			.AnyAsync(j => j.Id == id && !j.IsDeleted, cancellationToken);
 	}
 
 	public async Task<bool> IsOwnerAsync(Guid jobId, Guid userId, CancellationToken cancellationToken = default)
 	{
-		return await _context.Jobs
+		return await _dbSet
 			.AnyAsync(j => j.Id == jobId && j.RecruiterId == userId && !j.IsDeleted, cancellationToken);
 	}
 
 	public async Task<(List<Job> Items, int Total)> GetJobsByRecruiterAsync(
-	Guid recruiterId,
-	JobFilter filter,
-	CancellationToken cancellationToken = default)
+		Guid recruiterId,
+		JobFilter filter,
+		CancellationToken cancellationToken = default)
 	{
-		var query = _context.Jobs
+		var query = _dbSet
 			.Include(j => j.Recruiter)
+			.Include(j => j.JobSkills) 
+				.ThenInclude(js => js.Skill)
 			.Where(j => !j.IsDeleted && j.RecruiterId == recruiterId);
 
-		// Apply filters (giống như GetJobsAsync)
+		// Apply filters
 		if (!string.IsNullOrWhiteSpace(filter.Title))
 			query = query.Where(j => j.Title.Contains(filter.Title));
 
@@ -160,9 +165,12 @@ public class JobRepository : IJobRepository
 
 		if (filter.ExperienceLevel.HasValue)
 			query = query.Where(j => j.ExperienceLevel == filter.ExperienceLevel.Value);
-
 		if (!string.IsNullOrWhiteSpace(filter.Skill))
-			query = query.Where(j => j.Skills.Contains(filter.Skill));
+		{
+			query = query.Where(j => j.JobSkills.Any(js =>
+				js.Skill.Name.Contains(filter.Skill) ||
+				(js.Skill.Aliases != null && js.Skill.Aliases.Contains(filter.Skill))));
+		}
 
 		var total = await query.CountAsync(cancellationToken);
 
@@ -189,14 +197,16 @@ public class JobRepository : IJobRepository
 	}
 
 	public async Task<PagedResult<Job>> GetDeletedJobsAsync(
-	JobFilter filter,
-	CancellationToken cancellationToken = default)
+		JobFilter filter,
+		CancellationToken cancellationToken = default)
 	{
-		var query = _context.Jobs
+		var query = _dbSet
 			.Include(j => j.Recruiter)
-			.Where(j => j.IsDeleted); 
+			.Include(j => j.JobSkills) 
+				.ThenInclude(js => js.Skill)
+			.Where(j => j.IsDeleted);
 
-		// Apply filters (giống GetJobsAsync)
+		// Apply filters
 		if (!string.IsNullOrWhiteSpace(filter.Title))
 			query = query.Where(j => j.Title.Contains(filter.Title));
 
@@ -214,9 +224,12 @@ public class JobRepository : IJobRepository
 
 		if (filter.ExperienceLevel.HasValue)
 			query = query.Where(j => j.ExperienceLevel == filter.ExperienceLevel);
-
 		if (!string.IsNullOrWhiteSpace(filter.Skill))
-			query = query.Where(j => j.Skills.Contains(filter.Skill));
+		{
+			query = query.Where(j => j.JobSkills.Any(js =>
+				js.Skill.Name.Contains(filter.Skill) ||
+				(js.Skill.Aliases != null && js.Skill.Aliases.Contains(filter.Skill))));
+		}
 
 		// Get total count
 		var total = await query.CountAsync(cancellationToken);
@@ -255,5 +268,39 @@ public class JobRepository : IJobRepository
 			Items = items,
 			Total = total
 		};
+	}
+
+	public async Task AddJobSkillsAsync(Guid jobId, List<int> skillIds, bool isRequired = true)
+	{
+		var jobSkills = skillIds.Select(skillId => new JobSkill
+		{
+			JobId = jobId,
+			SkillId = skillId,
+			IsRequired = isRequired
+		});
+
+		await _context.JobSkills.AddRangeAsync(jobSkills);
+	}
+
+	public async Task UpdateJobSkillsAsync(Guid jobId, List<int> skillIds)
+	{
+		// Xóa skills cũ
+		var existingSkills = await _context.JobSkills
+			.Where(js => js.JobId == jobId)
+			.ToListAsync();
+
+		_context.JobSkills.RemoveRange(existingSkills);
+
+		// Thêm skills mới
+		await AddJobSkillsAsync(jobId, skillIds);
+	}
+
+	public async Task RemoveJobSkillsAsync(Guid jobId)
+	{
+		var skills = await _context.JobSkills
+			.Where(js => js.JobId == jobId)
+			.ToListAsync();
+
+		_context.JobSkills.RemoveRange(skills);
 	}
 }

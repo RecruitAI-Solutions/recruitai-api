@@ -3,7 +3,7 @@ using RecruitAI.Application.DTOs.Requests;
 using RecruitAI.Application.DTOs.Responses;
 using RecruitAI.Application.Interfaces.Services;
 
-namespace RecruitAI_API.Controllers
+namespace RecruitAI_API.Controllers.v1
 {
 	[Route("api/test")]
 	[ApiController]

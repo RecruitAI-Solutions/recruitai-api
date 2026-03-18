@@ -10,7 +10,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using RecruitAI.Application.DTOs.Auths;
 
-namespace RecruitAI.API.Controllers;
+namespace RecruitAI_API.Controllers.v1;
 
 [AllowAnonymous]
 public class AuthController : BaseController
