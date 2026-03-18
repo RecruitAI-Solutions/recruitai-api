@@ -9,7 +9,7 @@ using RecruitAI.Application.Queries.Jobs;
 using RecruitAI.Domain.Interfaces;
 
 
-namespace RecruitAI.API.Controllers;
+namespace RecruitAI_API.Controllers.v1;
 
 [Authorize]
 [Route("api/v1/[controller]")]

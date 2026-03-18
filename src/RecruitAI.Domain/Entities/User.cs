@@ -33,6 +33,7 @@ namespace RecruitAI.Domain.Entities
 		// Navigation properties
 		public virtual ICollection<AuthProvider> AuthProviders { get; set; }
 		public virtual ICollection<RefreshToken> RefreshTokens { get; set; }
+		public virtual ICollection<CV> CVs { get; set; } = new HashSet<CV>();
 
 		// Helper methods
 		public List<string> GetPermissionList()

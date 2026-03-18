@@ -8,18 +8,16 @@ using RecruitAI.Infrastructure.Data;
 
 namespace RecruitAI.Infrastructure.Repositories;
 
-public class JobRepository : IJobRepository
+public class JobRepository : BaseRepository<Job>, IJobRepository
 {
-	private readonly RecruitDevContext _context;
 
-	public JobRepository(RecruitDevContext context)
+	public JobRepository(RecruitDevContext context) : base(context)
 	{
-		_context = context;
 	}
 
 	public async Task<Job?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
 	{
-		return await _context.Jobs
+		return await _dbSet
 			.Include(j => j.Recruiter)
 			.FirstOrDefaultAsync(j => j.Id == id && !j.IsDeleted, cancellationToken);
 	}
@@ -28,7 +26,7 @@ public class JobRepository : IJobRepository
 		JobFilter filter,
 		CancellationToken cancellationToken = default)
 	{
-		var query = _context.Jobs
+		var query = _dbSet
 			.Include(j => j.Recruiter)
 			.Where(j => !j.IsDeleted);
 
@@ -100,14 +98,12 @@ public class JobRepository : IJobRepository
 
 	public async Task AddAsync(Job job, CancellationToken cancellationToken = default)
 	{
-		await _context.Jobs.AddAsync(job, cancellationToken);
-		await _context.SaveChangesAsync(cancellationToken);
+		await _dbSet.AddAsync(job, cancellationToken);
 	}
 
 	public async Task UpdateAsync(Job job, CancellationToken cancellationToken = default)
 	{
-		_context.Jobs.Update(job);
-		await _context.SaveChangesAsync(cancellationToken);
+		_dbSet.Update(job);
 	}
 
 	public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
@@ -116,20 +112,19 @@ public class JobRepository : IJobRepository
 		if (job != null)
 		{
 			job.IsDeleted = true;
-			_context.Jobs.Update(job);
-			await _context.SaveChangesAsync(cancellationToken);
+			_dbSet.Update(job);
 		}
 	}
 
 	public async Task<bool> ExistsAsync(Guid id, CancellationToken cancellationToken = default)
 	{
-		return await _context.Jobs
+		return await _dbSet
 			.AnyAsync(j => j.Id == id && !j.IsDeleted, cancellationToken);
 	}
 
 	public async Task<bool> IsOwnerAsync(Guid jobId, Guid userId, CancellationToken cancellationToken = default)
 	{
-		return await _context.Jobs
+		return await _dbSet 
 			.AnyAsync(j => j.Id == jobId && j.RecruiterId == userId && !j.IsDeleted, cancellationToken);
 	}
 
@@ -138,7 +133,7 @@ public class JobRepository : IJobRepository
 	JobFilter filter,
 	CancellationToken cancellationToken = default)
 	{
-		var query = _context.Jobs
+		var query = _dbSet
 			.Include(j => j.Recruiter)
 			.Where(j => !j.IsDeleted && j.RecruiterId == recruiterId);
 
@@ -192,7 +187,7 @@ public class JobRepository : IJobRepository
 	JobFilter filter,
 	CancellationToken cancellationToken = default)
 	{
-		var query = _context.Jobs
+		var query = _dbSet
 			.Include(j => j.Recruiter)
 			.Where(j => j.IsDeleted); 
 

@@ -5,7 +5,7 @@ using RecruitAI.Application.DTOs.Requests.Geocoding;
 using RecruitAI.Application.DTOs.Responses.Geocoding;
 using RecruitAI.Application.Interfaces.Services;
 
-namespace RecruitAI.API.Controllers;
+namespace RecruitAI_API.Controllers.v1;
 
 [AllowAnonymous]
 public class GeocodingController : BaseController

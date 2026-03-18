@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
+using RecruitAI.Infrastructure.Data.SeedData;
 
 namespace RecruitAI.Infrastructure.Data;
 
@@ -17,6 +18,8 @@ public partial class RecruitDevContext : DbContext
 	public DbSet<RefreshToken> RefreshTokens { get; set; }
 	public DbSet<CV> CVs { get; set; }
 	public DbSet<Job> Jobs { get; set; }
+	public DbSet<Skill> Skills { get; set; }
+
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -213,6 +216,12 @@ public partial class RecruitDevContext : DbContext
 
 			entity.HasIndex(e => e.UserId);
 			entity.HasIndex(e => e.Status);
+
+			entity.HasOne(e => e.User)
+				.WithMany(u => u.CVs)  
+				.HasForeignKey(e => e.UserId)
+				.OnDelete(DeleteBehavior.Cascade);
+
 		});
 
 		modelBuilder.Entity<Job>(entity =>
@@ -233,7 +242,13 @@ public partial class RecruitDevContext : DbContext
 			entity.Property(e => e.Location)
 				.IsRequired()
 				.HasMaxLength(255);
+			entity.Property(e => e.SalaryMin)
+				.HasPrecision(18, 2)  // 18 chữ số, 2 số thập phân
+				.IsRequired(false);
 
+			entity.Property(e => e.SalaryMax)
+				.HasPrecision(18, 2)  // 18 chữ số, 2 số thập phân
+				.IsRequired(false);
 			// Enum conversions
 			entity.Property(e => e.Currency)
 				.HasConversion<int>()
@@ -296,6 +311,56 @@ public partial class RecruitDevContext : DbContext
 				.HasDatabaseName("IX_Jobs_IsDeleted");
 		});
 
+		// ===== CẤU HÌNH CHO SKILL =====
+		modelBuilder.Entity<Skill>(entity =>
+		{
+			entity.HasKey(e => e.Id);
+
+			entity.Property(e => e.Name)
+				.IsRequired()
+				.HasMaxLength(100);
+
+			entity.Property(e => e.Category)
+				.HasMaxLength(50)
+				.IsRequired(false);
+
+			entity.Property(e => e.Aliases)
+				.HasMaxLength(500)
+				.IsRequired(false);
+
+			entity.Property(e => e.ContextKeywords)
+				.HasMaxLength(500)
+				.IsRequired(false);
+
+			entity.Property(e => e.CreatedBy)
+				.HasMaxLength(100)
+				.IsRequired(false);
+
+			entity.Property(e => e.UpdatedBy)
+				.HasMaxLength(100)
+				.IsRequired(false);
+
+			entity.Property(e => e.CreatedAt)
+				.HasDefaultValueSql("GETUTCDATE()");
+
+			entity.Property(e => e.UpdatedAt)
+				.IsRequired(false);
+
+			entity.Property(e => e.IsActive)
+				.HasDefaultValue(true);
+
+			// Indexes
+			entity.HasIndex(e => e.Name)
+				.IsUnique()
+				.HasDatabaseName("IX_Skills_Name");
+
+			entity.HasIndex(e => e.Category)
+				.HasDatabaseName("IX_Skills_Category");
+
+			entity.HasIndex(e => e.IsActive)
+				.HasDatabaseName("IX_Skills_IsActive");
+			entity.HasData(SkillSeedData.GetSkills());
+		});
 
 		OnModelCreatingPartial(modelBuilder);
 	}

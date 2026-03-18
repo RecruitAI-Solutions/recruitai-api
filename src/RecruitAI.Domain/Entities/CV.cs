@@ -16,4 +16,7 @@ public class CV
 	public DateTime UploadedAt { get; set; }
 	public DateTime? ProcessedAt { get; set; }
 	public string? ErrorMessage { get; set; }
+
+	public virtual User User { get; set; } = null!;
+
 }
