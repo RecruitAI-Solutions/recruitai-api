@@ -82,6 +82,7 @@ public class UpdateJobCommandHandler : IRequestHandler<UpdateJobCommand, JobDeta
 			existingJob.UpdatedAt = DateTime.UtcNow;
 
 			await _uow.Jobs.UpdateAsync(existingJob, cancellationToken);
+			await _uow.SaveChangesAsync(cancellationToken);
 
 			_logger.LogInformation("Job {JobId} updated successfully", request.Id);
 

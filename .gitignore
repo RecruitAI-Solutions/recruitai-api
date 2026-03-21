@@ -56,5 +56,9 @@ wwwroot/uploads/
 wwwroot/uploads/**/*
 !wwwroot/uploads/.gitkeep
 
+# Ignore all PDF files
+*.pdf
+
 # Runtime
 **/secrets.json    # THÊM: user secrets
+
