@@ -123,6 +123,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 			try
 			{
 				await _uow.CVs.AddAsync(cv);
+				await _uow.SaveChangesAsync(cancellationToken);
 			}
 			catch (Exception ex)
 			{

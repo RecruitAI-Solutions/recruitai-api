@@ -58,3 +58,6 @@ wwwroot/uploads/**/*
 
 # Runtime
 **/secrets.json    # THÊM: user secrets
+
+# Ignore all PDF files
+*.pdf

@@ -71,6 +71,8 @@ public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobDeta
 				await _uow.Jobs.AddJobSkillsAsync(job.Id, request.SkillIds);
 			}
 
+			await _uow.SaveChangesAsync(cancellationToken);
+
 			_logger.LogInformation("Job created successfully with ID: {JobId}", job.Id);
 
 			return _mapper.Map<JobDetailDto>(job);
