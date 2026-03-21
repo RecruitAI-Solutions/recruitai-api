@@ -1,53 +1,73 @@
-# Thư mục build
 **/bin/
 **/obj/
 **/out/
 **/publish/
-
-# IDE
 **/.vs/
 **/.vscode/
 **/.idea/
 **/*.user
 **/*.suo
-**/.cr/           # THÊM: Code Runner
-
-# Git
+**/.cr/
 **/.git/
 **/.gitignore
 **/.gitattributes
-**/.github/       # THÊM: GitHub workflows
-
-# Docker
+**/.github/
 **/.dockerignore
 **/docker-compose*.yml
 **/Dockerfile*
-**/README.md      # THÊM: docs
-**/LICENSE        # THÊM: license
-
-# Temp files
+**/README.md
+**/LICENSE
+**/docker-data/
+**/.docker-data/
+**/docker/volumes/
+**/wwwroot/uploads/
+**/uploads/
+**/wwwroot/uploads/**/*
+!**/wwwroot/uploads/.gitkeep
+*.pdf
 **/*.log
 **/*.tmp
 **/*.cache
 **/temp/
 **/logs/
-**/TestResults/   # THÊM: test results
-
-# NuGet packages
+**/TestResults/
 **/packages/
 **/*.nupkg
-
-# OS generated files
 **/.DS_Store
 **/Thumbs.db
-
-# Source control
-**/.gitignore
-**/.gitattributes
-
-# Environment
 **/.env
+**/.env.*
+!**/.env.example
 **/appsettings.Development.json
 **/appsettings.Production.json
 **/appsettings.*.json
 **/secrets.json
+**/user-secrets/
+**/data-protection-keys/
+*.mdf
+*.ldf
+*.db
+*.sqlite
+*.sqlite3
+**/coverage/
+**/coverage.json
+**/coverage.cobertura.xml
+**/node_modules/
+**/package-lock.json
+**/yarn.lock
+**/build/
+**/dist/
+**/.next/
+**/out/
+**/runtime/
+**/*.pid
+**/*.seed
+**/*.lock
+**/*.bak
+**/*.backup
+**/*.old
+**/*.orig
+**/*.zip
+**/*.7z
+**/*.rar
+**/*.tar.gz
