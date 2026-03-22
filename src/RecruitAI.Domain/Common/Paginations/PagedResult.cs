@@ -1,4 +1,4 @@
-﻿namespace RecruitAI.Domain.Common;
+﻿namespace RecruitAI.Domain.Common.Paginations;
 
 public class PagedResult<T>
 {

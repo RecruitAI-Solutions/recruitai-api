@@ -3,8 +3,9 @@ using RecruitAI.Application.DTOs;
 using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Interfaces;
-using RecruitAI.Domain.Common;
 using RecruitAI.Infrastructure.Data;
+using RecruitAI.Domain.Common.Jobs;
+using RecruitAI.Domain.Common.Paginations;
 
 namespace RecruitAI.Infrastructure.Repositories;
 

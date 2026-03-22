@@ -2,7 +2,7 @@
 using RecruitAI.Application.DTOs.Requests;
 using RecruitAI.Application.Interfaces.Services;
 
-namespace RecruitAI.Application.Validators
+namespace RecruitAI.Application.Validators.Emails
 {
 	public class VerifyEmailRequestValidator : AbstractValidator<VerifyEmailRequestDto>
 	{
