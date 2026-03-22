@@ -2,7 +2,7 @@
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Commands.CVs;
 
-namespace RecruitAI.Application.Validators;
+namespace RecruitAI.Application.Validators.CVs;
 
 public class UploadCVCommandValidator : AbstractValidator<UploadCVCommand>
 {

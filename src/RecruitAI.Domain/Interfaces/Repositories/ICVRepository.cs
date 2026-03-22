@@ -1,4 +1,4 @@
-﻿using RecruitAI.Domain.Common;
+﻿using RecruitAI.Domain.Common.CVs;
 using RecruitAI.Domain.Entities;
 
 namespace RecruitAI.Domain.Interfaces.Repositories;

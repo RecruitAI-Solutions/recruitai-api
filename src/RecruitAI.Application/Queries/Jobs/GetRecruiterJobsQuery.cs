@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Application.DTOs.Jobs;
 using RecruitAI.Application.Interfaces;
-using RecruitAI.Domain.Common;
+using RecruitAI.Domain.Common.Jobs;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Interfaces;
 

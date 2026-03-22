@@ -5,7 +5,7 @@ using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Application.DTOs.CVs;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
-using RecruitAI.Domain.Common;
+using RecruitAI.Domain.Common.CVs;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 using System;

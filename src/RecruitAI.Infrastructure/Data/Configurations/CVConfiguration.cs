@@ -37,6 +37,10 @@ namespace RecruitAI.Infrastructure.Data.Configurations
 			entity.HasIndex(e => e.UserId);
 			entity.HasIndex(e => e.Status);
 
+			entity.Property(e => e.IsDeleted).HasDefaultValue(false);
+			entity.Property(e => e.DeletedAt).IsRequired(false);
+			entity.HasQueryFilter(c => !c.IsDeleted);
+
 			entity.HasOne(e => e.User)
 				.WithMany(u => u.CVs)
 				.HasForeignKey(e => e.UserId)

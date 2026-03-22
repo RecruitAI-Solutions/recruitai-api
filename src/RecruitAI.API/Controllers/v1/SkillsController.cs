@@ -24,8 +24,9 @@ namespace RecruitAI.API.Controllers.v1
 			IMediator mediator,
 			ILogger<SkillsController> logger,
 			IMessageService messageService,
-			IUnitOfWork uow)
-			: base(mediator, logger, messageService)
+			IUnitOfWork uow,
+			IWorkContext workContext)
+			: base(mediator, logger, messageService, workContext)
 		{
 			_uow = uow;
 		}

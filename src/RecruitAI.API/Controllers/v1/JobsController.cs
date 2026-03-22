@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using RecruitAI.Application.Commands.Jobs;
 using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Application.DTOs.Jobs;
+using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Queries.Jobs;
 using RecruitAI.Domain.Interfaces;
@@ -18,8 +19,9 @@ public class JobsController : BaseController
 	public JobsController(
 		IMediator mediator,
 		ILogger<JobsController> logger,
-		IMessageService messageService)
-		: base(mediator, logger, messageService)
+		IMessageService messageService,
+		IWorkContext workContext)
+		: base(mediator, logger, messageService, workContext)
 	{
 	}
 

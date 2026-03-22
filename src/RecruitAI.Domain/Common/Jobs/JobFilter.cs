@@ -1,6 +1,6 @@
 ﻿using RecruitAI.Domain.Enums;
 
-namespace RecruitAI.Domain.Common;
+namespace RecruitAI.Domain.Common.Jobs;
 
 public class JobFilter
 {

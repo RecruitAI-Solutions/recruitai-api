@@ -11,6 +11,7 @@ using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using AutoMapper;
+using RecruitAI.Application.Interfaces;
 
 namespace RecruitAI_API.Controllers.v1;
 
@@ -26,8 +27,9 @@ public class CVController : BaseController
 		ILogger<CVController> logger,
 		IMessageService messageService,
 		IWebHostEnvironment env,
-		IMapper mapper)
-		: base(mediator, logger, messageService)
+		IMapper mapper,
+		IWorkContext workContext)
+		: base(mediator, logger, messageService, workContext)
 	{
 		_env = env;
 		_mapper = mapper;
@@ -192,5 +194,33 @@ public class CVController : BaseController
 			};
 			return StatusCode(500, response);
 		}
+	}
+
+
+	/// <summary>
+	/// Xóa CV (soft delete)
+	/// </summary>
+	[HttpDelete("{id}")]
+	[Authorize(Policy = "DeleteOwnCV")]
+	[ProducesResponseType(StatusCodes.Status204NoContent)]
+	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+	[ProducesResponseType(StatusCodes.Status403Forbidden)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<IActionResult> DeleteCV(Guid id, CancellationToken cancellationToken)
+	{
+		return await ExecuteAsync(async () =>
+		{
+			var userId = GetCurrentUserId();
+			if (userId == null)
+				throw new UnauthorizedAccessException();
+
+			var command = new DeleteCVCommand
+			{
+				Id = id,
+				UserId = userId.Value
+			};
+
+			await _mediator.Send(command, cancellationToken);
+		}, _msg.Business("CVDeleted"));
 	}
 }

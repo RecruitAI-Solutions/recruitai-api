@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RecruitAI.Domain.Common;
+using RecruitAI.Domain.Common.CVs;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Infrastructure.Data;
