@@ -33,7 +33,7 @@ public class UpdateJobCommand : IRequest<JobDetailDto>
 	// Thời gian
 	public DateTime ExpirationDate { get; set; }
 
-	// Kiểm tra quyền sở hữu
+	// Kiểm tra quyền sở hữu (sẽ được set từ Controller)
 	public Guid RecruiterId { get; set; }
 }
 
@@ -81,12 +81,23 @@ public class UpdateJobCommandHandler : IRequestHandler<UpdateJobCommand, JobDeta
 			_mapper.Map(request, existingJob);
 			existingJob.UpdatedAt = DateTime.UtcNow;
 
+			// Update JobSkills
+			if (request.SkillIds != null)
+			{
+				_logger.LogInformation("Updating skills for job {JobId}: {@SkillIds}",
+					request.Id, request.SkillIds);
+				await _uow.Jobs.UpdateJobSkillsAsync(existingJob.Id, request.SkillIds);
+			}
+
 			await _uow.Jobs.UpdateAsync(existingJob, cancellationToken);
 			await _uow.SaveChangesAsync(cancellationToken);
 
+			// Load lại job để lấy skills mới
+			var updatedJob = await _uow.Jobs.GetByIdAsync(request.Id, cancellationToken);
+
 			_logger.LogInformation("Job {JobId} updated successfully", request.Id);
 
-			return _mapper.Map<JobDetailDto>(existingJob);
+			return _mapper.Map<JobDetailDto>(updatedJob);
 		}
 		catch (Exception ex)
 		{
