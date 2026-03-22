@@ -4,7 +4,7 @@ using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Application.DTOs.Jobs;
 using RecruitAI.Domain.Entities;
 
-namespace RecruitAI.Application.Mappings;
+namespace RecruitAI.Application.Mappings.Jobs;
 
 public class JobProfile : Profile
 {

@@ -293,4 +293,7 @@
 	<data name="BusinessUnauthorized" xml:space="preserve">
 		<value>Bạn không có quyền truy cập tài nguyên này</value>
 	</data>
+	<data name="BusinessCVDeleted" xml:space="preserve">
+		<value>CV đã được xóa thành công</value>
+	</data>
 </root>

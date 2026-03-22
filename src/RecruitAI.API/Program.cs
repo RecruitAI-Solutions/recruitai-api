@@ -11,7 +11,7 @@ using RecruitAI.Application;
 using RecruitAI.Application.DTOs.Responses;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces.Services;
-using RecruitAI.Application.Validators;
+using RecruitAI.Application.Validators.Auths;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Infrastructure;
 using RecruitAI.Infrastructure.Data;

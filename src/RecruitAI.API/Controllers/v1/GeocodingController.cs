@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RecruitAI.Application.DTOs.Requests.Geocoding;
 using RecruitAI.Application.DTOs.Responses.Geocoding;
+using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 
 namespace RecruitAI_API.Controllers.v1;
@@ -16,8 +17,9 @@ public class GeocodingController : BaseController
 		IMediator mediator,
 		ILogger<GeocodingController> logger,
 		IMessageService messageService,
-		IGeocodingService geocodingService)
-		: base(mediator, logger, messageService)
+		IGeocodingService geocodingService,
+		IWorkContext workContext)
+		: base(mediator, logger, messageService, workContext)
 	{
 		_geocodingService = geocodingService;
 	}

@@ -296,4 +296,7 @@
 	<data name="BusinessForbidden" xml:space="preserve">
 		<value>You don't have permission to perform this action.</value>
 	</data>
+	<data name="BusinessCVDeleted" xml:space="preserve">
+		<value>CV has been successfully deleted</value>
+	</data>
 </root>

@@ -2,7 +2,7 @@
 using RecruitAI.Application.DTOs.CVs;
 using RecruitAI.Domain.Entities;
 
-namespace RecruitAI.Application.Mappings;
+namespace RecruitAI.Application.Mappings.CVs;
 
 public class CVProfile : Profile
 {

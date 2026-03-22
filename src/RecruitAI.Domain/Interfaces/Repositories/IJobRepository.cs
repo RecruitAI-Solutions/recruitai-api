@@ -1,4 +1,5 @@
-﻿using RecruitAI.Domain.Common;
+﻿using RecruitAI.Domain.Common.Jobs;
+using RecruitAI.Domain.Common.Paginations;
 using RecruitAI.Domain.Entities;
 
 namespace RecruitAI.Domain.Interfaces.Repositories;

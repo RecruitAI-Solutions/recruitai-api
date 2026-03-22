@@ -2,22 +2,24 @@
 using RecruitAI.Application.DTOs.Requests;
 using RecruitAI.Application.Interfaces.Services;
 
-namespace RecruitAI.Application.Validators
+namespace RecruitAI.Application.Validators.Auths
 {
-	public class ChangePasswordRequestValidator : AbstractValidator<ChangePasswordRequestDto>
+	public class ResetPasswordRequestValidator : AbstractValidator<ResetPasswordRequestDto>
 	{
-		public ChangePasswordRequestValidator(IMessageService msg, IValidationService validationService)
+		public ResetPasswordRequestValidator(IMessageService msg, IValidationService validationService)
 		{
-			RuleFor(x => x.CurrentPassword)
-				.NotEmpty().WithMessage(msg.Validation("PasswordRequired"));
+			RuleFor(x => x.Email)
+				.NotEmpty().WithMessage(msg.Validation("EmailRequired"))
+				.EmailAddress().WithMessage(msg.Validation("EmailInvalid"));
+
+			RuleFor(x => x.Token)
+				.NotEmpty().WithMessage(msg.Validation("TokenRequired"));
 
 			RuleFor(x => x.NewPassword)
 				.NotEmpty().WithMessage(msg.Validation("PasswordRequired"))
 				.MinimumLength(6).WithMessage(msg.Validation("PasswordMinLength"))
 				.Must(password => validationService.IsStrongPassword(password))
-				.WithMessage(msg.Validation("PasswordTooWeak"))
-				.NotEqual(x => x.CurrentPassword)
-				.WithMessage(msg.Business("NewPasswordSameAsOld"));
+				.WithMessage(msg.Validation("PasswordTooWeak"));
 
 			RuleFor(x => x.ConfirmNewPassword)
 				.NotEmpty().WithMessage(msg.Validation("PasswordRequired"))

@@ -4,7 +4,7 @@ using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Services;
 
-namespace RecruitAI.Application.Validators
+namespace RecruitAI.Application.Validators.Auths
 {
 	public class RegisterRequestValidator : AbstractValidator<RegisterRequestDto>
 	{

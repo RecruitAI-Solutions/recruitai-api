@@ -1,6 +1,6 @@
 ﻿using RecruitAI.Domain.Enums;
 
-namespace RecruitAI.Domain.Common;
+namespace RecruitAI.Domain.Common.CVs;
 
 public class CVFilter
 {

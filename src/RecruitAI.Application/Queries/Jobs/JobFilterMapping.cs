@@ -1,5 +1,5 @@
 ﻿using RecruitAI.Application.DTOs.Jobs;
-using RecruitAI.Domain.Common;
+using RecruitAI.Domain.Common.Jobs;
 using RecruitAI.Domain.Enums;
 
 namespace RecruitAI.Application.Mappings;

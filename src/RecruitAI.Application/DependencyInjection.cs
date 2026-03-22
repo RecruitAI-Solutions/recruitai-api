@@ -4,12 +4,13 @@ using Microsoft.Extensions.DependencyInjection;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Services;
-using RecruitAI.Application.Validators;
 using RecruitAI.Domain.Interfaces.Services;
 using RecruitAI.Domain.Services;
 using RecruitAI.Infrastructure.Services;
 using System.Reflection;
 using RecruitAI.Application.Behaviors;
+using RecruitAI.Application.Validators.Auths;
+using RecruitAI.Application.Validators.CVs;
 
 namespace RecruitAI.Application
 {
