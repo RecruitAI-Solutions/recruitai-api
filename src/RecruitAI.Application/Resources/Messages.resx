@@ -296,4 +296,7 @@
 	<data name="BusinessForbidden" xml:space="preserve">
 		<value>Bạn không có quyền thực hiện hành động này.</value>
 	</data>
+	<data name="BusinessCVDeleted" xml:space="preserve">
+		<value>CV đã được xóa thành công</value>
+	</data>
 </root>

@@ -16,7 +16,6 @@ namespace RecruitAI_API.Controllers.v1;
 public class AuthController : BaseController
 {
 	private readonly IAuthService _authService;
-	private readonly IWorkContext _workContext;
 	private readonly IRolePermissionService _rolePermissionService;
 
 	public AuthController(
@@ -26,10 +25,9 @@ public class AuthController : BaseController
 		IAuthService authService,
 		IWorkContext workContext,
 		IRolePermissionService rolePermissionService)
-		: base(mediator, logger, messageService)
+		: base(mediator, logger, messageService, workContext)
 	{
 		_authService = authService;
-		_workContext = workContext;
 		_rolePermissionService = rolePermissionService;
 	}
 
