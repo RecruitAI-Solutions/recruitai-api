@@ -292,8 +292,30 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 		_context.JobSkills.RemoveRange(existingSkills);
 
 		// Thêm skills mới
-		await AddJobSkillsAsync(jobId, skillIds);
+		if (skillIds != null && skillIds.Any())
+		{
+			// Kiểm tra skill có tồn tại không
+			var validSkillIds = await _context.Skills
+				.Where(s => skillIds.Contains(s.Id))
+				.Select(s => s.Id)
+				.ToListAsync();
+
+			if (validSkillIds.Count != skillIds.Count)
+			{
+				var invalidIds = skillIds.Except(validSkillIds);
+			}
+
+			var jobSkills = validSkillIds.Select(skillId => new JobSkill
+			{
+				JobId = jobId,
+				SkillId = skillId,
+				IsRequired = true
+			});
+
+			await _context.JobSkills.AddRangeAsync(jobSkills);
+		}
 	}
+
 
 	public async Task RemoveJobSkillsAsync(Guid jobId)
 	{
