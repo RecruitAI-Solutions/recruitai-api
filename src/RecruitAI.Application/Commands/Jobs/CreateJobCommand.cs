@@ -62,20 +62,30 @@ public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobDeta
 			job.Id = Guid.NewGuid();
 			job.CreatedAt = DateTime.UtcNow;
 
-			// Lưu job trước
-			await _uow.Jobs.AddAsync(job, cancellationToken);
+			// JobSkills không bị null
+			job.JobSkills = new HashSet<JobSkill>();
 
-			// JobSkills
-			if (request.SkillIds.Any())
+			// JobSkills nếu có SkillIds
+			if (request.SkillIds != null && request.SkillIds.Any())
 			{
-				await _uow.Jobs.AddJobSkillsAsync(job.Id, request.SkillIds);
+				foreach (var skillId in request.SkillIds)
+				{
+					job.JobSkills.Add(new JobSkill
+					{
+						JobId = job.Id,
+						SkillId = skillId,
+						IsRequired = true
+					});
+				}
 			}
 
+			await _uow.Jobs.AddAsync(job, cancellationToken);
 			await _uow.SaveChangesAsync(cancellationToken);
 
-			_logger.LogInformation("Job created successfully with ID: {JobId}", job.Id);
+			// Job với Include JobSkills và Skill để mapping
+			var savedJob = await _uow.Jobs.GetByIdAsync(job.Id, cancellationToken);
 
-			return _mapper.Map<JobDetailDto>(job);
+			return _mapper.Map<JobDetailDto>(savedJob);
 		}
 		catch (Exception ex)
 		{

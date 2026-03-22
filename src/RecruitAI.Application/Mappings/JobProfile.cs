@@ -15,28 +15,36 @@ public class JobProfile : Profile
 		// Job -> JobListDto
 		CreateMap<Job, JobListDto>()
 			.ForMember(dest => dest.RecruiterName,
-				opt => opt.MapFrom(src => src.Recruiter.FullName))
+				opt => opt.MapFrom(src => src.Recruiter != null ? src.Recruiter.FullName : string.Empty))
 			.ForMember(dest => dest.SkillNames,
-				opt => opt.MapFrom(src => src.JobSkills.Select(js => js.Skill.Name).ToList()));
+				opt => opt.MapFrom(src => src.JobSkills != null
+					? src.JobSkills.Where(js => js.Skill != null).Select(js => js.Skill.Name).ToList()
+					: new List<string>()));
 
 		// Job -> JobDetailDto
 		CreateMap<Job, JobDetailDto>()
 			.ForMember(dest => dest.RecruiterName,
-				opt => opt.MapFrom(src => src.Recruiter.FullName))
+				opt => opt.MapFrom(src => src.Recruiter != null ? src.Recruiter.FullName : string.Empty))
 			.ForMember(dest => dest.RecruiterEmail,
-				opt => opt.MapFrom(src => src.Recruiter.Email))
+				opt => opt.MapFrom(src => src.Recruiter != null ? src.Recruiter.Email : string.Empty))
 			// Map từ JobSkills sang SkillIds
 			.ForMember(dest => dest.SkillIds,
-				opt => opt.MapFrom(src => src.JobSkills.Select(js => js.SkillId).ToList()))
-			// Map chi tiết skill
+				opt => opt.MapFrom(src => src.JobSkills != null
+					? src.JobSkills.Select(js => js.SkillId).ToList()
+					: new List<int>()))
+			// Map chi tiết skill (không dùng ?. trong lambda)
 			.ForMember(dest => dest.SkillDetails,
-				opt => opt.MapFrom(src => src.JobSkills.Select(js => new SkillDto
-				{
-					Id = js.SkillId,
-					Name = js.Skill.Name,
-					Category = js.Skill.Category,
-					IsRequired = js.IsRequired
-				}).ToList()));
+				opt => opt.MapFrom(src => src.JobSkills != null && src.JobSkills.Any()
+					? src.JobSkills
+						.Where(js => js.Skill != null)
+						.Select(js => new SkillDto
+						{
+							Id = js.SkillId,
+							Name = js.Skill != null ? js.Skill.Name : string.Empty,
+							Category = js.Skill != null ? js.Skill.Category : null,
+							IsRequired = js.IsRequired
+						}).ToList()
+					: new List<SkillDto>()));
 
 		// ===== COMMAND -> JOB =====
 
