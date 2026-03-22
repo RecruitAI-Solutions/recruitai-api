@@ -352,6 +352,12 @@ builder.Services.AddAuthorization(options =>
 			context.User.IsInRole("ADMIN")
 		));
 
+	options.AddPolicy("DeleteOwnCV", policy =>
+	policy.RequireAssertion(context =>
+		context.User.HasClaim(c => c.Type == "permission" && c.Value == "P104") ||
+		context.User.IsInRole("ADMIN")
+	));
+
 	options.AddPolicy("ExtractCVText", policy =>
 		policy.RequireAssertion(context =>
 			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P105") ||
