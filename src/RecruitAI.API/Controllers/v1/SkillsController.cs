@@ -35,6 +35,7 @@ namespace RecruitAI.API.Controllers.v1
 		/// Lấy danh sách skills với phân trang và lọc
 		/// </summary>
 		[HttpGet]
+		[AllowAnonymous]
 		[ProducesResponseType(typeof(SkillSearchResponseDto), StatusCodes.Status200OK)]
 		public async Task<ActionResult<SkillSearchResponseDto>> Search(
 			[FromQuery] SkillSearchRequestDto request,
@@ -69,6 +70,7 @@ namespace RecruitAI.API.Controllers.v1
 		/// Lấy chi tiết skill theo ID
 		/// </summary>
 		[HttpGet("{id}")]
+		[AllowAnonymous]
 		[ProducesResponseType(typeof(SkillResponseDto), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public async Task<ActionResult<SkillResponseDto>> GetById(
@@ -90,6 +92,7 @@ namespace RecruitAI.API.Controllers.v1
 		/// Lấy danh sách categories
 		/// </summary>
 		[HttpGet("categories")]
+		[AllowAnonymous]
 		[ProducesResponseType(typeof(IEnumerable<string>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<IEnumerable<string>>> GetCategories(CancellationToken cancellationToken)
 		{
@@ -103,6 +106,7 @@ namespace RecruitAI.API.Controllers.v1
 		/// Gợi ý skills cho autocomplete
 		/// </summary>
 		[HttpGet("suggest")]
+		[AllowAnonymous]
 		[ProducesResponseType(typeof(IEnumerable<SkillSuggestionDto>), StatusCodes.Status200OK)]
 		public async Task<ActionResult<IEnumerable<SkillSuggestionDto>>> Suggest(
 			[FromQuery] string q,

@@ -32,7 +32,7 @@ public class JobsController : BaseController
 	/// <param name="cancellationToken">Cancellation token</param>
 	/// <returns>Danh sách jobs phân trang</returns>
 	[HttpGet]
-	[Authorize] // Tất cả user đã đăng nhập đều xem được
+	[AllowAnonymous]
 	[ProducesResponseType(typeof(PaginationResponseDto<JobListDto>), StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -55,7 +55,7 @@ public class JobsController : BaseController
 	/// <param name="cancellationToken">Cancellation token</param>
 	/// <returns>Chi tiết job</returns>
 	[HttpGet("{id}")]
-	[Authorize] // Tất cả user đã đăng nhập đều xem được
+	[AllowAnonymous]
 	[ProducesResponseType(typeof(JobDetailDto), StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status404NotFound)]
