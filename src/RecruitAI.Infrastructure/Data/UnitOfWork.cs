@@ -1,8 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.Interfaces;
-using RecruitAI.Application.Interfaces.Repositories;
 using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Infrastructure.Repositories;
 
@@ -25,6 +23,7 @@ namespace RecruitAI.Infrastructure.Data
 		private ICVRepository _cvRepository;
 		private ISkillRepository _skillRepository;
 		private ICVAnalysisRepository? _cvAnalysisRepository;
+
 
 		public UnitOfWork(RecruitDevContext context,
 			ILogger<UnitOfWork> logger)

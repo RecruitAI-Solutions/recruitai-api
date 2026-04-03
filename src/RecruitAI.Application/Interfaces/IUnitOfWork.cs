@@ -1,10 +1,4 @@
-﻿using RecruitAI.Application.Interfaces.Repositories;
-using RecruitAI.Domain.Interfaces.Repositories;
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using RecruitAI.Domain.Interfaces.Repositories;
 
 namespace RecruitAI.Application.Interfaces
 {
@@ -16,7 +10,7 @@ namespace RecruitAI.Application.Interfaces
 		ITestRepository Tests { get; }
 		IPasswordResetTokenRepository PasswordResetTokens { get; }
 		IJobRepository Jobs { get; }
-		ICVRepository CVs{ get; }
+		ICVRepository CVs { get; }
 		ISkillRepository Skills { get; }
 		ICVAnalysisRepository CVAnalysisResults { get; }
 
