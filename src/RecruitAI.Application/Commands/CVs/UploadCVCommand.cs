@@ -151,6 +151,9 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 				cv.ExtractedText = extractedText;
 				cv.Status = CVStatus.Completed;
 
+				cv.ProcessedAt = DateTime.UtcNow;  
+				cv.ErrorMessage = null;
+
 				await _uow.SaveChangesAsync(cancellationToken);
 
 				_logger.LogInformation("PDF text extracted successfully. Length: {Length}", extractedText.Length);
@@ -160,6 +163,9 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 				_logger.LogError(ex, "Failed to extract text from PDF");
 				cv.Status = CVStatus.Failed;
 				cv.ErrorMessage = ex.Message;
+
+				cv.ProcessedAt = DateTime.UtcNow;
+
 				await _uow.SaveChangesAsync(cancellationToken);
 			}
 

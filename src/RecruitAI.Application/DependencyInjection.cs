@@ -37,6 +37,7 @@ namespace RecruitAI.Application
 			services.AddScoped<IValidationService, ValidationService>();
 			services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 			services.AddScoped<IEmailService, EmailService>();
+			services.AddScoped<IMatchingService, MatchingService>();
 
 			//Validators
 			services.AddScoped<RegisterRequestValidator>();
