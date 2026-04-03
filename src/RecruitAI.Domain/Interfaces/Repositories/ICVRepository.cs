@@ -5,13 +5,13 @@ namespace RecruitAI.Domain.Interfaces.Repositories;
 
 public interface ICVRepository
 {
-	Task<CV?> GetByIdAsync(Guid id);
-	Task<IEnumerable<CV>> GetByUserIdAsync(Guid userId);
+	Task<CV?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+	Task<IEnumerable<CV>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
 	Task<(IEnumerable<CV> Items, int Total)> GetUserCVsAsync(
 		Guid userId,
 		CVFilter filter,
 		CancellationToken cancellationToken = default);
-	Task AddAsync(CV cv);
-	Task UpdateAsync(CV cv);
-	Task DeleteAsync(Guid id);
+	Task AddAsync(CV cv, CancellationToken cancellationToken = default);
+	Task UpdateAsync(CV cv, CancellationToken cancellationToken = default);
+	Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }
