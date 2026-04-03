@@ -1,15 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using RecruitAI.Application.Interfaces;
+using RecruitAI.Application.Interfaces.Services;
+using RecruitAI.Application.Services;
+using RecruitAI.Domain.Interfaces;
+using RecruitAI.Domain.Interfaces.Repositories;
+using RecruitAI.Domain.Interfaces.Services;
+using RecruitAI.Infrastructure.Caching;
 using RecruitAI.Infrastructure.Data;
 using RecruitAI.Infrastructure.Repositories;
-using RecruitAI.Application.Interfaces;
-using RecruitAI.Domain.Interfaces.Repositories;
-using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Infrastructure.Services;
-using RecruitAI.Infrastructure.Caching;
 using RecruitAI.Infrastructure.Services.Geocoding;
-using RecruitAI.Domain.Interfaces;
 
 
 namespace RecruitAI.Infrastructure
@@ -33,7 +35,7 @@ namespace RecruitAI.Infrastructure
 			services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 			services.AddScoped<ICVRepository, CVRepository>();
 			services.AddScoped<IJobRepository, JobRepository>();
-
+			services.AddScoped<IAnalysisService, AnalysisService>();
 
 			services.AddScoped<IWorkContext, WorkContext>();
 			services.AddScoped<IEmailTemplateService, EmailTemplateService>();
@@ -60,6 +62,7 @@ namespace RecruitAI.Infrastructure
 
 			//Register other infrastructure services
 			services.AddScoped<IJwtService, JwtService>();
+			services.AddScoped<IPdfService, PdfService>();
 
 			return services;
 		}

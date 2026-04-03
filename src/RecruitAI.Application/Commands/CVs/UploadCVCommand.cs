@@ -120,7 +120,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 				FilePath = relativePath,
 				FileSize = request.FileSize,
 				ContentType = request.ContentType,
-				Status = CVStatus.Pending,
+				Status = CVStatus.Processing,
 				UploadedAt = DateTime.UtcNow
 			};
 
@@ -128,10 +128,6 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 			{
 				await _uow.CVs.AddAsync(cv);
 				await _uow.SaveChangesAsync(cancellationToken);
-
-				var extractedText = await _pdfService.ExtractTextAsync(filePath);
-				cv.ExtractedText = extractedText;
-				cv.Status = CVStatus.Completed;
 			}
 			catch (Exception ex)
 			{
@@ -146,6 +142,25 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 				throw new BusinessException(
 					ErrorCode.DatabaseError,
 					_msg.Business("DatabaseError"));  
+			}
+
+
+			try
+			{
+				var extractedText = await _pdfService.ExtractTextAsync(filePath);
+				cv.ExtractedText = extractedText;
+				cv.Status = CVStatus.Completed;
+
+				await _uow.SaveChangesAsync(cancellationToken);
+
+				_logger.LogInformation("PDF text extracted successfully. Length: {Length}", extractedText.Length);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Failed to extract text from PDF");
+				cv.Status = CVStatus.Failed;
+				cv.ErrorMessage = ex.Message;
+				await _uow.SaveChangesAsync(cancellationToken);
 			}
 
 			return new UploadCVResponseDto

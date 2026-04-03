@@ -72,12 +72,18 @@ namespace RecruitAI.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime?>("AnalyzedAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("ContentType")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("ErrorMessage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ExtractedText")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FileName")
@@ -121,6 +127,33 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("CVs");
+                });
+
+            modelBuilder.Entity("RecruitAI.Domain.Entities.CVAnalysisResult", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CVId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("Confidence")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("SkillId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CVId");
+
+                    b.HasIndex("SkillId");
+
+                    b.ToTable("CVAnalysisResult");
                 });
 
             modelBuilder.Entity("RecruitAI.Domain.Entities.Job", b =>
@@ -460,7 +493,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         new
                         {
                             Id = 4,
-                            Aliases = "js",
+                            Aliases = "js,java script,javascript",
                             Category = "Programming Language",
                             ContextKeywords = "javascript,js,ecmascript",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -471,7 +504,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         new
                         {
                             Id = 5,
-                            Aliases = "ts",
+                            Aliases = "ts,type script,typescript",
                             Category = "Programming Language",
                             ContextKeywords = "typescript,ts",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -565,6 +598,50 @@ namespace RecruitAI.Infrastructure.Migrations
                         new
                         {
                             Id = 14,
+                            Aliases = "asp.net core,aspnetcore",
+                            Category = "Framework",
+                            ContextKeywords = "asp.net core,aspnet core web api",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "ASP.NET Core"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Aliases = "ef,ef core",
+                            Category = "Framework",
+                            ContextKeywords = "entity framework,ef core",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Entity Framework"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Aliases = "webapi,rest api",
+                            Category = "Framework",
+                            ContextKeywords = "web api,restful api",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Web API"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Aliases = "restful api",
+                            Category = "Framework",
+                            ContextKeywords = "rest api,restful web service",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "REST API"
+                        },
+                        new
+                        {
+                            Id = 18,
                             Aliases = "reactjs",
                             Category = "Framework",
                             ContextKeywords = "react,reactjs,react.js",
@@ -575,7 +652,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 15,
+                            Id = 19,
                             Aliases = "angularjs",
                             Category = "Framework",
                             ContextKeywords = "angular,angular 2+",
@@ -586,7 +663,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 16,
+                            Id = 20,
                             Aliases = "vue",
                             Category = "Framework",
                             ContextKeywords = "vue,vuejs",
@@ -597,7 +674,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 17,
+                            Id = 21,
                             Aliases = "spring",
                             Category = "Framework",
                             ContextKeywords = "spring,spring boot",
@@ -608,7 +685,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 18,
+                            Id = 22,
                             Aliases = "node",
                             Category = "Framework",
                             ContextKeywords = "node,nodejs",
@@ -619,7 +696,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 19,
+                            Id = 23,
                             Category = "Framework",
                             ContextKeywords = "django,python web",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -629,7 +706,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 20,
+                            Id = 24,
                             Category = "Framework",
                             ContextKeywords = "flask",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -639,7 +716,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 21,
+                            Id = 25,
                             Aliases = "express",
                             Category = "Framework",
                             ContextKeywords = "express,expressjs",
@@ -650,18 +727,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 22,
-                            Aliases = "ef",
-                            Category = "Framework",
-                            ContextKeywords = "entity framework,ef core",
-                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CreatedBy = "system",
-                            IsActive = true,
-                            Name = "Entity Framework"
-                        },
-                        new
-                        {
-                            Id = 23,
+                            Id = 26,
                             Category = "Framework",
                             ContextKeywords = "hibernate,jpa",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -671,7 +737,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 24,
+                            Id = 27,
                             Aliases = "mssql",
                             Category = "Database",
                             ContextKeywords = "sql server,mssql",
@@ -682,7 +748,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 25,
+                            Id = 28,
                             Category = "Database",
                             ContextKeywords = "mysql",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -692,7 +758,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 26,
+                            Id = 29,
                             Aliases = "postgres",
                             Category = "Database",
                             ContextKeywords = "postgresql,postgres",
@@ -703,7 +769,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 27,
+                            Id = 30,
                             Aliases = "mongo",
                             Category = "Database",
                             ContextKeywords = "mongodb,mongo",
@@ -714,7 +780,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 28,
+                            Id = 31,
                             Category = "Database",
                             ContextKeywords = "redis,cache",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -724,7 +790,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 29,
+                            Id = 32,
                             Aliases = "es",
                             Category = "Database",
                             ContextKeywords = "elasticsearch,es",
@@ -735,7 +801,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 30,
+                            Id = 33,
                             Category = "Database",
                             ContextKeywords = "oracle",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -745,7 +811,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 31,
+                            Id = 34,
                             Category = "Database",
                             ContextKeywords = "cassandra",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -755,7 +821,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 32,
+                            Id = 35,
                             Aliases = "dynamo",
                             Category = "Database",
                             ContextKeywords = "dynamodb,aws dynamo",
@@ -766,7 +832,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 33,
+                            Id = 36,
                             Aliases = "microsoft azure",
                             Category = "Cloud",
                             ContextKeywords = "azure,azure devops",
@@ -777,7 +843,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 34,
+                            Id = 37,
                             Aliases = "amazon web services",
                             Category = "Cloud",
                             ContextKeywords = "aws,ec2,s3,lambda",
@@ -788,7 +854,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 35,
+                            Id = 38,
                             Aliases = "gcp",
                             Category = "Cloud",
                             ContextKeywords = "gcp,google cloud",
@@ -799,7 +865,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 36,
+                            Id = 39,
                             Category = "DevOps",
                             ContextKeywords = "docker,container",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -809,7 +875,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 37,
+                            Id = 40,
                             Aliases = "k8s",
                             Category = "DevOps",
                             ContextKeywords = "kubernetes,k8s",
@@ -820,7 +886,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 38,
+                            Id = 41,
                             Category = "DevOps",
                             ContextKeywords = "jenkins,ci/cd",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -830,7 +896,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 39,
+                            Id = 42,
                             Category = "DevOps",
                             ContextKeywords = "git,github,gitlab",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -840,7 +906,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 40,
+                            Id = 43,
                             Category = "DevOps",
                             ContextKeywords = "terraform,iac",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -850,7 +916,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 41,
+                            Id = 44,
                             Category = "DevOps",
                             ContextKeywords = "ansible",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -860,7 +926,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 42,
+                            Id = 45,
                             Aliases = "collaboration",
                             Category = "Soft Skill",
                             ContextKeywords = "teamwork,team work",
@@ -871,7 +937,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 43,
+                            Id = 46,
                             Category = "Soft Skill",
                             ContextKeywords = "communication,verbal,written",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -881,7 +947,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 44,
+                            Id = 47,
                             Aliases = "analytical",
                             Category = "Soft Skill",
                             ContextKeywords = "problem solving,analytical",
@@ -892,7 +958,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 45,
+                            Id = 48,
                             Category = "Soft Skill",
                             ContextKeywords = "leadership,lead",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -902,7 +968,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 46,
+                            Id = 49,
                             Category = "Soft Skill",
                             ContextKeywords = "time management,organize",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -912,7 +978,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 47,
+                            Id = 50,
                             Category = "Language",
                             ContextKeywords = "english,ielts,toeic",
                             CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
@@ -922,7 +988,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 48,
+                            Id = 51,
                             Aliases = "tiếng việt",
                             Category = "Language",
                             ContextKeywords = "vietnamese,tieng viet",
@@ -933,7 +999,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 49,
+                            Id = 52,
                             Aliases = "日本語",
                             Category = "Language",
                             ContextKeywords = "japanese,nihongo,jlpt",
@@ -944,7 +1010,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 50,
+                            Id = 53,
                             Aliases = "mandarin",
                             Category = "Language",
                             ContextKeywords = "chinese,mandarin",
@@ -955,7 +1021,7 @@ namespace RecruitAI.Infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 51,
+                            Id = 54,
                             Aliases = "한국어",
                             Category = "Language",
                             ContextKeywords = "korean,topik",
@@ -963,6 +1029,301 @@ namespace RecruitAI.Infrastructure.Migrations
                             CreatedBy = "system",
                             IsActive = true,
                             Name = "Korean"
+                        },
+                        new
+                        {
+                            Id = 55,
+                            Aliases = "json web token",
+                            Category = "Security",
+                            ContextKeywords = "jwt authentication,jwt token",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "JWT"
+                        },
+                        new
+                        {
+                            Id = 56,
+                            Aliases = "oauth 2.0",
+                            Category = "Security",
+                            ContextKeywords = "oauth2,oauth 2.0",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "OAuth2"
+                        },
+                        new
+                        {
+                            Id = 57,
+                            Aliases = "microservice",
+                            Category = "Architecture",
+                            ContextKeywords = "microservices architecture,msa",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Microservices"
+                        },
+                        new
+                        {
+                            Id = 58,
+                            Aliases = "onion architecture",
+                            Category = "Architecture",
+                            ContextKeywords = "clean architecture,onion architecture",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Clean Architecture"
+                        },
+                        new
+                        {
+                            Id = 59,
+                            Aliases = "cqrs pattern",
+                            Category = "Architecture",
+                            ContextKeywords = "cqrs,command query responsibility segregation",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "CQRS"
+                        },
+                        new
+                        {
+                            Id = 60,
+                            Aliases = "event sourcing pattern",
+                            Category = "Architecture",
+                            ContextKeywords = "event sourcing,event driven",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Event Sourcing"
+                        },
+                        new
+                        {
+                            Id = 61,
+                            Aliases = "unit test",
+                            Category = "Testing",
+                            ContextKeywords = "unit testing,xunit,nunit",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Unit Testing"
+                        },
+                        new
+                        {
+                            Id = 62,
+                            Aliases = "integration test",
+                            Category = "Testing",
+                            ContextKeywords = "integration testing",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Integration Testing"
+                        },
+                        new
+                        {
+                            Id = 63,
+                            Aliases = "xunit.net",
+                            Category = "Testing",
+                            ContextKeywords = "xunit,unit testing",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "xUnit"
+                        },
+                        new
+                        {
+                            Id = 64,
+                            Aliases = "mock",
+                            Category = "Testing",
+                            ContextKeywords = "moq,mocking",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Moq"
+                        },
+                        new
+                        {
+                            Id = 65,
+                            Aliases = "html",
+                            Category = "Frontend",
+                            ContextKeywords = "html5,html",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "HTML5"
+                        },
+                        new
+                        {
+                            Id = 66,
+                            Aliases = "css",
+                            Category = "Frontend",
+                            ContextKeywords = "css3,css",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "CSS3"
+                        },
+                        new
+                        {
+                            Id = 67,
+                            Category = "Frontend",
+                            ContextKeywords = "bootstrap,css framework",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Bootstrap"
+                        },
+                        new
+                        {
+                            Id = 68,
+                            Aliases = "tailwind",
+                            Category = "Frontend",
+                            ContextKeywords = "tailwind,tailwindcss",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Tailwind CSS"
+                        },
+                        new
+                        {
+                            Id = 69,
+                            Aliases = "jquery",
+                            Category = "Frontend",
+                            ContextKeywords = "jquery,javascript library",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "jQuery"
+                        },
+                        new
+                        {
+                            Id = 70,
+                            Aliases = "html5",
+                            Category = "Frontend",
+                            ContextKeywords = "html,html5",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "HTML"
+                        },
+                        new
+                        {
+                            Id = 71,
+                            Aliases = "css3",
+                            Category = "Frontend",
+                            ContextKeywords = "css,css3",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "CSS"
+                        },
+                        new
+                        {
+                            Id = 72,
+                            Aliases = "tailwind css",
+                            Category = "Frontend",
+                            ContextKeywords = "tailwind,tailwindcss",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Tailwind"
+                        },
+                        new
+                        {
+                            Id = 73,
+                            Aliases = "reduxjs",
+                            Category = "Frontend",
+                            ContextKeywords = "redux,reduxjs,react redux",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Redux"
+                        },
+                        new
+                        {
+                            Id = 74,
+                            Aliases = "reactnative",
+                            Category = "Mobile",
+                            ContextKeywords = "react native,mobile app",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "React Native"
+                        },
+                        new
+                        {
+                            Id = 75,
+                            Category = "Mobile",
+                            ContextKeywords = "flutter,dart",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Flutter"
+                        },
+                        new
+                        {
+                            Id = 76,
+                            Aliases = "android dev",
+                            Category = "Mobile",
+                            ContextKeywords = "android,kotlin android",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Android"
+                        },
+                        new
+                        {
+                            Id = 77,
+                            Aliases = "iphone",
+                            Category = "Mobile",
+                            ContextKeywords = "ios,swift ios",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "iOS"
+                        },
+                        new
+                        {
+                            Id = 78,
+                            Aliases = "rabbit mq",
+                            Category = "Message Queue",
+                            ContextKeywords = "rabbitmq,message queue",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "RabbitMQ"
+                        },
+                        new
+                        {
+                            Id = 79,
+                            Aliases = "apache kafka",
+                            Category = "Message Queue",
+                            ContextKeywords = "kafka,event streaming",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Kafka"
+                        },
+                        new
+                        {
+                            Id = 80,
+                            Aliases = "service bus",
+                            Category = "Message Queue",
+                            ContextKeywords = "azure service bus,servicebus",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Azure Service Bus"
+                        },
+                        new
+                        {
+                            Id = 81,
+                            Aliases = "redis pubsub",
+                            Category = "Message Queue",
+                            ContextKeywords = "redis pubsub,redis messaging",
+                            CreatedAt = new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
+                            IsActive = true,
+                            Name = "Redis Pub/Sub"
                         });
                 });
 
@@ -1079,6 +1440,25 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("RecruitAI.Domain.Entities.CVAnalysisResult", b =>
+                {
+                    b.HasOne("RecruitAI.Domain.Entities.CV", "CV")
+                        .WithMany("AnalysisResults")
+                        .HasForeignKey("CVId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RecruitAI.Domain.Entities.Skill", "Skill")
+                        .WithMany()
+                        .HasForeignKey("SkillId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CV");
+
+                    b.Navigation("Skill");
+                });
+
             modelBuilder.Entity("RecruitAI.Domain.Entities.Job", b =>
                 {
                     b.HasOne("RecruitAI.Domain.Entities.User", "Recruiter")
@@ -1129,6 +1509,11 @@ namespace RecruitAI.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("RecruitAI.Domain.Entities.CV", b =>
+                {
+                    b.Navigation("AnalysisResults");
                 });
 
             modelBuilder.Entity("RecruitAI.Domain.Entities.Job", b =>

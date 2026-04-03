@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using RecruitAI.Application.DTOs.Responses;
+using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
@@ -16,6 +17,7 @@ public abstract class BaseController : ControllerBase
 	protected readonly IMediator _mediator;
 	protected readonly ILogger _logger;
 	protected readonly IMessageService _msg;
+	protected readonly IWorkContext? _workContext;
 
 	protected BaseController(
 		IMediator mediator,
@@ -27,13 +29,42 @@ public abstract class BaseController : ControllerBase
 		_msg = messageService;
 	}
 
+	protected BaseController(
+		IMediator mediator,
+		ILogger logger,
+		IMessageService messageService,
+		IWorkContext workContext)
+	{
+		_mediator = mediator;
+		_logger = logger;
+		_msg = messageService;
+		_workContext = workContext;
+	}
+
+
 	/// <summary>
 	/// Lấy UserId từ Claims
 	/// </summary>
 	protected Guid? GetCurrentUserId()
 	{
+		// Ưu tiên 1: Claims
 		var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-		return userIdClaim != null ? Guid.Parse(userIdClaim) : null;
+		if (Guid.TryParse(userIdClaim, out var claimUserId))
+		{
+			return claimUserId;
+		}
+
+		// Ưu tiên 2: Work context (nếu có)
+		if (_workContext != null)
+		{
+			var contextUserId = _workContext.GetCurrentUserId();
+			if (contextUserId.HasValue)
+			{
+				return contextUserId;
+			}
+		}
+
+		return null;
 	}
 
 	/// <summary>

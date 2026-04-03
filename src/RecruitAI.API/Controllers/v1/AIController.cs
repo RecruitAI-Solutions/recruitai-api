@@ -34,7 +34,6 @@ namespace RecruitAI.API.Controllers.v1
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 		[ProducesResponseType(StatusCodes.Status403Forbidden)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
-		[HttpPost("analyze-cv")]
 		public async Task<IActionResult> AnalyzeCV([FromBody] AnalyzeCVCommand command)
 		{
 			var userId = GetCurrentUserId();

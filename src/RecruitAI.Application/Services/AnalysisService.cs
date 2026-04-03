@@ -1,5 +1,4 @@
-﻿// RecruitAI.Application/Services/AnalysisService.cs
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using RecruitAI.Application.DTOs.Requests.AI;
 using RecruitAI.Application.DTOs.Responses.AI;
 using RecruitAI.Application.Interfaces;
@@ -7,6 +6,7 @@ using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
+using RecruitAI.Domain.Interfaces.Services;
 
 namespace RecruitAI.Application.Services
 {
@@ -15,31 +15,54 @@ namespace RecruitAI.Application.Services
 		private readonly IUnitOfWork _uow;
 		private readonly ILogger<AnalysisService> _logger;
 		private readonly IMessageService _msg;
+		private readonly IPdfService _pdfService; 
 
 		public AnalysisService(
 			IUnitOfWork uow,
 			ILogger<AnalysisService> logger,
-			IMessageService msg)
+			IMessageService msg,
+			IPdfService pdfService) 
 		{
 			_uow = uow;
 			_logger = logger;
 			_msg = msg;
+			_pdfService = pdfService;  
 		}
 
 		public async Task<AnalyzeCvResponseDto> AnalyzeCVAsync(AnalyzeCvRequestDto request, Guid userId)
 		{
-			// 1. Lấy CV từ database
 			var cv = await _uow.CVs.GetByIdAsync(request.CvId);
 			if (cv == null)
 				throw new BusinessException(ErrorCode.CVNotFound, _msg.Business("CVNotFound"));
 
-			// 2. Kiểm tra quyền sở hữu
 			if (cv.UserId != userId)
 				throw new BusinessException(ErrorCode.Forbidden, _msg.Business("AccessDenied"));
 
-			// 3. Kiểm tra trạng thái
+			// Cho phép re-analyze
 			if (cv.Status == CVStatus.Analyzed)
-				throw new BusinessException(ErrorCode.ProcessingFailed, "CV already analyzed");
+			{
+				await _uow.CVAnalysisResults.RemoveByCVIdAsync(cv.Id);
+				cv.Status = CVStatus.Completed;
+				cv.AnalyzedAt = null;
+				await _uow.SaveChangesAsync();
+			}
+
+			// Thử extract text nếu chưa có
+			if (string.IsNullOrWhiteSpace(cv.ExtractedText))
+			{
+				var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", cv.FilePath);
+				if (File.Exists(filePath))
+				{
+					_logger.LogInformation("Extracting text from PDF file: {FilePath}", filePath);
+					cv.ExtractedText = await _pdfService.ExtractTextAsync(filePath);
+					cv.Status = CVStatus.Completed;
+					await _uow.SaveChangesAsync();
+				}
+				else
+				{
+					throw new BusinessException(ErrorCode.InvalidData, "CV has no extracted text and PDF file not found");
+				}
+			}
 
 			if (cv.Status != CVStatus.Completed)
 			{
@@ -52,21 +75,14 @@ namespace RecruitAI.Application.Services
 				};
 			}
 
-			// 4. Kiểm tra extracted text
-			if (string.IsNullOrWhiteSpace(cv.ExtractedText))
-				throw new BusinessException(ErrorCode.InvalidData, "CV has no extracted text");
-
-			// 5. Lấy tất cả skills
 			var allSkills = await _uow.Skills.GetAllActiveAsync();
-
-			// 6. Rule-based matching
 			var matchedSkills = new List<SkillMatchDto>();
 			var cvText = cv.ExtractedText.ToLower();
 
 			foreach (var skill in allSkills)
 			{
 				var confidence = CalculateConfidence(cvText, skill);
-				if (confidence > 0.5)
+				if (confidence > 0.3) 
 				{
 					matchedSkills.Add(new SkillMatchDto
 					{
@@ -78,7 +94,6 @@ namespace RecruitAI.Application.Services
 				}
 			}
 
-			// 7. Lưu kết quả
 			var analysisResults = matchedSkills.Select(s => new CVAnalysisResult
 			{
 				CVId = cv.Id,
@@ -90,7 +105,6 @@ namespace RecruitAI.Application.Services
 			await _uow.CVAnalysisResults.RemoveByCVIdAsync(cv.Id);
 			await _uow.CVAnalysisResults.AddRangeAsync(analysisResults);
 
-			// 8. Cập nhật trạng thái CV
 			cv.Status = CVStatus.Analyzed;
 			cv.AnalyzedAt = DateTime.UtcNow;
 			await _uow.CVs.UpdateAsync(cv);
@@ -161,10 +175,8 @@ namespace RecruitAI.Application.Services
 			var skillName = skill.Name.ToLower();
 			var occurrences = 0;
 
-			// Kiểm tra tên skill
 			occurrences += CountOccurrences(text, skillName);
 
-			// Kiểm tra aliases
 			if (!string.IsNullOrWhiteSpace(skill.Aliases))
 			{
 				var aliases = skill.Aliases.Split(',');
@@ -176,17 +188,25 @@ namespace RecruitAI.Application.Services
 
 			if (occurrences == 0) return 0;
 
-			// Tính điểm cơ bản
 			double baseScore = Math.Min(occurrences * 0.2, 0.8);
 
-			// Bonus nếu xuất hiện trong section "Kỹ năng"
+			// Bonus section Skills
 			if (text.Contains("kỹ năng") && text.Contains(skillName))
 				baseScore += 0.15;
-
 			if (text.Contains("skills") && text.Contains(skillName))
 				baseScore += 0.15;
 
-			// Bonus nếu xuất hiện trong 20% đầu CV
+			// Bonus section Experience
+			if (text.Contains("experience") && text.Contains(skillName))
+				baseScore += 0.1;
+			if (text.Contains("kinh nghiệm") && text.Contains(skillName))
+				baseScore += 0.1;
+
+			// Bonus section Projects
+			if (text.Contains("project") && text.Contains(skillName))
+				baseScore += 0.05;
+
+			// Bonus đầu CV
 			var firstPart = text.Length > 0 ? text.Substring(0, Math.Min(text.Length / 5, text.Length)) : "";
 			if (firstPart.Contains(skillName))
 				baseScore += 0.1;
