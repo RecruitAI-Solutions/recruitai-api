@@ -183,48 +183,80 @@ namespace RecruitAI.Application.Services
 			};
 		}
 
-		public async Task<CvMatchesListResponseDto> GetAllMatchesByCvIdAsync(
-			Guid cvId,
-			Guid currentUserId,
-			CancellationToken cancellationToken = default)
-		{
-			var cv = await _unitOfWork.CVs.GetByIdAsync(cvId, cancellationToken);
-			if (cv == null)
-				throw new BusinessException(ErrorCode.CVNotFound, "CV not found");
-
-			var currentUser = await _unitOfWork.Users.GetByIdAsync(currentUserId, cancellationToken);
-			bool isOwner = cv.UserId == currentUserId;
-			bool isRecruiter = currentUser?.Role == UserRole.RECRUITER;
-
-			if (!isOwner && !isRecruiter)
-				throw new BusinessException(ErrorCode.Forbidden, "You don't have permission");
-
-			var applications = await _unitOfWork.JobApplications.GetByCvIdAsync(cvId, cancellationToken);
-
-			var matches = new List<CvMatchSummaryDto>();
-
-			foreach (var app in applications)
+		public async Task<PaginationResponseDto<CvMatchSummaryDto>> GetAllMatchesByCvIdAsync(
+		Guid cvId,
+		Guid currentUserId,
+		PaginationRequestDto pagination,
+		int minMatch = 0,
+		string sortBy = "matchPercentage",
+		string sortOrder = "desc")
 			{
-				var match = await _unitOfWork.JobApplicationMatches.GetByApplicationIdAsync(app.Id, cancellationToken);
-				if (match != null)
+				// Validate permission
+				var cv = await _unitOfWork.CVs.GetByIdAsync(cvId);
+				if (cv == null)
+					throw new BusinessException(ErrorCode.CVNotFound, "CV not found");
+
+				var currentUser = await _unitOfWork.Users.GetByIdAsync(currentUserId);
+				bool isOwner = cv.UserId == currentUserId;
+				bool isRecruiter = currentUser?.Role == UserRole.RECRUITER;
+
+				if (!isOwner && !isRecruiter)
+					throw new BusinessException(ErrorCode.Forbidden, "You don't have permission");
+
+				// Lấy tất cả applications của CV
+				var applications = await _unitOfWork.JobApplications.GetByCvIdAsync(cvId);
+
+				// Tạo danh sách match
+				var allMatches = new List<CvMatchSummaryDto>();
+
+				foreach (var app in applications)
 				{
-					var job = await _unitOfWork.Jobs.GetByIdAsync(app.JobId, cancellationToken);
-					matches.Add(new CvMatchSummaryDto
+					var match = await _unitOfWork.JobApplicationMatches.GetByApplicationIdAsync(app.Id);
+					if (match != null && match.MatchPercentage >= minMatch)
 					{
-						JobId = app.JobId,
-						JobTitle = job?.Title ?? "Unknown",
-						Company = job?.Department ?? "Unknown",
-						MatchPercentage = match.MatchPercentage,
-						CalculatedAt = match.CalculatedAt
-					});
+						var job = await _unitOfWork.Jobs.GetByIdAsync(app.JobId);
+						allMatches.Add(new CvMatchSummaryDto
+						{
+							JobId = app.JobId,
+							JobTitle = job?.Title ?? "Unknown",
+							Company = job?.Department ?? "Unknown",
+							MatchPercentage = match.MatchPercentage,
+							CalculatedAt = match.CalculatedAt
+						});
+					}
 				}
-			}
 
-			return new CvMatchesListResponseDto
-			{
-				CvId = cvId,
-				Matches = matches.OrderByDescending(m => m.MatchPercentage).ToList()
-			};
-		}
+				// Sorting
+				allMatches = sortBy?.ToLower() switch
+				{
+					"jobtitle" => sortOrder == "asc"
+						? allMatches.OrderBy(m => m.JobTitle).ToList()
+						: allMatches.OrderByDescending(m => m.JobTitle).ToList(),
+					"company" => sortOrder == "asc"
+						? allMatches.OrderBy(m => m.Company).ToList()
+						: allMatches.OrderByDescending(m => m.Company).ToList(),
+					"calculatedat" => sortOrder == "asc"
+						? allMatches.OrderBy(m => m.CalculatedAt).ToList()
+						: allMatches.OrderByDescending(m => m.CalculatedAt).ToList(),
+					_ => sortOrder == "asc"
+						? allMatches.OrderBy(m => m.MatchPercentage).ToList()
+						: allMatches.OrderByDescending(m => m.MatchPercentage).ToList()
+				};
+
+				// Pagination
+				var total = allMatches.Count;
+				var items = allMatches
+					.Skip((pagination.Page - 1) * pagination.PageSize)
+					.Take(pagination.PageSize)
+					.ToList();
+
+				return new PaginationResponseDto<CvMatchSummaryDto>
+				{
+					Data = items,
+					Total = total,
+					Page = pagination.Page,
+					PageSize = pagination.PageSize
+				};
+			}
 	}
 }
