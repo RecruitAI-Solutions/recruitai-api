@@ -297,7 +297,6 @@ builder.Services.AddAuthentication(options =>
 	options.SaveTokens = true;
 	options.Scope.Add("user:email");
 });
-
 builder.Services.AddAuthorization(options =>
 {
 	// ===== AUTH PERMISSIONS =====
@@ -320,20 +319,13 @@ builder.Services.AddAuthorization(options =>
 		));
 
 	// ===== CV PERMISSIONS =====
-	// ===== CV PERMISSIONS =====
 	options.AddPolicy("UploadCV", policy =>
 		policy.RequireAssertion(context =>
 		{
-			// Log để debug
 			var permissions = context.User.Claims
 				.Where(c => c.Type == "permission")
 				.Select(c => c.Value)
 				.ToList();
-
-			Console.WriteLine($"User permissions: {string.Join(", ", permissions)}");
-			Console.WriteLine($"Has P003: {permissions.Contains("P003")}");
-			Console.WriteLine($"Has P101: {permissions.Contains("P101")}");
-			Console.WriteLine($"Is Admin: {context.User.IsInRole("ADMIN")}");
 
 			return permissions.Contains("P003") ||
 				   permissions.Contains("P101") ||
@@ -353,10 +345,10 @@ builder.Services.AddAuthorization(options =>
 		));
 
 	options.AddPolicy("DeleteOwnCV", policy =>
-	policy.RequireAssertion(context =>
-		context.User.HasClaim(c => c.Type == "permission" && c.Value == "P104") ||
-		context.User.IsInRole("ADMIN")
-	));
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P104") ||
+			context.User.IsInRole("ADMIN")
+		));
 
 	options.AddPolicy("ExtractCVText", policy =>
 		policy.RequireAssertion(context =>
@@ -390,6 +382,44 @@ builder.Services.AddAuthorization(options =>
 		policy.RequireAssertion(context =>
 			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P001") ||
 			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P204") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	// ===== AI PERMISSIONS ===== (THÊM MỚI)
+
+	/// <summary>
+	/// Xem kết quả phân tích CV (P301)
+	/// </summary>
+	options.AddPolicy("ViewCVAnalysis", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P301") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	/// <summary>
+	/// Phân tích CV (P302)
+	/// </summary>
+	options.AddPolicy("AnalyzeCV", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P302") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	/// <summary>
+	/// Match CV với Job (P303)
+	/// </summary>
+	options.AddPolicy("MatchCVJob", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P303") ||
+			context.User.IsInRole("ADMIN")
+		));
+
+	/// <summary>
+	/// Xem kết quả match (P304)
+	/// </summary>
+	options.AddPolicy("ViewMatchResults", policy =>
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P304") ||
 			context.User.IsInRole("ADMIN")
 		));
 

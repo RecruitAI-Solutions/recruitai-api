@@ -3,6 +3,7 @@ using RecruitAI.Application.DTOs.Responses.AI;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
+using RecruitAI.Domain.Exceptions;
 using System.Text.Json;
 
 namespace RecruitAI.Application.Services
@@ -16,38 +17,42 @@ namespace RecruitAI.Application.Services
 			_unitOfWork = unitOfWork;
 		}
 
-		public async Task<MatchCvJobResponseDto> CalculateAndSaveMatchAsync(Guid cvId, Guid jobId, Guid currentUserId)
+		public async Task<MatchCvJobResponseDto> CalculateAndSaveMatchAsync(
+			Guid cvId,
+			Guid jobId,
+			Guid currentUserId,
+			CancellationToken cancellationToken = default)
 		{
 			// 1. Validate CV
-			var cv = await _unitOfWork.CVs.GetByIdAsync(cvId);
+			var cv = await _unitOfWork.CVs.GetByIdAsync(cvId, cancellationToken);
 			if (cv == null || cv.IsDeleted)
-				throw new Exception("CV not found");
+				throw new BusinessException(ErrorCode.CVNotFound, "CV not found");
 
-			// 2. Validate Job - GetByIdAsync đã include JobSkills
-			var job = await _unitOfWork.Jobs.GetByIdAsync(jobId);
+			// 2. Validate Job
+			var job = await _unitOfWork.Jobs.GetByIdAsync(jobId, cancellationToken);
 			if (job == null || job.IsDeleted || !job.IsActive)
-				throw new Exception("Job not found or not active");
+				throw new BusinessException(ErrorCode.JobNotFound, "Job not found or not active");
 
 			// 3. Check permission
-			var currentUser = await _unitOfWork.Users.GetByIdAsync(currentUserId);
+			var currentUser = await _unitOfWork.Users.GetByIdAsync(currentUserId, cancellationToken);
 			if (currentUser == null)
-				throw new Exception("User not found");
+				throw new BusinessException(ErrorCode.UserNotFound, "User not found");
 
 			bool isOwner = cv.UserId == currentUserId;
 			bool isRecruiter = currentUser.Role == UserRole.RECRUITER;
 
 			if (!isOwner && !isRecruiter)
-				throw new UnauthorizedAccessException("You don't have permission to match this CV");
+				throw new BusinessException(ErrorCode.Forbidden, "You don't have permission to match this CV");
 
 			// 4. Check CV has been analyzed
 			var cvSkills = await _unitOfWork.CVAnalysisResults.GetByCvIdAsync(cvId);
 			if (cvSkills == null || !cvSkills.Any())
-				throw new Exception("CV has not been analyzed yet");
+				throw new BusinessException(ErrorCode.InvalidData, "CV has not been analyzed yet");
 
 			// 5. Get job required skills
 			var requiredSkills = job.JobSkills.Where(js => js.IsRequired).ToList();
 			if (!requiredSkills.Any())
-				throw new Exception("Job has no required skills");
+				throw new BusinessException(ErrorCode.InvalidData, "Job has no required skills");
 
 			// 6. Calculate match
 			var cvSkillIds = cvSkills.Select(cs => cs.SkillId).ToHashSet();
@@ -61,7 +66,7 @@ namespace RecruitAI.Application.Services
 			var matchPercentage = requiredCount > 0 ? (matchedCount * 100) / requiredCount : 0;
 
 			// 7. Get skill details
-			var allSkills = await _unitOfWork.Skills.GetAllAsync();
+			var allSkills = await _unitOfWork.Skills.GetAllAsync(cancellationToken);
 			var skillDict = allSkills.ToDictionary(s => s.Id);
 
 			var matchedSkills = matchedSkillIds.Select(id => new SkillMatchDetailDto
@@ -79,7 +84,7 @@ namespace RecruitAI.Application.Services
 			}).ToList();
 
 			// 8. Save to database
-			var existingApplication = await _unitOfWork.JobApplications.GetByJobAndCvAsync(jobId, cvId);
+			var existingApplication = await _unitOfWork.JobApplications.GetByJobAndCvAsync(jobId, cvId, cancellationToken);
 
 			if (existingApplication == null)
 			{
@@ -91,10 +96,10 @@ namespace RecruitAI.Application.Services
 					Status = JobApplicationStatus.Pending,
 					AppliedAt = DateTime.UtcNow
 				};
-				await _unitOfWork.JobApplications.AddAsync(existingApplication);
+				await _unitOfWork.JobApplications.AddAsync(existingApplication, cancellationToken);
 			}
 
-			var existingMatch = await _unitOfWork.JobApplicationMatches.GetByApplicationIdAsync(existingApplication.Id);
+			var existingMatch = await _unitOfWork.JobApplicationMatches.GetByApplicationIdAsync(existingApplication.Id, cancellationToken);
 
 			if (existingMatch == null)
 			{
@@ -109,7 +114,7 @@ namespace RecruitAI.Application.Services
 					MissingSkillsJson = JsonSerializer.Serialize(missingSkills),
 					CalculatedAt = DateTime.UtcNow
 				};
-				await _unitOfWork.JobApplicationMatches.AddAsync(existingMatch);
+				await _unitOfWork.JobApplicationMatches.AddAsync(existingMatch, cancellationToken);
 			}
 			else
 			{
@@ -119,10 +124,10 @@ namespace RecruitAI.Application.Services
 				existingMatch.MatchedSkillsJson = JsonSerializer.Serialize(matchedSkills);
 				existingMatch.MissingSkillsJson = JsonSerializer.Serialize(missingSkills);
 				existingMatch.CalculatedAt = DateTime.UtcNow;
-				await _unitOfWork.JobApplicationMatches.UpdateAsync(existingMatch);
+				_unitOfWork.JobApplicationMatches.Update(existingMatch); // Bỏ await, dùng Update
 			}
 
-			await _unitOfWork.SaveChangesAsync();
+			await _unitOfWork.SaveChangesAsync(cancellationToken);
 
 			return new MatchCvJobResponseDto
 			{
@@ -137,26 +142,30 @@ namespace RecruitAI.Application.Services
 			};
 		}
 
-		public async Task<MatchCvJobResponseDto> GetMatchResultAsync(Guid cvId, Guid jobId, Guid currentUserId)
+		public async Task<MatchCvJobResponseDto> GetMatchResultAsync(
+			Guid cvId,
+			Guid jobId,
+			Guid currentUserId,
+			CancellationToken cancellationToken = default)
 		{
-			var cv = await _unitOfWork.CVs.GetByIdAsync(cvId);
+			var cv = await _unitOfWork.CVs.GetByIdAsync(cvId, cancellationToken);
 			if (cv == null)
-				throw new Exception("CV not found");
+				throw new BusinessException(ErrorCode.CVNotFound, "CV not found");
 
-			var currentUser = await _unitOfWork.Users.GetByIdAsync(currentUserId);
+			var currentUser = await _unitOfWork.Users.GetByIdAsync(currentUserId, cancellationToken);
 			bool isOwner = cv.UserId == currentUserId;
 			bool isRecruiter = currentUser?.Role == UserRole.RECRUITER;
 
 			if (!isOwner && !isRecruiter)
-				throw new UnauthorizedAccessException("You don't have permission");
+				throw new BusinessException(ErrorCode.Forbidden, "You don't have permission");
 
-			var application = await _unitOfWork.JobApplications.GetByJobAndCvAsync(jobId, cvId);
+			var application = await _unitOfWork.JobApplications.GetByJobAndCvAsync(jobId, cvId, cancellationToken);
 			if (application == null)
-				throw new Exception("Match not found. Please calculate match first.");
+				throw new BusinessException(ErrorCode.ResourceNotFound, "Match not found. Please calculate match first.");
 
-			var match = await _unitOfWork.JobApplicationMatches.GetByApplicationIdAsync(application.Id);
+			var match = await _unitOfWork.JobApplicationMatches.GetByApplicationIdAsync(application.Id, cancellationToken);
 			if (match == null)
-				throw new Exception("Match result not found");
+				throw new BusinessException(ErrorCode.ResourceNotFound, "Match result not found");
 
 			var matchedSkills = JsonSerializer.Deserialize<List<SkillMatchDetailDto>>(match.MatchedSkillsJson) ?? new();
 			var missingSkills = JsonSerializer.Deserialize<List<SkillMatchDetailDto>>(match.MissingSkillsJson) ?? new();
@@ -174,46 +183,80 @@ namespace RecruitAI.Application.Services
 			};
 		}
 
-		public async Task<CvMatchesListResponseDto> GetAllMatchesByCvIdAsync(Guid cvId, Guid currentUserId)
-		{
-			var cv = await _unitOfWork.CVs.GetByIdAsync(cvId);
-			if (cv == null)
-				throw new Exception("CV not found");
-
-			var currentUser = await _unitOfWork.Users.GetByIdAsync(currentUserId);
-			bool isOwner = cv.UserId == currentUserId;
-			bool isRecruiter = currentUser?.Role == UserRole.RECRUITER;
-
-			if (!isOwner && !isRecruiter)
-				throw new UnauthorizedAccessException("You don't have permission");
-
-			var applications = await _unitOfWork.JobApplications.GetByCvIdAsync(cvId);
-
-			var matches = new List<CvMatchSummaryDto>();
-
-			foreach (var app in applications)
+		public async Task<PaginationResponseDto<CvMatchSummaryDto>> GetAllMatchesByCvIdAsync(
+		Guid cvId,
+		Guid currentUserId,
+		PaginationRequestDto pagination,
+		int minMatch = 0,
+		string sortBy = "matchPercentage",
+		string sortOrder = "desc")
 			{
-				var match = await _unitOfWork.JobApplicationMatches.GetByApplicationIdAsync(app.Id);
-				if (match != null)
+				// Validate permission
+				var cv = await _unitOfWork.CVs.GetByIdAsync(cvId);
+				if (cv == null)
+					throw new BusinessException(ErrorCode.CVNotFound, "CV not found");
+
+				var currentUser = await _unitOfWork.Users.GetByIdAsync(currentUserId);
+				bool isOwner = cv.UserId == currentUserId;
+				bool isRecruiter = currentUser?.Role == UserRole.RECRUITER;
+
+				if (!isOwner && !isRecruiter)
+					throw new BusinessException(ErrorCode.Forbidden, "You don't have permission");
+
+				// Lấy tất cả applications của CV
+				var applications = await _unitOfWork.JobApplications.GetByCvIdAsync(cvId);
+
+				// Tạo danh sách match
+				var allMatches = new List<CvMatchSummaryDto>();
+
+				foreach (var app in applications)
 				{
-					// Load Job info nếu cần
-					var job = await _unitOfWork.Jobs.GetByIdAsync(app.JobId);
-					matches.Add(new CvMatchSummaryDto
+					var match = await _unitOfWork.JobApplicationMatches.GetByApplicationIdAsync(app.Id);
+					if (match != null && match.MatchPercentage >= minMatch)
 					{
-						JobId = app.JobId,
-						JobTitle = job?.Title ?? "Unknown",
-						Company = job?.Department ?? "Unknown",
-						MatchPercentage = match.MatchPercentage,
-						CalculatedAt = match.CalculatedAt
-					});
+						var job = await _unitOfWork.Jobs.GetByIdAsync(app.JobId);
+						allMatches.Add(new CvMatchSummaryDto
+						{
+							JobId = app.JobId,
+							JobTitle = job?.Title ?? "Unknown",
+							Company = job?.Department ?? "Unknown",
+							MatchPercentage = match.MatchPercentage,
+							CalculatedAt = match.CalculatedAt
+						});
+					}
 				}
-			}
 
-			return new CvMatchesListResponseDto
-			{
-				CvId = cvId,
-				Matches = matches.OrderByDescending(m => m.MatchPercentage).ToList()
-			};
-		}
+				// Sorting
+				allMatches = sortBy?.ToLower() switch
+				{
+					"jobtitle" => sortOrder == "asc"
+						? allMatches.OrderBy(m => m.JobTitle).ToList()
+						: allMatches.OrderByDescending(m => m.JobTitle).ToList(),
+					"company" => sortOrder == "asc"
+						? allMatches.OrderBy(m => m.Company).ToList()
+						: allMatches.OrderByDescending(m => m.Company).ToList(),
+					"calculatedat" => sortOrder == "asc"
+						? allMatches.OrderBy(m => m.CalculatedAt).ToList()
+						: allMatches.OrderByDescending(m => m.CalculatedAt).ToList(),
+					_ => sortOrder == "asc"
+						? allMatches.OrderBy(m => m.MatchPercentage).ToList()
+						: allMatches.OrderByDescending(m => m.MatchPercentage).ToList()
+				};
+
+				// Pagination
+				var total = allMatches.Count;
+				var items = allMatches
+					.Skip((pagination.Page - 1) * pagination.PageSize)
+					.Take(pagination.PageSize)
+					.ToList();
+
+				return new PaginationResponseDto<CvMatchSummaryDto>
+				{
+					Data = items,
+					Total = total,
+					Page = pagination.Page,
+					PageSize = pagination.PageSize
+				};
+			}
 	}
 }

@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RecruitAI.Application.Commands.AI;
+using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Application.DTOs.Requests.AI;
 using RecruitAI.Application.DTOs.Responses.AI;
 using RecruitAI.Application.Interfaces;
@@ -34,6 +35,7 @@ namespace RecruitAI.API.Controllers.v1
 		/// <summary>
 		/// Phân tích CV để trích xuất kỹ năng
 		/// </summary>
+		[Authorize(Policy = "AnalyzeCV")]
 		[HttpPost("analyze-cv")]
 		[ProducesResponseType(typeof(AnalyzeCvResponseDto), StatusCodes.Status200OK)]
 		[ProducesResponseType(typeof(AnalyzeCvResponseDto), StatusCodes.Status202Accepted)]
@@ -58,6 +60,7 @@ namespace RecruitAI.API.Controllers.v1
 		/// <summary>
 		/// Lấy kết quả phân tích CV
 		/// </summary>
+		[Authorize(Policy = "ViewCVAnalysis")]
 		[HttpGet("analysis/{cvId}")]
 		[ProducesResponseType(typeof(AnalysisResultDto), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -84,6 +87,7 @@ namespace RecruitAI.API.Controllers.v1
 		/// <summary>
 		/// Match CV với Job (tính toán và lưu kết quả)
 		/// </summary>
+		[Authorize(Policy = "MatchCVJob")]
 		[HttpPost("match-cv-job")]
 		[ProducesResponseType(typeof(MatchCvJobResponseDto), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -107,6 +111,7 @@ namespace RecruitAI.API.Controllers.v1
 		/// <summary>
 		/// Lấy kết quả match giữa CV và Job (đã lưu)
 		/// </summary>
+		[Authorize(Policy = "ViewMatchResults")]
 		[HttpGet("match")]
 		[ProducesResponseType(typeof(MatchCvJobResponseDto), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -127,20 +132,34 @@ namespace RecruitAI.API.Controllers.v1
 		/// <summary>
 		/// Lấy tất cả kết quả match của một CV
 		/// </summary>
+		[Authorize(Policy = "ViewMatchResults")]
 		[HttpGet("match/cv/{cvId}")]
-		[ProducesResponseType(typeof(CvMatchesListResponseDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(PaginationResponseDto<CvMatchSummaryDto>), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 		[ProducesResponseType(StatusCodes.Status403Forbidden)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
-		public async Task<ActionResult<CvMatchesListResponseDto>> GetMatchesByCvId(Guid cvId)
+		public async Task<ActionResult<PaginationResponseDto<CvMatchSummaryDto>>> GetMatchesByCvId(
+		Guid cvId,
+		[FromQuery] int page = 1,
+		[FromQuery] int pageSize = 10,
+		[FromQuery] int minMatch = 0,
+		[FromQuery] string sortBy = "matchPercentage",
+		[FromQuery] string sortOrder = "desc")
 		{
-			return await ExecuteAsync<CvMatchesListResponseDto>(async () =>
+			return await ExecuteAsync<PaginationResponseDto<CvMatchSummaryDto>>(async () =>
 			{
 				var userId = GetCurrentUserId();
 				if (userId == null)
 					throw new UnauthorizedAccessException();
 
-				return await _matchingService.GetAllMatchesByCvIdAsync(cvId, userId.Value);
+				var request = new PaginationRequestDto
+				{
+					Page = page,
+					PageSize = pageSize
+				};
+
+				return await _matchingService.GetAllMatchesByCvIdAsync(
+					cvId, userId.Value, request, minMatch, sortBy, sortOrder);
 			});
 		}
 	}
