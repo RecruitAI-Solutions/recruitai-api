@@ -19,4 +19,9 @@ public class CV
 
 	public virtual User User { get; set; } = null!;
 
+	public string? ExtractedText { get; set; }     
+	public DateTime? AnalyzedAt { get; set; }      
+	public virtual ICollection<CVAnalysisResult> AnalysisResults { get; set; } = new HashSet<CVAnalysisResult>();
+
+
 }

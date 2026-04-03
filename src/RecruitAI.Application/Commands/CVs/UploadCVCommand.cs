@@ -9,6 +9,7 @@ using RecruitAI.Domain.Exceptions;
 using RecruitAI.Domain.Interfaces;
 using RecruitAI.Application.DTOs.Responses;
 using RecruitAI.Application.Interfaces;
+using RecruitAI.Domain.Interfaces.Services;
 
 namespace RecruitAI.Application.Commands.CVs;
 
@@ -27,17 +28,20 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 	private readonly IWebHostEnvironment _env;
 	private readonly ILogger<UploadCVCommandHandler> _logger;
 	private readonly IMessageService _msg;
+	private readonly IPdfService _pdfService;
 
 	public UploadCVCommandHandler(
 		IUnitOfWork uow,
 		IWebHostEnvironment env,
 		ILogger<UploadCVCommandHandler> logger,
-		IMessageService messageService)
+		IMessageService messageService,
+		IPdfService pdfService)
 	{
 		_uow = uow;
 		_env = env;
 		_logger = logger;
 		_msg = messageService;
+		_pdfService = pdfService;
 	}
 
 	public async Task<UploadCVResponseDto> Handle(UploadCVCommand request, CancellationToken cancellationToken)
@@ -123,6 +127,11 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 			try
 			{
 				await _uow.CVs.AddAsync(cv);
+				await _uow.SaveChangesAsync(cancellationToken);
+
+				var extractedText = await _pdfService.ExtractTextAsync(filePath);
+				cv.ExtractedText = extractedText;
+				cv.Status = CVStatus.Completed;
 			}
 			catch (Exception ex)
 			{

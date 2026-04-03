@@ -2,8 +2,10 @@
 
 public enum CVStatus
 {
-	Pending = 1,
-	Processing = 2,
-	Completed = 3,
-	Failed = 4
+	Pending = 1,      // Chờ upload
+	Uploaded = 2,     // Đã upload
+	Processing = 3,   // Đang xử lý
+	Completed = 4,    // Đã xử lý text xong
+	Analyzed = 5,     // Đã phân tích skills (thêm mới)
+	Failed = 6
 }
