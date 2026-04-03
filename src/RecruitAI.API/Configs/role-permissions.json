@@ -16,7 +16,11 @@
 				"P103",
 				"P104",
 				"P105",
-				"P106"
+				"P106",
+				"P301",
+				"P302",
+				"P303",
+				"P304"
 			]
 		},
 		{
@@ -33,7 +37,11 @@
 				"P201",
 				"P202",
 				"P203",
-				"P204"
+				"P204",
+				"P301",
+				"P302",
+				"P303",
+				"P304"
 			]
 		},
 		{
@@ -65,20 +73,20 @@
 				"P201",
 				"P202",
 				"P203",
-				"P204"
+				"P204",
+				"P301",
+				"P302",
+				"P303",
+				"P304"
 			]
 		},
 		{
 			"code": "SUPER1",
-			"name": "Special Role 1",
-			"nameVi": "Vai trò đặc biệt 1",
-			"permissions": [ "P001", "P002", "P009", "P101", "P102" ]
+			"permissions": [ "P001", "P002", "P009", "P101", "P102", "P301", "P302", "P303", "P304" ]
 		},
 		{
 			"code": "SUPER2",
-			"name": "Special Role 2",
-			"nameVi": "Vai trò đặc biệt 2",
-			"permissions": [ "P006", "P007", "P201", "P202" ]
+			"permissions": [ "P006", "P007", "P201", "P202", "P301", "P302", "P303", "P304" ]
 		}
 	],
 	"permissions": [
@@ -306,6 +314,42 @@
 			"groupVi": "Quản lý công việc",
 			"description": "Allow user to view all jobs",
 			"descriptionVi": "Cho phép xem tất cả công việc"
+		},
+		{
+			"code": "P301",
+			"name": "View CV Analysis",
+			"nameVi": "Xem phân tích CV",
+			"group": "AI",
+			"groupVi": "Trí tuệ nhân tạo",
+			"description": "Allow user to view CV analysis results",
+			"descriptionVi": "Cho phép xem kết quả phân tích CV"
+		},
+		{
+			"code": "P302",
+			"name": "Analyze CV",
+			"nameVi": "Phân tích CV",
+			"group": "AI",
+			"groupVi": "Trí tuệ nhân tạo",
+			"description": "Allow user to trigger CV analysis",
+			"descriptionVi": "Cho phép kích hoạt phân tích CV"
+		},
+		{
+			"code": "P303",
+			"name": "Match CV with Job",
+			"nameVi": "So khớp CV với việc làm",
+			"group": "AI",
+			"groupVi": "Trí tuệ nhân tạo",
+			"description": "Allow user to match CV with job requirements",
+			"descriptionVi": "Cho phép so khớp CV với yêu cầu công việc"
+		},
+		{
+			"code": "P304",
+			"name": "View Match Results",
+			"nameVi": "Xem kết quả so khớp",
+			"group": "AI",
+			"groupVi": "Trí tuệ nhân tạo",
+			"description": "Allow user to view match results",
+			"descriptionVi": "Cho phép xem kết quả so khớp"
 		}
 	]
 }
