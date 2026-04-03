@@ -52,5 +52,32 @@ namespace RecruitAI.Infrastructure.Repositories
 		{
 			return await _dbSet.AnyAsync(r => r.CVId == cvId);
 		}
+
+		public async Task<List<CVAnalysisResult>> GetByCvIdAsync(Guid cvId)
+		{
+			return await _dbSet
+				.Include(r => r.Skill)
+				.Where(r => r.CVId == cvId)
+				.ToListAsync();
+		}
+
+		public async Task<CVAnalysisResult?> GetByCvIdAndSkillIdAsync(Guid cvId, int skillId)
+		{
+			return await _dbSet
+				.FirstOrDefaultAsync(r => r.CVId == cvId && r.SkillId == skillId);
+		}
+
+		public async Task DeleteByCvIdAsync(Guid cvId)
+		{
+			var results = await _dbSet
+				.Where(r => r.CVId == cvId)
+				.ToListAsync();
+
+			if (results.Any())
+			{
+				_dbSet.RemoveRange(results);
+			}
+		}
+
 	}
 }

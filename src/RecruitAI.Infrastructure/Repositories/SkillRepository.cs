@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RecruitAI.Application.Interfaces.Repositories;
+using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Infrastructure.Data;
 using System;
@@ -139,6 +139,13 @@ namespace RecruitAI.Infrastructure.Repositories
 				.Where(s => s.IsActive)
 				.OrderBy(s => s.Name)
 				.ToListAsync(cancellationToken);
+		}
+		public async Task<List<Skill>> GetAllAsync()
+		{
+			return await _dbSet
+				.Where(s => s.IsActive)
+				.OrderBy(s => s.Name)
+				.ToListAsync();
 		}
 
 	}

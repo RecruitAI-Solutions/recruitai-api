@@ -1,8 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.Interfaces;
-using RecruitAI.Application.Interfaces.Repositories;
 using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Infrastructure.Repositories;
 
@@ -25,6 +23,9 @@ namespace RecruitAI.Infrastructure.Data
 		private ICVRepository _cvRepository;
 		private ISkillRepository _skillRepository;
 		private ICVAnalysisRepository? _cvAnalysisRepository;
+		private IJobApplicationRepository _jobApplicationRepository;
+		private IJobApplicationMatchRepository _jobApplicationMatchRepository;
+
 
 		public UnitOfWork(RecruitDevContext context,
 			ILogger<UnitOfWork> logger)
@@ -55,6 +56,10 @@ namespace RecruitAI.Infrastructure.Data
 		public ICVAnalysisRepository CVAnalysisResults =>
 	_cvAnalysisRepository ??= new CVAnalysisRepository(_context);
 
+		public IJobApplicationRepository JobApplications =>
+		_jobApplicationRepository ??= new JobApplicationRepository(_context);
+		public IJobApplicationMatchRepository JobApplicationMatches =>
+			_jobApplicationMatchRepository ??= new JobApplicationMatchRepository(_context);
 
 
 		public bool HasActiveTransaction => _currentTransaction != null;
