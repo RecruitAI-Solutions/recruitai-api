@@ -19,6 +19,8 @@ public partial class RecruitDevContext : DbContext
 	public DbSet<Job> Jobs { get; set; }
 	public DbSet<Skill> Skills { get; set; }
 	public DbSet<JobSkill> JobSkills { get; set; }
+	public DbSet<JobApplication> JobApplications { get; set; }
+	public DbSet<JobApplicationMatch> JobApplicationMatches { get; set; }
 
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -33,7 +35,8 @@ public partial class RecruitDevContext : DbContext
 		modelBuilder.ApplyConfiguration(new JobConfiguration());
 		modelBuilder.ApplyConfiguration(new SkillConfiguration());
 		modelBuilder.ApplyConfiguration(new JobSkillConfiguration());
-
+		modelBuilder.ApplyConfiguration(new JobApplicationConfiguration());
+		modelBuilder.ApplyConfiguration(new JobApplicationMatchConfiguration());
 
 		OnModelCreatingPartial(modelBuilder);
 	}

@@ -23,6 +23,8 @@ namespace RecruitAI.Infrastructure.Data
 		private ICVRepository _cvRepository;
 		private ISkillRepository _skillRepository;
 		private ICVAnalysisRepository? _cvAnalysisRepository;
+		private IJobApplicationRepository _jobApplicationRepository;
+		private IJobApplicationMatchRepository _jobApplicationMatchRepository;
 
 
 		public UnitOfWork(RecruitDevContext context,
@@ -54,6 +56,10 @@ namespace RecruitAI.Infrastructure.Data
 		public ICVAnalysisRepository CVAnalysisResults =>
 	_cvAnalysisRepository ??= new CVAnalysisRepository(_context);
 
+		public IJobApplicationRepository JobApplications =>
+		_jobApplicationRepository ??= new JobApplicationRepository(_context);
+		public IJobApplicationMatchRepository JobApplicationMatches =>
+			_jobApplicationMatchRepository ??= new JobApplicationMatchRepository(_context);
 
 
 		public bool HasActiveTransaction => _currentTransaction != null;
