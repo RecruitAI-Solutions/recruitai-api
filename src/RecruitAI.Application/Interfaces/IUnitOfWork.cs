@@ -18,6 +18,8 @@ namespace RecruitAI.Application.Interfaces
 		IJobRepository Jobs { get; }
 		ICVRepository CVs{ get; }
 		ISkillRepository Skills { get; }
+		ICVAnalysisRepository CVAnalysisResults { get; }
+
 
 		Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 		Task BeginTransactionAsync(CancellationToken cancellationToken = default);
