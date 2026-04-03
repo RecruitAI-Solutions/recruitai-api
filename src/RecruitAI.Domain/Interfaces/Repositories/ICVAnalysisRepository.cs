@@ -1,5 +1,4 @@
-﻿// RecruitAI.Domain/Interfaces/Repositories/ICVAnalysisRepository.cs
-using RecruitAI.Domain.Entities;
+﻿using RecruitAI.Domain.Entities;
 
 namespace RecruitAI.Domain.Interfaces.Repositories
 {
@@ -12,5 +11,8 @@ namespace RecruitAI.Domain.Interfaces.Repositories
 		Task AddRangeAsync(IEnumerable<CVAnalysisResult> results);
 		Task RemoveByCVIdAsync(Guid cvId);
 		Task<bool> HasAnalysisAsync(Guid cvId);
+		Task<List<CVAnalysisResult>> GetByCvIdAsync(Guid cvId);
+		Task<CVAnalysisResult?> GetByCvIdAndSkillIdAsync(Guid cvId, int skillId);
+		Task DeleteByCvIdAsync(Guid cvId);
 	}
 }

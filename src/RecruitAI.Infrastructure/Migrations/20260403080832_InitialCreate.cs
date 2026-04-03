@@ -111,6 +111,8 @@ namespace RecruitAI.Infrastructure.Migrations
                     UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     ProcessedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ErrorMessage = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
+                    DeletedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ExtractedText = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AnalyzedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },

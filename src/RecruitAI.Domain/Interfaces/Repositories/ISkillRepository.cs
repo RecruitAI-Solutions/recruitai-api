@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace RecruitAI.Application.Interfaces.Repositories
+namespace RecruitAI.Domain.Interfaces.Repositories
 {
 	public interface ISkillRepository
 	{
@@ -33,6 +33,8 @@ namespace RecruitAI.Application.Interfaces.Repositories
 		// Categories
 		Task<IEnumerable<string>> GetAllCategoriesAsync(CancellationToken cancellationToken = default);
 		Task<IEnumerable<Skill>> GetAllActiveAsync(CancellationToken cancellationToken = default);
+
+		Task<List<Skill>> GetAllAsync();
 
 	}
 }

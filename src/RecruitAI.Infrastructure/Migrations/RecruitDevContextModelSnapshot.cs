@@ -283,6 +283,118 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.ToTable("Jobs");
                 });
 
+            modelBuilder.Entity("RecruitAI.Domain.Entities.JobApplication", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<DateTime>("AppliedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid>("CVId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("JobId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime?>("ReviewedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppliedAt")
+                        .HasDatabaseName("IX_JobApplications_AppliedAt");
+
+                    b.HasIndex("CVId")
+                        .HasDatabaseName("IX_JobApplications_CVId");
+
+                    b.HasIndex("JobId")
+                        .HasDatabaseName("IX_JobApplications_JobId");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_JobApplications_Status");
+
+                    b.HasIndex("CVId", "Status")
+                        .HasDatabaseName("IX_JobApplications_CVId_Status");
+
+                    b.HasIndex("JobId", "Status")
+                        .HasDatabaseName("IX_JobApplications_JobId_Status");
+
+                    b.ToTable("JobApplications");
+                });
+
+            modelBuilder.Entity("RecruitAI.Domain.Entities.JobApplicationMatch", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<Guid>("ApplicationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CalculatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<int>("MatchPercentage")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<int>("MatchedSkillCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.Property<string>("MatchedSkillsJson")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MissingSkillsJson")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RequiredSkillCount")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_JobApplicationMatches_ApplicationId");
+
+                    b.HasIndex("CalculatedAt")
+                        .HasDatabaseName("IX_JobApplicationMatches_CalculatedAt");
+
+                    b.HasIndex("MatchPercentage")
+                        .HasDatabaseName("IX_JobApplicationMatches_MatchPercentage");
+
+                    b.HasIndex("ApplicationId", "MatchPercentage")
+                        .HasDatabaseName("IX_JobApplicationMatches_AppId_MatchPct");
+
+                    b.ToTable("JobApplicationMatches", t =>
+                        {
+                            t.HasCheckConstraint("CK_MatchPercentage_Range", "[MatchPercentage] BETWEEN 0 AND 100");
+                        });
+                });
+
             modelBuilder.Entity("RecruitAI.Domain.Entities.JobSkill", b =>
                 {
                     b.Property<Guid>("JobId")
@@ -1478,6 +1590,39 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.Navigation("Recruiter");
                 });
 
+            modelBuilder.Entity("RecruitAI.Domain.Entities.JobApplication", b =>
+                {
+                    b.HasOne("RecruitAI.Domain.Entities.CV", "CV")
+                        .WithMany()
+                        .HasForeignKey("CVId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_JobApplications_CV");
+
+                    b.HasOne("RecruitAI.Domain.Entities.Job", "Job")
+                        .WithMany()
+                        .HasForeignKey("JobId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_JobApplications_Job");
+
+                    b.Navigation("CV");
+
+                    b.Navigation("Job");
+                });
+
+            modelBuilder.Entity("RecruitAI.Domain.Entities.JobApplicationMatch", b =>
+                {
+                    b.HasOne("RecruitAI.Domain.Entities.JobApplication", "Application")
+                        .WithOne("Match")
+                        .HasForeignKey("RecruitAI.Domain.Entities.JobApplicationMatch", "ApplicationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_JobApplicationMatches_Application");
+
+                    b.Navigation("Application");
+                });
+
             modelBuilder.Entity("RecruitAI.Domain.Entities.JobSkill", b =>
                 {
                     b.HasOne("RecruitAI.Domain.Entities.Job", "Job")
@@ -1527,6 +1672,11 @@ namespace RecruitAI.Infrastructure.Migrations
             modelBuilder.Entity("RecruitAI.Domain.Entities.Job", b =>
                 {
                     b.Navigation("JobSkills");
+                });
+
+            modelBuilder.Entity("RecruitAI.Domain.Entities.JobApplication", b =>
+                {
+                    b.Navigation("Match");
                 });
 
             modelBuilder.Entity("RecruitAI.Domain.Entities.Skill", b =>
