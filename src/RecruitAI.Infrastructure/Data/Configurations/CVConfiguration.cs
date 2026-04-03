@@ -45,6 +45,11 @@ namespace RecruitAI.Infrastructure.Data.Configurations
 				.WithMany(u => u.CVs)
 				.HasForeignKey(e => e.UserId)
 				.OnDelete(DeleteBehavior.Cascade);
+
+			entity.HasMany(e => e.AnalysisResults)
+				.WithOne(r => r.CV)
+				.HasForeignKey(r => r.CVId)
+				.OnDelete(DeleteBehavior.Cascade);
 		}
 	}
 }

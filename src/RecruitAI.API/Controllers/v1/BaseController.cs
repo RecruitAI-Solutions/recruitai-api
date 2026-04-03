@@ -17,19 +17,30 @@ public abstract class BaseController : ControllerBase
 	protected readonly IMediator _mediator;
 	protected readonly ILogger _logger;
 	protected readonly IMessageService _msg;
-	protected readonly IWorkContext _workContext;
+	protected readonly IWorkContext? _workContext;
+
+	protected BaseController(
+		IMediator mediator,
+		ILogger logger,
+		IMessageService messageService)
+	{
+		_mediator = mediator;
+		_logger = logger;
+		_msg = messageService;
+	}
 
 	protected BaseController(
 		IMediator mediator,
 		ILogger logger,
 		IMessageService messageService,
-		IWorkContext workContext = null)
+		IWorkContext workContext)
 	{
 		_mediator = mediator;
 		_logger = logger;
 		_msg = messageService;
 		_workContext = workContext;
 	}
+
 
 	/// <summary>
 	/// Lấy UserId từ Claims
@@ -43,14 +54,16 @@ public abstract class BaseController : ControllerBase
 			return claimUserId;
 		}
 
-		// Ưu tiên 2: Work context
-		var contextUserId = _workContext.GetCurrentUserId();
-		if (contextUserId.HasValue)
+		// Ưu tiên 2: Work context (nếu có)
+		if (_workContext != null)
 		{
-			return contextUserId;
+			var contextUserId = _workContext.GetCurrentUserId();
+			if (contextUserId.HasValue)
+			{
+				return contextUserId;
+			}
 		}
 
-		// Không tìm thấy userId
 		return null;
 	}
 

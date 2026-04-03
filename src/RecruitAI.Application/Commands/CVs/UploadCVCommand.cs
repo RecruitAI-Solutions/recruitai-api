@@ -9,6 +9,7 @@ using RecruitAI.Domain.Exceptions;
 using RecruitAI.Domain.Interfaces;
 using RecruitAI.Application.DTOs.Responses;
 using RecruitAI.Application.Interfaces;
+using RecruitAI.Domain.Interfaces.Services;
 
 namespace RecruitAI.Application.Commands.CVs;
 
@@ -27,17 +28,20 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 	private readonly IWebHostEnvironment _env;
 	private readonly ILogger<UploadCVCommandHandler> _logger;
 	private readonly IMessageService _msg;
+	private readonly IPdfService _pdfService;
 
 	public UploadCVCommandHandler(
 		IUnitOfWork uow,
 		IWebHostEnvironment env,
 		ILogger<UploadCVCommandHandler> logger,
-		IMessageService messageService)
+		IMessageService messageService,
+		IPdfService pdfService)
 	{
 		_uow = uow;
 		_env = env;
 		_logger = logger;
 		_msg = messageService;
+		_pdfService = pdfService;
 	}
 
 	public async Task<UploadCVResponseDto> Handle(UploadCVCommand request, CancellationToken cancellationToken)
@@ -116,7 +120,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 				FilePath = relativePath,
 				FileSize = request.FileSize,
 				ContentType = request.ContentType,
-				Status = CVStatus.Pending,
+				Status = CVStatus.Processing,
 				UploadedAt = DateTime.UtcNow
 			};
 
@@ -138,6 +142,25 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 				throw new BusinessException(
 					ErrorCode.DatabaseError,
 					_msg.Business("DatabaseError"));  
+			}
+
+
+			try
+			{
+				var extractedText = await _pdfService.ExtractTextAsync(filePath);
+				cv.ExtractedText = extractedText;
+				cv.Status = CVStatus.Completed;
+
+				await _uow.SaveChangesAsync(cancellationToken);
+
+				_logger.LogInformation("PDF text extracted successfully. Length: {Length}", extractedText.Length);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Failed to extract text from PDF");
+				cv.Status = CVStatus.Failed;
+				cv.ErrorMessage = ex.Message;
+				await _uow.SaveChangesAsync(cancellationToken);
 			}
 
 			return new UploadCVResponseDto

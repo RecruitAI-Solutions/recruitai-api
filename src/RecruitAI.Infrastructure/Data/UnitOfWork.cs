@@ -24,6 +24,7 @@ namespace RecruitAI.Infrastructure.Data
 		private IJobRepository _jobRepository;
 		private ICVRepository _cvRepository;
 		private ISkillRepository _skillRepository;
+		private ICVAnalysisRepository? _cvAnalysisRepository;
 
 		public UnitOfWork(RecruitDevContext context,
 			ILogger<UnitOfWork> logger)
@@ -51,6 +52,9 @@ namespace RecruitAI.Infrastructure.Data
 			_cvRepository ??= new CVRepository(_context);
 		public ISkillRepository Skills =>
 			_skillRepository ??= new SkillRepository(_context);
+		public ICVAnalysisRepository CVAnalysisResults =>
+	_cvAnalysisRepository ??= new CVAnalysisRepository(_context);
+
 
 
 		public bool HasActiveTransaction => _currentTransaction != null;

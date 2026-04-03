@@ -110,7 +110,9 @@ namespace RecruitAI.Infrastructure.Migrations
                     Status = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
                     UploadedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     ProcessedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ErrorMessage = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ErrorMessage = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ExtractedText = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AnalyzedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -139,7 +141,6 @@ namespace RecruitAI.Infrastructure.Migrations
                     EmploymentType = table.Column<int>(type: "int", nullable: true),
                     ExperienceLevel = table.Column<int>(type: "int", nullable: true),
                     Department = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Skills = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
                     Benefits = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
                     ExpirationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
@@ -212,6 +213,58 @@ namespace RecruitAI.Infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "CVAnalysisResult",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CVId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SkillId = table.Column<int>(type: "int", nullable: false),
+                    Confidence = table.Column<double>(type: "float", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CVAnalysisResult", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CVAnalysisResult_CVs_CVId",
+                        column: x => x.CVId,
+                        principalTable: "CVs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CVAnalysisResult_Skills_SkillId",
+                        column: x => x.SkillId,
+                        principalTable: "Skills",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "JobSkills",
+                columns: table => new
+                {
+                    JobId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    SkillId = table.Column<int>(type: "int", nullable: false),
+                    IsRequired = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_JobSkills", x => new { x.JobId, x.SkillId });
+                    table.ForeignKey(
+                        name: "FK_JobSkills_Jobs_JobId",
+                        column: x => x.JobId,
+                        principalTable: "Jobs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_JobSkills_Skills_SkillId",
+                        column: x => x.SkillId,
+                        principalTable: "Skills",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
             migrationBuilder.InsertData(
                 table: "Skills",
                 columns: new[] { "Id", "Aliases", "Category", "ContextKeywords", "CreatedAt", "CreatedBy", "IsActive", "Name", "UpdatedAt", "UpdatedBy" },
@@ -220,8 +273,8 @@ namespace RecruitAI.Infrastructure.Migrations
                     { 1, "CSharp,C Sharp", "Programming Language", "c#,csharp,c sharp", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "C#", null, null },
                     { 2, null, "Programming Language", "java,java 8,java 11", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Java", null, null },
                     { 3, "py", "Programming Language", "python,py,django", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Python", null, null },
-                    { 4, "js", "Programming Language", "javascript,js,ecmascript", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "JavaScript", null, null },
-                    { 5, "ts", "Programming Language", "typescript,ts", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "TypeScript", null, null },
+                    { 4, "js,java script,javascript", "Programming Language", "javascript,js,ecmascript", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "JavaScript", null, null },
+                    { 5, "ts,type script,typescript", "Programming Language", "typescript,ts", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "TypeScript", null, null },
                     { 6, "structured query language", "Programming Language", "sql,tsql,plsql", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "SQL", null, null },
                     { 7, "golang", "Programming Language", "go,golang", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Go", null, null },
                     { 8, null, "Programming Language", "rust", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Rust", null, null },
@@ -230,44 +283,74 @@ namespace RecruitAI.Infrastructure.Migrations
                     { 11, null, "Programming Language", "kotlin,android", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Kotlin", null, null },
                     { 12, null, "Programming Language", "ruby,rails", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Ruby", null, null },
                     { 13, "dotnet core", "Framework", ".net core,asp.net core", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, ".NET Core", null, null },
-                    { 14, "reactjs", "Framework", "react,reactjs,react.js", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "React", null, null },
-                    { 15, "angularjs", "Framework", "angular,angular 2+", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Angular", null, null },
-                    { 16, "vue", "Framework", "vue,vuejs", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Vue.js", null, null },
-                    { 17, "spring", "Framework", "spring,spring boot", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Spring Boot", null, null },
-                    { 18, "node", "Framework", "node,nodejs", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Node.js", null, null },
-                    { 19, null, "Framework", "django,python web", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Django", null, null },
-                    { 20, null, "Framework", "flask", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Flask", null, null },
-                    { 21, "express", "Framework", "express,expressjs", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Express.js", null, null },
-                    { 22, "ef", "Framework", "entity framework,ef core", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Entity Framework", null, null },
-                    { 23, null, "Framework", "hibernate,jpa", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Hibernate", null, null },
-                    { 24, "mssql", "Database", "sql server,mssql", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "SQL Server", null, null },
-                    { 25, null, "Database", "mysql", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "MySQL", null, null },
-                    { 26, "postgres", "Database", "postgresql,postgres", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "PostgreSQL", null, null },
-                    { 27, "mongo", "Database", "mongodb,mongo", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "MongoDB", null, null },
-                    { 28, null, "Database", "redis,cache", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Redis", null, null },
-                    { 29, "es", "Database", "elasticsearch,es", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Elasticsearch", null, null },
-                    { 30, null, "Database", "oracle", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Oracle", null, null },
-                    { 31, null, "Database", "cassandra", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Cassandra", null, null },
-                    { 32, "dynamo", "Database", "dynamodb,aws dynamo", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "DynamoDB", null, null },
-                    { 33, "microsoft azure", "Cloud", "azure,azure devops", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Azure", null, null },
-                    { 34, "amazon web services", "Cloud", "aws,ec2,s3,lambda", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "AWS", null, null },
-                    { 35, "gcp", "Cloud", "gcp,google cloud", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Google Cloud", null, null },
-                    { 36, null, "DevOps", "docker,container", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Docker", null, null },
-                    { 37, "k8s", "DevOps", "kubernetes,k8s", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Kubernetes", null, null },
-                    { 38, null, "DevOps", "jenkins,ci/cd", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Jenkins", null, null },
-                    { 39, null, "DevOps", "git,github,gitlab", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Git", null, null },
-                    { 40, null, "DevOps", "terraform,iac", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Terraform", null, null },
-                    { 41, null, "DevOps", "ansible", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Ansible", null, null },
-                    { 42, "collaboration", "Soft Skill", "teamwork,team work", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Teamwork", null, null },
-                    { 43, null, "Soft Skill", "communication,verbal,written", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Communication", null, null },
-                    { 44, "analytical", "Soft Skill", "problem solving,analytical", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Problem Solving", null, null },
-                    { 45, null, "Soft Skill", "leadership,lead", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Leadership", null, null },
-                    { 46, null, "Soft Skill", "time management,organize", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Time Management", null, null },
-                    { 47, null, "Language", "english,ielts,toeic", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "English", null, null },
-                    { 48, "tiếng việt", "Language", "vietnamese,tieng viet", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Vietnamese", null, null },
-                    { 49, "日本語", "Language", "japanese,nihongo,jlpt", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Japanese", null, null },
-                    { 50, "mandarin", "Language", "chinese,mandarin", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Chinese", null, null },
-                    { 51, "한국어", "Language", "korean,topik", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Korean", null, null }
+                    { 14, "asp.net core,aspnetcore", "Framework", "asp.net core,aspnet core web api", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "ASP.NET Core", null, null },
+                    { 15, "ef,ef core", "Framework", "entity framework,ef core", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Entity Framework", null, null },
+                    { 16, "webapi,rest api", "Framework", "web api,restful api", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Web API", null, null },
+                    { 17, "restful api", "Framework", "rest api,restful web service", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "REST API", null, null },
+                    { 18, "reactjs", "Framework", "react,reactjs,react.js", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "React", null, null },
+                    { 19, "angularjs", "Framework", "angular,angular 2+", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Angular", null, null },
+                    { 20, "vue", "Framework", "vue,vuejs", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Vue.js", null, null },
+                    { 21, "spring", "Framework", "spring,spring boot", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Spring Boot", null, null },
+                    { 22, "node", "Framework", "node,nodejs", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Node.js", null, null },
+                    { 23, null, "Framework", "django,python web", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Django", null, null },
+                    { 24, null, "Framework", "flask", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Flask", null, null },
+                    { 25, "express", "Framework", "express,expressjs", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Express.js", null, null },
+                    { 26, null, "Framework", "hibernate,jpa", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Hibernate", null, null },
+                    { 27, "mssql", "Database", "sql server,mssql", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "SQL Server", null, null },
+                    { 28, null, "Database", "mysql", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "MySQL", null, null },
+                    { 29, "postgres", "Database", "postgresql,postgres", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "PostgreSQL", null, null },
+                    { 30, "mongo", "Database", "mongodb,mongo", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "MongoDB", null, null },
+                    { 31, null, "Database", "redis,cache", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Redis", null, null },
+                    { 32, "es", "Database", "elasticsearch,es", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Elasticsearch", null, null },
+                    { 33, null, "Database", "oracle", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Oracle", null, null },
+                    { 34, null, "Database", "cassandra", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Cassandra", null, null },
+                    { 35, "dynamo", "Database", "dynamodb,aws dynamo", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "DynamoDB", null, null },
+                    { 36, "microsoft azure", "Cloud", "azure,azure devops", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Azure", null, null },
+                    { 37, "amazon web services", "Cloud", "aws,ec2,s3,lambda", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "AWS", null, null },
+                    { 38, "gcp", "Cloud", "gcp,google cloud", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Google Cloud", null, null },
+                    { 39, null, "DevOps", "docker,container", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Docker", null, null },
+                    { 40, "k8s", "DevOps", "kubernetes,k8s", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Kubernetes", null, null },
+                    { 41, null, "DevOps", "jenkins,ci/cd", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Jenkins", null, null },
+                    { 42, null, "DevOps", "git,github,gitlab", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Git", null, null },
+                    { 43, null, "DevOps", "terraform,iac", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Terraform", null, null },
+                    { 44, null, "DevOps", "ansible", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Ansible", null, null },
+                    { 45, "collaboration", "Soft Skill", "teamwork,team work", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Teamwork", null, null },
+                    { 46, null, "Soft Skill", "communication,verbal,written", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Communication", null, null },
+                    { 47, "analytical", "Soft Skill", "problem solving,analytical", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Problem Solving", null, null },
+                    { 48, null, "Soft Skill", "leadership,lead", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Leadership", null, null },
+                    { 49, null, "Soft Skill", "time management,organize", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Time Management", null, null },
+                    { 50, null, "Language", "english,ielts,toeic", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "English", null, null },
+                    { 51, "tiếng việt", "Language", "vietnamese,tieng viet", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Vietnamese", null, null },
+                    { 52, "日本語", "Language", "japanese,nihongo,jlpt", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Japanese", null, null },
+                    { 53, "mandarin", "Language", "chinese,mandarin", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Chinese", null, null },
+                    { 54, "한국어", "Language", "korean,topik", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Korean", null, null },
+                    { 55, "json web token", "Security", "jwt authentication,jwt token", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "JWT", null, null },
+                    { 56, "oauth 2.0", "Security", "oauth2,oauth 2.0", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "OAuth2", null, null },
+                    { 57, "microservice", "Architecture", "microservices architecture,msa", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Microservices", null, null },
+                    { 58, "onion architecture", "Architecture", "clean architecture,onion architecture", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Clean Architecture", null, null },
+                    { 59, "cqrs pattern", "Architecture", "cqrs,command query responsibility segregation", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "CQRS", null, null },
+                    { 60, "event sourcing pattern", "Architecture", "event sourcing,event driven", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Event Sourcing", null, null },
+                    { 61, "unit test", "Testing", "unit testing,xunit,nunit", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Unit Testing", null, null },
+                    { 62, "integration test", "Testing", "integration testing", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Integration Testing", null, null },
+                    { 63, "xunit.net", "Testing", "xunit,unit testing", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "xUnit", null, null },
+                    { 64, "mock", "Testing", "moq,mocking", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Moq", null, null },
+                    { 65, "html", "Frontend", "html5,html", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "HTML5", null, null },
+                    { 66, "css", "Frontend", "css3,css", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "CSS3", null, null },
+                    { 67, null, "Frontend", "bootstrap,css framework", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Bootstrap", null, null },
+                    { 68, "tailwind", "Frontend", "tailwind,tailwindcss", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Tailwind CSS", null, null },
+                    { 69, "jquery", "Frontend", "jquery,javascript library", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "jQuery", null, null },
+                    { 70, "html5", "Frontend", "html,html5", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "HTML", null, null },
+                    { 71, "css3", "Frontend", "css,css3", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "CSS", null, null },
+                    { 72, "tailwind css", "Frontend", "tailwind,tailwindcss", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Tailwind", null, null },
+                    { 73, "reduxjs", "Frontend", "redux,reduxjs,react redux", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Redux", null, null },
+                    { 74, "reactnative", "Mobile", "react native,mobile app", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "React Native", null, null },
+                    { 75, null, "Mobile", "flutter,dart", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Flutter", null, null },
+                    { 76, "android dev", "Mobile", "android,kotlin android", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Android", null, null },
+                    { 77, "iphone", "Mobile", "ios,swift ios", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "iOS", null, null },
+                    { 78, "rabbit mq", "Message Queue", "rabbitmq,message queue", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "RabbitMQ", null, null },
+                    { 79, "apache kafka", "Message Queue", "kafka,event streaming", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Kafka", null, null },
+                    { 80, "service bus", "Message Queue", "azure service bus,servicebus", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Azure Service Bus", null, null },
+                    { 81, "redis pubsub", "Message Queue", "redis pubsub,redis messaging", new DateTime(2024, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), "system", true, "Redis Pub/Sub", null, null }
                 });
 
             migrationBuilder.CreateIndex(
@@ -280,6 +363,16 @@ namespace RecruitAI.Infrastructure.Migrations
                 name: "IX_AuthProviders_UserId",
                 table: "AuthProviders",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CVAnalysisResult_CVId",
+                table: "CVAnalysisResult",
+                column: "CVId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CVAnalysisResult_SkillId",
+                table: "CVAnalysisResult",
+                column: "SkillId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_CVs_Status",
@@ -335,6 +428,11 @@ namespace RecruitAI.Infrastructure.Migrations
                 name: "IX_Jobs_Title",
                 table: "Jobs",
                 column: "Title");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_JobSkills_SkillId",
+                table: "JobSkills",
+                column: "SkillId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PasswordResetToken_UserId",
@@ -398,10 +496,10 @@ namespace RecruitAI.Infrastructure.Migrations
                 name: "AuthProviders");
 
             migrationBuilder.DropTable(
-                name: "CVs");
+                name: "CVAnalysisResult");
 
             migrationBuilder.DropTable(
-                name: "Jobs");
+                name: "JobSkills");
 
             migrationBuilder.DropTable(
                 name: "PasswordResetToken");
@@ -410,10 +508,16 @@ namespace RecruitAI.Infrastructure.Migrations
                 name: "RefreshTokens");
 
             migrationBuilder.DropTable(
-                name: "Skills");
+                name: "Tests");
 
             migrationBuilder.DropTable(
-                name: "Tests");
+                name: "CVs");
+
+            migrationBuilder.DropTable(
+                name: "Jobs");
+
+            migrationBuilder.DropTable(
+                name: "Skills");
 
             migrationBuilder.DropTable(
                 name: "Users");
