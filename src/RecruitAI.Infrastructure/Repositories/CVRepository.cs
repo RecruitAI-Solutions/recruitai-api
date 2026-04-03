@@ -12,18 +12,18 @@ public class CVRepository : BaseRepository<CV>, ICVRepository
 	{
 	}
 
-	public async Task<CV?> GetByIdAsync(Guid id)
+	public async Task<CV?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
 	{
 		return await _dbSet
-			.FirstOrDefaultAsync(c => c.Id == id);
+			.FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
 	}
 
-	public async Task<IEnumerable<CV>> GetByUserIdAsync(Guid userId)
+	public async Task<IEnumerable<CV>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default)
 	{
 		return await _dbSet
 			.Where(c => c.UserId == userId)
 			.OrderByDescending(c => c.UploadedAt)
-			.ToListAsync();
+			.ToListAsync(cancellationToken);
 	}
 
 	public async Task<(IEnumerable<CV> Items, int Total)> GetUserCVsAsync(
@@ -89,25 +89,23 @@ public class CVRepository : BaseRepository<CV>, ICVRepository
 		return (items, total);
 	}
 
-	public async Task AddAsync(CV cv)
+	public async Task AddAsync(CV cv, CancellationToken cancellationToken = default)
 	{
-		await _dbSet.AddAsync(cv);
-		
+		await _dbSet.AddAsync(cv, cancellationToken);
 	}
 
-	public async Task UpdateAsync(CV cv)
+	public async Task UpdateAsync(CV cv, CancellationToken cancellationToken = default)
 	{
 		_dbSet.Update(cv);
-		
+		await Task.CompletedTask;
 	}
 
-	public async Task DeleteAsync(Guid id)
+	public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
 	{
-		var cv = await GetByIdAsync(id);
+		var cv = await GetByIdAsync(id, cancellationToken);
 		if (cv != null)
 		{
 			_dbSet.Remove(cv);
-			
 
 			// Xóa file vật lý
 			var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", cv.FilePath);

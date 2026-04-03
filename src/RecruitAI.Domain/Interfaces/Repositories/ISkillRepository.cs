@@ -34,7 +34,7 @@ namespace RecruitAI.Domain.Interfaces.Repositories
 		Task<IEnumerable<string>> GetAllCategoriesAsync(CancellationToken cancellationToken = default);
 		Task<IEnumerable<Skill>> GetAllActiveAsync(CancellationToken cancellationToken = default);
 
-		Task<List<Skill>> GetAllAsync();
+		Task<IEnumerable<Skill>> GetAllAsync(CancellationToken cancellationToken = default);
 
 	}
 }
