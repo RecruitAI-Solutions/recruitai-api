@@ -2,244 +2,305 @@
 	"roles": [
 		{
 			"code": "CANDIDATE",
+			"name": "Candidate",
+			"nameVi": "Ứng viên",
 			"permissions": [ "P001", "P002", "P003", "P004", "P005", "P009", "P101", "P102", "P103", "P104", "P105", "P106", "P301", "P302", "P303", "P304" ]
 		},
 		{
 			"code": "RECRUITER",
+			"name": "Recruiter",
+			"nameVi": "Nhà tuyển dụng",
 			"permissions": [ "P001", "P004", "P005", "P006", "P007", "P008", "P009", "P010", "P011", "P201", "P202", "P203", "P204", "P301", "P302", "P303", "P304" ]
 		},
 		{
 			"code": "ADMIN",
+			"name": "Administrator",
+			"nameVi": "Quản trị viên",
 			"permissions": [ "P001", "P002", "P003", "P004", "P005", "P006", "P007", "P008", "P009", "P010", "P011", "P012", "P013", "P014", "P015", "P016", "P017", "P018", "P019", "P020", "P101", "P102", "P103", "P104", "P105", "P106", "P201", "P202", "P203", "P204", "P301", "P302", "P303", "P304" ]
 		},
 		{
 			"code": "SUPER1",
+			"name": "Special Role 1",
+			"nameVi": "Vai trò đặc biệt 1",
 			"permissions": [ "P001", "P002", "P009", "P101", "P102", "P301", "P302", "P303", "P304" ]
 		},
 		{
 			"code": "SUPER2",
+			"name": "Special Role 2",
+			"nameVi": "Vai trò đặc biệt 2",
 			"permissions": [ "P006", "P007", "P201", "P202", "P301", "P302", "P303", "P304" ]
 		}
 	],
 	"permissions": [
-		// ===== JOB & APPLICATION (P001-P011) =====
 		{
 			"code": "P001",
 			"name": "View Jobs",
 			"nameVi": "Xem việc làm",
 			"group": "JOB",
-			"groupVi": "Công việc"
+			"groupVi": "Công việc",
+			"description": "Allow user to view job listings",
+			"descriptionVi": "Cho phép xem danh sách việc làm"
 		},
 		{
 			"code": "P002",
 			"name": "Apply Job",
 			"nameVi": "Ứng tuyển",
 			"group": "JOB",
-			"groupVi": "Công việc"
+			"groupVi": "Công việc",
+			"description": "Allow user to apply for jobs",
+			"descriptionVi": "Cho phép ứng tuyển vào công việc"
 		},
 		{
 			"code": "P003",
 			"name": "Upload CV",
 			"nameVi": "Tải lên CV",
 			"group": "PROFILE",
-			"groupVi": "Hồ sơ"
+			"groupVi": "Hồ sơ",
+			"description": "Allow user to upload CV",
+			"descriptionVi": "Cho phép tải lên CV"
 		},
 		{
 			"code": "P004",
 			"name": "View Profile",
 			"nameVi": "Xem hồ sơ",
 			"group": "PROFILE",
-			"groupVi": "Hồ sơ"
+			"groupVi": "Hồ sơ",
+			"description": "Allow user to view their profile",
+			"descriptionVi": "Cho phép xem hồ sơ cá nhân"
 		},
 		{
 			"code": "P005",
 			"name": "Edit Profile",
 			"nameVi": "Sửa hồ sơ",
 			"group": "PROFILE",
-			"groupVi": "Hồ sơ"
+			"groupVi": "Hồ sơ",
+			"description": "Allow user to edit their profile",
+			"descriptionVi": "Cho phép sửa hồ sơ cá nhân"
 		},
 		{
 			"code": "P006",
 			"name": "Create Job",
 			"nameVi": "Tạo việc làm",
 			"group": "JOB_MANAGEMENT",
-			"groupVi": "Quản lý công việc"
+			"groupVi": "Quản lý công việc",
+			"description": "Allow recruiter to create new jobs",
+			"descriptionVi": "Cho phép nhà tuyển dụng tạo việc làm mới"
 		},
 		{
 			"code": "P007",
 			"name": "Edit Job",
 			"nameVi": "Sửa việc làm",
 			"group": "JOB_MANAGEMENT",
-			"groupVi": "Quản lý công việc"
+			"groupVi": "Quản lý công việc",
+			"description": "Allow recruiter to edit jobs",
+			"descriptionVi": "Cho phép nhà tuyển dụng sửa việc làm"
 		},
 		{
 			"code": "P008",
 			"name": "Delete Job",
 			"nameVi": "Xóa việc làm",
 			"group": "JOB_MANAGEMENT",
-			"groupVi": "Quản lý công việc"
+			"groupVi": "Quản lý công việc",
+			"description": "Allow recruiter to delete jobs",
+			"descriptionVi": "Cho phép nhà tuyển dụng xóa việc làm"
 		},
 		{
 			"code": "P009",
 			"name": "View Applications",
 			"nameVi": "Xem đơn ứng tuyển",
 			"group": "APPLICATION",
-			"groupVi": "Đơn ứng tuyển"
+			"groupVi": "Đơn ứng tuyển",
+			"description": "Allow user to view job applications",
+			"descriptionVi": "Cho phép xem đơn ứng tuyển"
 		},
 		{
 			"code": "P010",
 			"name": "Contact Candidates",
 			"nameVi": "Liên hệ ứng viên",
 			"group": "APPLICATION",
-			"groupVi": "Đơn ứng tuyển"
+			"groupVi": "Đơn ứng tuyển",
+			"description": "Allow recruiter to contact candidates",
+			"descriptionVi": "Cho phép nhà tuyển dụng liên hệ ứng viên"
 		},
 		{
 			"code": "P011",
 			"name": "Update Application Status",
 			"nameVi": "Cập nhật trạng thái đơn",
 			"group": "APPLICATION",
-			"groupVi": "Đơn ứng tuyển"
+			"groupVi": "Đơn ứng tuyển",
+			"description": "Allow recruiter to update application status",
+			"descriptionVi": "Cho phép nhà tuyển dụng cập nhật trạng thái đơn ứng tuyển"
 		},
-
-		// ===== ADMIN PERMISSIONS (P012-P020) =====
 		{
 			"code": "P012",
 			"name": "Manage Users",
 			"nameVi": "Quản lý người dùng",
 			"group": "ADMIN",
-			"groupVi": "Quản trị"
+			"groupVi": "Quản trị",
+			"description": "Allow admin to manage users",
+			"descriptionVi": "Cho phép quản trị viên quản lý người dùng"
 		},
 		{
 			"code": "P013",
 			"name": "Manage Roles",
 			"nameVi": "Quản lý vai trò",
 			"group": "ADMIN",
-			"groupVi": "Quản trị"
+			"groupVi": "Quản trị",
+			"description": "Allow admin to manage roles and permissions",
+			"descriptionVi": "Cho phép quản trị viên quản lý vai trò và quyền"
 		},
 		{
 			"code": "P014",
 			"name": "View Analytics",
 			"nameVi": "Xem thống kê",
 			"group": "ADMIN",
-			"groupVi": "Quản trị"
+			"groupVi": "Quản trị",
+			"description": "Allow admin to view system analytics",
+			"descriptionVi": "Cho phép quản trị viên xem thống kê hệ thống"
 		},
 		{
 			"code": "P015",
 			"name": "Manage System",
 			"nameVi": "Quản lý hệ thống",
 			"group": "ADMIN",
-			"groupVi": "Quản trị"
+			"groupVi": "Quản trị",
+			"description": "Allow admin to manage system settings",
+			"descriptionVi": "Cho phép quản trị viên quản lý cài đặt hệ thống"
 		},
 		{
 			"code": "P016",
 			"name": "Full Access",
 			"nameVi": "Toàn quyền",
 			"group": "ADMIN",
-			"groupVi": "Quản trị"
+			"groupVi": "Quản trị",
+			"description": "Full system access",
+			"descriptionVi": "Toàn quyền truy cập hệ thống"
 		},
-
-		// ===== CV PERMISSIONS (P101-P106) =====
 		{
 			"code": "P101",
 			"name": "Upload CV",
 			"nameVi": "Tải lên CV",
 			"group": "CV",
-			"groupVi": "Quản lý CV"
+			"groupVi": "Quản lý CV",
+			"description": "Allow user to upload CV files",
+			"descriptionVi": "Cho phép tải lên file CV"
 		},
 		{
 			"code": "P102",
 			"name": "View Own CVs",
 			"nameVi": "Xem CV của tôi",
 			"group": "CV",
-			"groupVi": "Quản lý CV"
+			"groupVi": "Quản lý CV",
+			"description": "Allow user to view their own CVs",
+			"descriptionVi": "Cho phép xem danh sách CV của bản thân"
 		},
 		{
 			"code": "P103",
 			"name": "Download Own CV",
 			"nameVi": "Tải CV của tôi",
 			"group": "CV",
-			"groupVi": "Quản lý CV"
+			"groupVi": "Quản lý CV",
+			"description": "Allow user to download their own CV files",
+			"descriptionVi": "Cho phép tải xuống file CV của bản thân"
 		},
 		{
 			"code": "P104",
 			"name": "Delete Own CV",
 			"nameVi": "Xóa CV của tôi",
 			"group": "CV",
-			"groupVi": "Quản lý CV"
+			"groupVi": "Quản lý CV",
+			"description": "Allow user to delete their own CVs",
+			"descriptionVi": "Cho phép xóa CV của bản thân"
 		},
 		{
 			"code": "P105",
 			"name": "Extract CV Text",
 			"nameVi": "Trích xuất nội dung CV",
 			"group": "CV",
-			"groupVi": "Quản lý CV"
+			"groupVi": "Quản lý CV",
+			"description": "Allow system to extract text from CV",
+			"descriptionVi": "Cho phép hệ thống trích xuất nội dung từ CV"
 		},
 		{
 			"code": "P106",
 			"name": "View CV Processing Status",
 			"nameVi": "Xem trạng thái xử lý CV",
 			"group": "CV",
-			"groupVi": "Quản lý CV"
+			"groupVi": "Quản lý CV",
+			"description": "Allow user to view CV processing status",
+			"descriptionVi": "Cho phép xem trạng thái xử lý CV"
 		},
-
-		// ===== JOB MANAGEMENT (P201-P204) =====
 		{
 			"code": "P201",
 			"name": "Create Job",
 			"nameVi": "Tạo công việc",
 			"group": "JOB",
-			"groupVi": "Quản lý công việc"
+			"groupVi": "Quản lý công việc",
+			"description": "Allow recruiter to create new jobs",
+			"descriptionVi": "Cho phép nhà tuyển dụng tạo công việc mới"
 		},
 		{
 			"code": "P202",
 			"name": "Edit Own Job",
 			"nameVi": "Sửa công việc của tôi",
 			"group": "JOB",
-			"groupVi": "Quản lý công việc"
+			"groupVi": "Quản lý công việc",
+			"description": "Allow recruiter to edit their own jobs",
+			"descriptionVi": "Cho phép nhà tuyển dụng sửa công việc của mình"
 		},
 		{
 			"code": "P203",
 			"name": "Delete Own Job",
 			"nameVi": "Xóa công việc của tôi",
 			"group": "JOB",
-			"groupVi": "Quản lý công việc"
+			"groupVi": "Quản lý công việc",
+			"description": "Allow recruiter to delete their own jobs",
+			"descriptionVi": "Cho phép nhà tuyển dụng xóa công việc của mình"
 		},
 		{
 			"code": "P204",
 			"name": "View All Jobs",
 			"nameVi": "Xem tất cả công việc",
 			"group": "JOB",
-			"groupVi": "Quản lý công việc"
+			"groupVi": "Quản lý công việc",
+			"description": "Allow user to view all jobs",
+			"descriptionVi": "Cho phép xem tất cả công việc"
 		},
-
-		// ===== AI PERMISSIONS (P301-P304) =====
 		{
 			"code": "P301",
 			"name": "View CV Analysis",
 			"nameVi": "Xem phân tích CV",
 			"group": "AI",
-			"groupVi": "Trí tuệ nhân tạo"
+			"groupVi": "Trí tuệ nhân tạo",
+			"description": "Allow user to view CV analysis results",
+			"descriptionVi": "Cho phép xem kết quả phân tích CV"
 		},
 		{
 			"code": "P302",
 			"name": "Analyze CV",
 			"nameVi": "Phân tích CV",
 			"group": "AI",
-			"groupVi": "Trí tuệ nhân tạo"
+			"groupVi": "Trí tuệ nhân tạo",
+			"description": "Allow user to trigger CV analysis",
+			"descriptionVi": "Cho phép kích hoạt phân tích CV"
 		},
 		{
 			"code": "P303",
 			"name": "Match CV with Job",
 			"nameVi": "So khớp CV với việc làm",
 			"group": "AI",
-			"groupVi": "Trí tuệ nhân tạo"
+			"groupVi": "Trí tuệ nhân tạo",
+			"description": "Allow user to match CV with job requirements",
+			"descriptionVi": "Cho phép so khớp CV với yêu cầu công việc"
 		},
 		{
 			"code": "P304",
 			"name": "View Match Results",
 			"nameVi": "Xem kết quả so khớp",
 			"group": "AI",
-			"groupVi": "Trí tuệ nhân tạo"
+			"groupVi": "Trí tuệ nhân tạo",
+			"description": "Allow user to view match results",
+			"descriptionVi": "Cho phép xem kết quả so khớp"
 		}
 	]
 }
