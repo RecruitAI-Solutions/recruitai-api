@@ -1,10 +1,16 @@
-﻿using RecruitAI.Domain.Entities;
+﻿using RecruitAI.Domain.Common.Paginations;
+using RecruitAI.Domain.Entities;
+using RecruitAI.Domain.Enums;
 
 namespace RecruitAI.Domain.Interfaces.Repositories;
 
-public interface IJobApplicationRepository : IBaseRepository<JobApplication>
+public interface IJobApplicationRepository : IBaseRepository<JobApplication> 
 {
 	Task<JobApplication?> GetByJobAndCvAsync(Guid jobId, Guid cvId, CancellationToken cancellationToken = default);
 	Task<List<JobApplication>> GetByJobIdAsync(Guid jobId, CancellationToken cancellationToken = default);
 	Task<List<JobApplication>> GetByCvIdAsync(Guid cvId, CancellationToken cancellationToken = default);
+	Task<PagedResult<JobApplication>> GetByUserIdAsync(Guid userId, int page, int pageSize, JobApplicationStatus? status, CancellationToken cancellationToken = default);
+	Task<PagedResult<JobApplication>> GetByJobIdWithFilterAsync(Guid jobId, int page, int pageSize, JobApplicationStatus? status, int? minMatch, string sortBy, string sortOrder, CancellationToken cancellationToken = default);
+	Task<bool> HasAppliedAsync(Guid jobId, Guid cvId, CancellationToken cancellationToken = default);
+	Task<int> GetApplicationCountByJobIdAsync(Guid jobId, CancellationToken cancellationToken = default);
 }

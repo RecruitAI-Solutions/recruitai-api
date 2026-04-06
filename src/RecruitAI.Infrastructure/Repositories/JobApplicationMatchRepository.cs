@@ -24,9 +24,4 @@ public class JobApplicationMatchRepository : BaseRepository<JobApplicationMatch>
 			.Where(x => x.Application.CVId == cvId)
 			.ToListAsync(cancellationToken);
 	}
-	public async Task UpdateAsync(JobApplicationMatch match)
-	{
-		_dbSet.Update(match);
-		await Task.CompletedTask;
-	}
 }
