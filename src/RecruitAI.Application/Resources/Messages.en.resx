@@ -299,4 +299,41 @@
 	<data name="BusinessCVDeleted" xml:space="preserve">
 		<value>CV has been successfully deleted</value>
 	</data>
+	<data name="BusinessJobNotFound" xml:space="preserve">
+		<value>Job not found</value>
+	</data>
+		<data name="BusinessJobNotActive" xml:space="preserve">
+		<value>Job is not active</value>
+	</data>
+		<data name="BusinessJobExpired" xml:space="preserve">
+		<value>Job has expired</value>
+	</data>
+		<data name="BusinessCVNotFound" xml:space="preserve">
+		<value>CV not found</value>
+	</data>
+		<data name="BusinessCVNotAnalyzed" xml:space="preserve">
+		<value>CV has not been analyzed yet</value>
+	</data>
+		<data name="BusinessAlreadyApplied" xml:space="preserve">
+		<value>You have already applied for this job</value>
+	</data>
+		<data name="BusinessApplicationNotFound" xml:space="preserve">
+		<value>Application not found</value>
+	</data>
+		<data name="BusinessNoPermissionToUpdateApplication" xml:space="preserve">
+		<value>You don't have permission to update this application</value>
+	</data>
+		<data name="BusinessNoPermissionToViewApplications" xml:space="preserve">
+		<value>You don't have permission to view applications for this job</value>
+	</data>
+		<data name="BusinessNoPermissionToUseCV" xml:space="preserve">
+		<value>You don't have permission to use this CV</value>
+	</data>
+	<!-- Log.en.resx -->
+	<data name="LogUserAppliedForJob" xml:space="preserve">
+		<value>User {0} applied for job {1} with CV {2}</value>
+	</data>
+		<data name="LogRecruiterUpdatedApplication" xml:space="preserve">
+		<value>Recruiter {0} updated application {1} to status {2}</value>
+	</data>
 </root>

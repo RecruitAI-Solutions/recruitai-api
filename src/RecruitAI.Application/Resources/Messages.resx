@@ -299,4 +299,42 @@
 	<data name="BusinessCVDeleted" xml:space="preserve">
 		<value>CV đã được xóa thành công</value>
 	</data>
+	<!-- Business.resx / Business.vi.resx -->
+	<data name="BusinessJobNotFound" xml:space="preserve">
+		<value>Không tìm thấy công việc</value>
+	</data>
+		<data name="BusinessJobNotActive" xml:space="preserve">
+		<value>Công việc không còn hoạt động</value>
+	</data>
+		<data name="BusinessJobExpired" xml:space="preserve">
+		<value>Công việc đã hết hạn</value>
+	</data>
+		<data name="BusinessCVNotFound" xml:space="preserve">
+		<value>Không tìm thấy CV</value>
+	</data>
+		<data name="BusinessCVNotAnalyzed" xml:space="preserve">
+		<value>CV chưa được phân tích</value>
+	</data>
+		<data name="BusinessAlreadyApplied" xml:space="preserve">
+		<value>Bạn đã ứng tuyển vào công việc này rồi</value>
+	</data>
+		<data name="BusinessApplicationNotFound" xml:space="preserve">
+		<value>Không tìm thấy đơn ứng tuyển</value>
+	</data>
+		<data name="BusinessNoPermissionToUpdateApplication" xml:space="preserve">
+		<value>Bạn không có quyền cập nhật đơn ứng tuyển này</value>
+	</data>
+		<data name="BusinessNoPermissionToViewApplications" xml:space="preserve">
+		<value>Bạn không có quyền xem đơn ứng tuyển của công việc này</value>
+	</data>
+		<data name="BusinessNoPermissionToUseCV" xml:space="preserve">
+		<value>Bạn không có quyền sử dụng CV này</value>
+	</data>
+	<!-- Log.resx / Log.vi.resx -->
+	<data name="LogUserAppliedForJob" xml:space="preserve">
+		<value>Người dùng {0} đã ứng tuyển vào công việc {1} với CV {2}</value>
+	</data>
+		<data name="LogRecruiterUpdatedApplication" xml:space="preserve">
+		<value>Nhà tuyển dụng {0} đã cập nhật đơn ứng tuyển {1} sang trạng thái {2}</value>
+	</data>
 </root>
