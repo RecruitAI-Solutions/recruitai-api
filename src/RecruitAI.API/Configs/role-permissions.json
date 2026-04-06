@@ -4,88 +4,30 @@
 			"code": "CANDIDATE",
 			"name": "Candidate",
 			"nameVi": "Ứng viên",
-			"permissions": [
-				"P001",
-				"P002",
-				"P003",
-				"P004",
-				"P005",
-				"P009",
-				"P101",
-				"P102",
-				"P103",
-				"P104",
-				"P105",
-				"P106",
-				"P301",
-				"P302",
-				"P303",
-				"P304"
-			]
+			"permissions": [ "P001", "P002", "P003", "P004", "P005", "P009", "P101", "P102", "P103", "P104", "P105", "P106", "P301", "P302", "P303", "P304" ]
 		},
 		{
 			"code": "RECRUITER",
 			"name": "Recruiter",
 			"nameVi": "Nhà tuyển dụng",
-			"permissions": [
-				"P001",
-				"P006",
-				"P007",
-				"P008",
-				"P009",
-				"P010",
-				"P201",
-				"P202",
-				"P203",
-				"P204",
-				"P301",
-				"P302",
-				"P303",
-				"P304"
-			]
+			"permissions": [ "P001", "P004", "P005", "P006", "P007", "P008", "P009", "P010", "P011", "P201", "P202", "P203", "P204", "P301", "P302", "P303", "P304" ]
 		},
 		{
 			"code": "ADMIN",
 			"name": "Administrator",
 			"nameVi": "Quản trị viên",
-			"permissions": [
-				"P001",
-				"P002",
-				"P003",
-				"P004",
-				"P005",
-				"P006",
-				"P007",
-				"P008",
-				"P009",
-				"P010",
-				"P011",
-				"P012",
-				"P013",
-				"P014",
-				"P015",
-				"P101",
-				"P102",
-				"P103",
-				"P104",
-				"P105",
-				"P106",
-				"P201",
-				"P202",
-				"P203",
-				"P204",
-				"P301",
-				"P302",
-				"P303",
-				"P304"
-			]
+			"permissions": [ "P001", "P002", "P003", "P004", "P005", "P006", "P007", "P008", "P009", "P010", "P011", "P012", "P013", "P014", "P015", "P016", "P017", "P018", "P019", "P020", "P101", "P102", "P103", "P104", "P105", "P106", "P201", "P202", "P203", "P204", "P301", "P302", "P303", "P304" ]
 		},
 		{
 			"code": "SUPER1",
+			"name": "Special Role 1",
+			"nameVi": "Vai trò đặc biệt 1",
 			"permissions": [ "P001", "P002", "P009", "P101", "P102", "P301", "P302", "P303", "P304" ]
 		},
 		{
 			"code": "SUPER2",
+			"name": "Special Role 2",
+			"nameVi": "Vai trò đặc biệt 2",
 			"permissions": [ "P006", "P007", "P201", "P202", "P301", "P302", "P303", "P304" ]
 		}
 	],
@@ -182,6 +124,15 @@
 		},
 		{
 			"code": "P011",
+			"name": "Update Application Status",
+			"nameVi": "Cập nhật trạng thái đơn",
+			"group": "APPLICATION",
+			"groupVi": "Đơn ứng tuyển",
+			"description": "Allow recruiter to update application status",
+			"descriptionVi": "Cho phép nhà tuyển dụng cập nhật trạng thái đơn ứng tuyển"
+		},
+		{
+			"code": "P012",
 			"name": "Manage Users",
 			"nameVi": "Quản lý người dùng",
 			"group": "ADMIN",
@@ -190,7 +141,7 @@
 			"descriptionVi": "Cho phép quản trị viên quản lý người dùng"
 		},
 		{
-			"code": "P012",
+			"code": "P013",
 			"name": "Manage Roles",
 			"nameVi": "Quản lý vai trò",
 			"group": "ADMIN",
@@ -199,7 +150,7 @@
 			"descriptionVi": "Cho phép quản trị viên quản lý vai trò và quyền"
 		},
 		{
-			"code": "P013",
+			"code": "P014",
 			"name": "View Analytics",
 			"nameVi": "Xem thống kê",
 			"group": "ADMIN",
@@ -208,7 +159,7 @@
 			"descriptionVi": "Cho phép quản trị viên xem thống kê hệ thống"
 		},
 		{
-			"code": "P014",
+			"code": "P015",
 			"name": "Manage System",
 			"nameVi": "Quản lý hệ thống",
 			"group": "ADMIN",
@@ -217,7 +168,7 @@
 			"descriptionVi": "Cho phép quản trị viên quản lý cài đặt hệ thống"
 		},
 		{
-			"code": "P015",
+			"code": "P016",
 			"name": "Full Access",
 			"nameVi": "Toàn quyền",
 			"group": "ADMIN",
