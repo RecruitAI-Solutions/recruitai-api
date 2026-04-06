@@ -326,5 +326,8 @@
 
 		/// <summary>Request bị hủy bởi client (499)</summary>
 		OperationCancelled = 499,
+
+		/// <summary>Bản ghi đã tồn tại (409)</summary>
+		DuplicateEntry = 409,
 	}
 }

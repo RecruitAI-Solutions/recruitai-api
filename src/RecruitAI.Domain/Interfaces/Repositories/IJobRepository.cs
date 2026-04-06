@@ -4,7 +4,7 @@ using RecruitAI.Domain.Entities;
 
 namespace RecruitAI.Domain.Interfaces.Repositories;
 
-public interface IJobRepository
+public interface IJobRepository : IBaseRepository<Job>
 {
 	Task<Job?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 	Task<PagedResult<Job>> GetJobsAsync(JobFilter filter, CancellationToken cancellationToken = default);
