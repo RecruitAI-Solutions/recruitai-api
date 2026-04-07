@@ -5,7 +5,7 @@ using RecruitAI.Application.Commands.Jobs;
 using RecruitAI.Application.Commands.Applications;
 using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Application.DTOs.Requests.Applications;
-using RecruitAI.Application.DTOs.Requests.Jobs;
+using RecruitAI.Application.DTOs.Requests.Applications;
 using RecruitAI.Application.DTOs.Responses.Applications;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
@@ -160,6 +160,33 @@ namespace RecruitAI.API.Controllers.v1
 				};
 
 				return await _mediator.Send(command);
+			});
+		}
+
+		/// <summary>
+		/// Get application detail by id
+		/// </summary>
+		[HttpGet("{id}")]
+		[Authorize(Policy = "ViewApplications")]
+		[ProducesResponseType(typeof(ApplicationDetailResponseDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<ActionResult<ApplicationDetailResponseDto>> GetApplicationDetail(Guid id)
+		{
+			return await ExecuteAsync<ApplicationDetailResponseDto>(async () =>
+			{
+				var userId = GetCurrentUserId();
+				if (userId == null)
+					throw new UnauthorizedAccessException();
+
+				var query = new GetApplicationDetailQuery
+				{
+					ApplicationId = id,
+					UserId = userId.Value
+				};
+
+				return await _mediator.Send(query);
 			});
 		}
 	}
