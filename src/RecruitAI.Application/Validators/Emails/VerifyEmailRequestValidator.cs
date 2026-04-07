@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using RecruitAI.Application.DTOs.Requests;
+using RecruitAI.Application.DTOs.Requests.Auths;
 using RecruitAI.Application.Interfaces.Services;
 
 namespace RecruitAI.Application.Validators.Emails

@@ -1,7 +1,9 @@
-﻿using RecruitAI.Domain.Entities;
+﻿using RecruitAI.Domain.Common.Paginations;
+using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 
 namespace RecruitAI.Domain.Interfaces.Repositories
@@ -16,5 +18,20 @@ namespace RecruitAI.Domain.Interfaces.Repositories
 		Task<IEnumerable<User>> GetActiveUsersAsync(CancellationToken cancellationToken = default);
 		Task UpdateLastLoginAsync(Guid userId, CancellationToken cancellationToken = default);
 		Task UpdateUserStatusAsync(Guid userId, UserStatus status, CancellationToken cancellationToken = default);
+		Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+		Task<bool> AnyAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken = default);
+		Task<PagedResult<User>> GetUsersAsync(
+			int page,
+			int pageSize,
+			UserRole? role,
+			UserStatus? status,
+			string? keyword,
+			string sortBy,
+			string sortOrder,
+			CancellationToken cancellationToken = default);
+
+		Task<User?> GetDetailByIdAsync(Guid id, CancellationToken cancellationToken = default);
+		Task<bool> SoftDeleteAsync(Guid userId, CancellationToken cancellationToken = default);
 	}
 }
+

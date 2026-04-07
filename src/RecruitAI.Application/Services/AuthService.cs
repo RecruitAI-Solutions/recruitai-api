@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.DTOs.Auths;
-using RecruitAI.Application.DTOs.Requests;
-using RecruitAI.Application.DTOs.Responses;
+using RecruitAI.Application.DTOs.Requests.Auths;
+using RecruitAI.Application.DTOs.Responses.Auths;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
@@ -79,7 +79,7 @@ namespace RecruitAI.Application.Services
 					Email = request.Email,
 					FullName = request.FullName,
 					CreatedAt = DateTime.UtcNow,
-					Status = UserStatus.Active,
+					Status = UserStatus.PendingVerification,
 					Role = request.Role,
 					PermissionCodes = string.Join(",", permissions) // Lưu permissions
 				};
@@ -188,8 +188,27 @@ namespace RecruitAI.Application.Services
 				var user = provider.User;
 
 				// Kiểm tra trạng thái user
-				if (user.Status != UserStatus.Active)
-					_msg.Throw(ErrorCode.AccountLocked, "AccountLocked");
+				switch (user.Status)
+				{
+					case UserStatus.Active:
+						break;
+					case UserStatus.Banned:
+						_msg.Throw(ErrorCode.AccountBanned, "AccountBanned");
+						break;
+					case UserStatus.Locked:
+						_msg.Throw(ErrorCode.AccountLocked, "AccountLocked");
+						break;
+					case UserStatus.Inactive:
+					case UserStatus.PendingVerification:
+						_msg.Throw(ErrorCode.AccountNotVerified, "AccountNotVerified");
+						break;
+					case UserStatus.Deleted:
+						_msg.Throw(ErrorCode.UserNotFound, "UserNotFound");
+						break;
+					default:
+						_msg.Throw(ErrorCode.AccountLocked, "AccountLocked");
+						break;
+				}
 
 				// Cập nhật thời gian đăng nhập
 				await _uow.AuthProviders.UpdateLastLoginAsync(provider.Id, cancellationToken);
@@ -325,8 +344,14 @@ namespace RecruitAI.Application.Services
 				// Kiểm tra user còn active không
 				if (user.Status != UserStatus.Active)
 				{
-					_logger.LogWarning($"Inactive user {user.Email} tried to refresh token");
-					_msg.Throw(ErrorCode.AccountLocked, "AccountLocked");
+					if (user.Status == UserStatus.Banned)
+						_msg.Throw(ErrorCode.AccountBanned, "AccountBanned");
+					else if (user.Status == UserStatus.Locked)
+						_msg.Throw(ErrorCode.AccountLocked, "AccountLocked");
+					else if (user.Status == UserStatus.Inactive || user.Status == UserStatus.PendingVerification)
+						_msg.Throw(ErrorCode.AccountNotVerified, "AccountNotVerified");
+					else
+						_msg.Throw(ErrorCode.AccountLocked, "AccountLocked");
 				}
 
 				var roleCode = user.Role.ToString().ToUpper();
@@ -418,6 +443,17 @@ namespace RecruitAI.Application.Services
 				{
 					_logger.LogWarning("User not found: {UserId}", userId);
 					_msg.Throw(ErrorCode.UserNotFound, "UserNotFound");
+				}
+
+				// Kiểm tra user có bị khóa/banned không
+				if (user.Status != UserStatus.Active)
+				{
+					if (user.Status == UserStatus.Banned)
+						_msg.Throw(ErrorCode.AccountBanned, "AccountBanned");
+					else if (user.Status == UserStatus.Locked)
+						_msg.Throw(ErrorCode.AccountLocked, "AccountLocked");
+					else
+						_msg.Throw(ErrorCode.InvalidData, "Cannot change password");
 				}
 
 				// Tìm auth provider local
@@ -532,6 +568,16 @@ namespace RecruitAI.Application.Services
 				// 1. Tìm user theo email (không phân biệt case)
 				var user = await _uow.Users.GetByEmailAsync(request.Email, cancellationToken);
 
+				if (user.Status == UserStatus.Banned || user.Status == UserStatus.Locked)
+				{
+					_logger.LogWarning("Password reset requested for banned/locked account: {Email}", request.Email);
+					return new ForgotPasswordResponseDto
+					{
+						Success = false,
+						Message = _msg.Business("CannotResetPassword")
+					};
+				}
+
 				// 2. Luôn trả về thành công để tránh lộ thông tin email
 				if (user == null)
 				{
@@ -602,6 +648,12 @@ namespace RecruitAI.Application.Services
 			{
 				// 1. Tìm user theo email
 				var user = await _uow.Users.GetByEmailAsync(request.Email, cancellationToken);
+
+				if (user.Status == UserStatus.Banned || user.Status == UserStatus.Locked)
+				{
+					_msg.Throw(ErrorCode.AccountLocked, "AccountLocked");
+				}
+
 				if (user == null)
 				{
 					_msg.Throw(ErrorCode.UserNotFound, "UserNotFound");
@@ -788,6 +840,13 @@ namespace RecruitAI.Application.Services
 
 				// 4. Cập nhật trạng thái verified
 				user.EmailVerified = true;
+
+				// Nếu status đang là PendingVerification hoặc Inactive, chuyển thành Active
+				if (user.Status == UserStatus.PendingVerification || user.Status == UserStatus.Inactive)
+				{
+					user.Status = UserStatus.Active;
+				}
+
 				_uow.Users.Update(user);
 
 				// 5. Vô hiệu hóa token
@@ -853,6 +912,16 @@ namespace RecruitAI.Application.Services
 				{
 					// Chưa từng đăng nhập bằng provider này
 					user = await _uow.Users.GetByEmailAsync(email, cancellationToken);
+
+					if (user.Status != UserStatus.Active)
+					{
+						if (user.Status == UserStatus.Banned)
+							_msg.Throw(ErrorCode.AccountBanned, "AccountBanned");
+						else if (user.Status == UserStatus.Locked)
+							_msg.Throw(ErrorCode.AccountLocked, "AccountLocked");
+						else
+							_msg.Throw(ErrorCode.AccountLocked, "AccountLocked");
+					}
 
 					if (user == null)
 					{

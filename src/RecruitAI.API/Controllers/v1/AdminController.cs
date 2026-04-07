@@ -1,0 +1,197 @@
+﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using RecruitAI.Application.Commands.Admin;
+using RecruitAI.Application.DTOs.Requests.Admin;
+using RecruitAI.Application.DTOs.Responses.Admin;
+using RecruitAI.Application.Interfaces;
+using RecruitAI.Application.Interfaces.Services;
+using RecruitAI.Application.Queries.Admin;
+using RecruitAI.Domain.Enums;
+using RecruitAI_API.Controllers.v1;
+
+namespace RecruitAI.API.Controllers.v1
+{
+	[ApiController]
+	[Route("api/v1/admin")]
+	[Authorize(Policy = "AdminOnly")]
+	public class AdminController : BaseController
+	{
+		public AdminController(
+			IMediator mediator,
+			ILogger<AdminController> logger,
+			IMessageService messageService,
+			IWorkContext workContext)
+			: base(mediator, logger, messageService, workContext)
+		{
+		}
+
+		/// <summary>
+		/// Get users list with pagination and filters
+		/// </summary>
+		[HttpGet("users")]
+		[Authorize(Policy = "ManageUsers")]
+		[ProducesResponseType(typeof(AdminUserListResponseDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		public async Task<ActionResult<AdminUserListResponseDto>> GetUsers(
+			[FromQuery] int page = 1,
+			[FromQuery] int pageSize = 10,
+			[FromQuery] string? role = null,
+			[FromQuery] int? status = null,
+			[FromQuery] string? keyword = null,
+			[FromQuery] string sortBy = "createdAt",
+			[FromQuery] string sortOrder = "desc")
+		{
+			return await ExecuteAsync<AdminUserListResponseDto>(async () =>
+			{
+				var query = new GetUsersListQuery
+				{
+					Page = page,
+					PageSize = pageSize,
+					Role = role,
+					Status = status,
+					Keyword = keyword,
+					SortBy = sortBy,
+					SortOrder = sortOrder
+				};
+
+				return await _mediator.Send(query);
+			});
+		}
+
+		/// <summary>
+		/// Get user detail by id
+		/// </summary>
+		[HttpGet("users/{id}")]
+		[Authorize(Policy = "ManageUsers")]
+		[ProducesResponseType(typeof(AdminUserDetailResponseDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<ActionResult<AdminUserDetailResponseDto>> GetUserDetail(Guid id)
+		{
+			return await ExecuteAsync<AdminUserDetailResponseDto>(async () =>
+			{
+				var query = new GetUserDetailQuery
+				{
+					UserId = id
+				};
+
+				return await _mediator.Send(query);
+			});
+		}
+
+		/// <summary>
+		/// Update user information
+		/// </summary>
+		[HttpPut("users/{id}")]
+		[Authorize(Policy = "ManageUsers")]
+		[ProducesResponseType(typeof(AdminUserDetailResponseDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<ActionResult<AdminUserDetailResponseDto>> UpdateUser(
+			Guid id,
+			[FromBody] AdminUserUpdateRequestDto request)
+		{
+			return await ExecuteAsync<AdminUserDetailResponseDto>(async () =>
+			{
+				var command = new UpdateUserCommand
+				{
+					UserId = id,
+					FullName = request.FullName,
+					PhoneNumber = request.PhoneNumber,
+					Gender = request.Gender,
+					DateOfBirth = request.DateOfBirth,
+					Role = request.Role,
+					Status = request.Status
+				};
+
+				return await _mediator.Send(command);
+			});
+		}
+
+		/// <summary>
+		/// Update user status (Active, Suspended, Banned)
+		/// </summary>
+		[HttpPatch("users/{id}/status")]
+		[Authorize(Policy = "ManageUsers")]
+		[ProducesResponseType(typeof(AdminUserStatusUpdateResponseDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<ActionResult<AdminUserStatusUpdateResponseDto>> UpdateUserStatus(
+			Guid id,
+			[FromBody] AdminUserStatusUpdateRequestDto request)
+		{
+			return await ExecuteAsync<AdminUserStatusUpdateResponseDto>(async () =>
+			{
+				var command = new UpdateUserStatusCommand
+				{
+					UserId = id,
+					Status = request.Status,
+					Reason = request.Reason
+				};
+
+				return await _mediator.Send(command);
+			});
+		}
+
+		/// <summary>
+		/// Update user role (CANDIDATE, RECRUITER, ADMIN)
+		/// </summary>
+		[HttpPatch("users/{id}/role")]
+		[Authorize(Policy = "ManageRoles")]
+		[ProducesResponseType(typeof(AdminUserRoleUpdateResponseDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<ActionResult<AdminUserRoleUpdateResponseDto>> UpdateUserRole(
+			Guid id,
+			[FromBody] AdminUserRoleUpdateRequestDto request)
+		{
+			return await ExecuteAsync<AdminUserRoleUpdateResponseDto>(async () =>
+			{
+				var command = new UpdateUserRoleCommand
+				{
+					UserId = id,
+					Role = request.Role
+				};
+
+				return await _mediator.Send(command);
+			});
+		}
+
+		/// <summary>
+		/// Delete user (soft delete)
+		/// </summary>
+		[HttpDelete("users/{id}")]
+		[Authorize(Policy = "ManageUsers")]
+		[ProducesResponseType(typeof(AdminUserDeleteResponseDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<ActionResult<AdminUserDeleteResponseDto>> DeleteUser(Guid id)
+		{
+			return await ExecuteAsync<AdminUserDeleteResponseDto>(async () =>
+			{
+				var userId = GetCurrentUserId();
+				if (userId == null)
+					throw new UnauthorizedAccessException();
+
+				var command = new DeleteUserCommand
+				{
+					UserId = id,
+					CurrentAdminId = userId.Value
+				};
+
+				return await _mediator.Send(command);
+			});
+		}
+	}
+}

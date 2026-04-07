@@ -18,6 +18,7 @@ namespace RecruitAI.Domain.Interfaces.Repositories
 		Task AddRangeAsync(IEnumerable<T> entities, CancellationToken cancellationToken = default);
 		void Update(T entity);
 		void UpdateRange(IEnumerable<T> entities);
+		Task UpdateAsync(T entity, CancellationToken cancellationToken = default);
 		void Remove(T entity);
 		void RemoveRange(IEnumerable<T> entities);
 	}

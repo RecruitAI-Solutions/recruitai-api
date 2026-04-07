@@ -329,5 +329,14 @@
 
 		/// <summary>Bản ghi đã tồn tại (409)</summary>
 		DuplicateEntry = 409,
+
+		/// <summary>Tài khoản bị cấm vĩnh viễn (403)</summary>
+		AccountBanned = 4031,
+
+		/// <summary>Tài khoản chưa xác thực (403)</summary>
+		AccountNotVerified = 4032,
+
+		/// <summary>Job không active (400)</summary>
+		JobNotActive = 7002,
 	}
 }

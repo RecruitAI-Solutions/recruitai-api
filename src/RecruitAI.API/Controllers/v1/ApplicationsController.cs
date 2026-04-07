@@ -2,12 +2,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RecruitAI.Application.Commands.Jobs;
+using RecruitAI.Application.Commands.Applications;
 using RecruitAI.Application.DTOs.Common;
+using RecruitAI.Application.DTOs.Requests.Applications;
 using RecruitAI.Application.DTOs.Requests.Jobs;
 using RecruitAI.Application.DTOs.Responses.Jobs;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Queries.Jobs;
+using RecruitAI.Application.Queries.Applications;
 using RecruitAI.Domain.Enums;
 using RecruitAI_API.Controllers.v1;
 

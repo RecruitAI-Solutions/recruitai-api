@@ -9,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using RecruitAI.API.Middleware;
 using RecruitAI.Application;
 using RecruitAI.Application.DTOs.Responses;
+using RecruitAI.Application.DTOs.Responses.Auths;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Validators.Auths;
