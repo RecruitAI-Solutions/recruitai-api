@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using RecruitAI.Application.DTOs.Common;
-using RecruitAI.Application.DTOs.Responses.Jobs;
+using RecruitAI.Application.DTOs.Responses.Applications;
 using RecruitAI.Application.Interfaces;
 
 namespace RecruitAI.Application.Queries.Applications;

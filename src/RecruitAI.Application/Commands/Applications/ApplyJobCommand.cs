@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using RecruitAI.Application.DTOs.Responses.Jobs;
+using RecruitAI.Application.DTOs.Responses.Applications;
 
 namespace RecruitAI.Application.Commands.Applications;
 

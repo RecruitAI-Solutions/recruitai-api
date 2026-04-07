@@ -1,6 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
-using RecruitAI.Application.DTOs.Responses.Jobs;
+using RecruitAI.Application.DTOs.Responses.Applications;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;

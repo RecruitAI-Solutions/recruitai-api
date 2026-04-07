@@ -6,7 +6,7 @@ using RecruitAI.Application.Commands.Applications;
 using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Application.DTOs.Requests.Applications;
 using RecruitAI.Application.DTOs.Requests.Jobs;
-using RecruitAI.Application.DTOs.Responses.Jobs;
+using RecruitAI.Application.DTOs.Responses.Applications;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Queries.Jobs;
