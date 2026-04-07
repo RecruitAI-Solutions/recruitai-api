@@ -1,13 +1,13 @@
 ﻿using MediatR;
 using RecruitAI.Application.DTOs.Common;
-using RecruitAI.Application.DTOs.Responses.Jobs;
+using RecruitAI.Application.DTOs.Responses.Applications;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
 using System.Text.Json;
 
-namespace RecruitAI.Application.Queries.Jobs;
+namespace RecruitAI.Application.Queries.Applications;
 
 public class GetJobApplicationsQueryHandler : IRequestHandler<GetJobApplicationsQuery, PaginationResponseDto<JobApplicationDto>>
 {

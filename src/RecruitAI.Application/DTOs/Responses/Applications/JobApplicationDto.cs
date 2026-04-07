@@ -1,6 +1,6 @@
 ﻿using RecruitAI.Domain.Enums;
 
-namespace RecruitAI.Application.DTOs.Responses.Jobs;
+namespace RecruitAI.Application.DTOs.Responses.Applications;
 
 public class JobApplicationDto
 {

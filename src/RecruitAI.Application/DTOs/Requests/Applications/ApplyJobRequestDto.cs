@@ -1,4 +1,4 @@
-﻿namespace RecruitAI.Application.DTOs.Requests.Jobs;
+﻿namespace RecruitAI.Application.DTOs.Requests.Applications;
 
 public class ApplyJobRequestDto
 {
