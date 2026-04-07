@@ -1,4 +1,4 @@
-﻿namespace RecruitAI.Application.DTOs.Responses
+﻿namespace RecruitAI.Application.DTOs.Responses.Auths
 {
 	public class CreatedTestResponseDto
 	{

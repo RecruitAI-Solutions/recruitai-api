@@ -1,6 +1,6 @@
 ﻿using RecruitAI.Application.DTOs.Auths;
-using RecruitAI.Application.DTOs.Requests;
-using RecruitAI.Application.DTOs.Responses;
+using RecruitAI.Application.DTOs.Requests.Auths;
+using RecruitAI.Application.DTOs.Responses.Auths;
 
 namespace RecruitAI.Application.Interfaces.Services
 {

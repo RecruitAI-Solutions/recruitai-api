@@ -2,13 +2,13 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using RecruitAI.Application.DTOs.Requests;
-using RecruitAI.Application.DTOs.Responses;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using RecruitAI.Application.DTOs.Auths;
+using RecruitAI.Application.DTOs.Requests.Auths;
+using RecruitAI.Application.DTOs.Responses.Auths;
 
 namespace RecruitAI_API.Controllers.v1;
 

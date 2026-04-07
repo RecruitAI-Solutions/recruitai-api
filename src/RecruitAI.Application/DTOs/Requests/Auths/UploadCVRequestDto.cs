@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using RecruitAI.Application.Interfaces.Services;
 
-namespace RecruitAI.Application.DTOs.Requests;
+namespace RecruitAI.Application.DTOs.Requests.Auths;
 
 public class UploadCVRequestDto
 {

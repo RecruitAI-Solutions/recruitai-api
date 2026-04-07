@@ -75,6 +75,11 @@ namespace RecruitAI.Infrastructure.Repositories
 			_dbSet.UpdateRange(entities);
 		}
 
+		public virtual async Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
+		{
+			_dbSet.Update(entity);
+			await Task.CompletedTask;
+		}
 		public virtual void Remove(T entity)
 		{
 			_dbSet.Remove(entity);

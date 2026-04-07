@@ -70,13 +70,22 @@
 		<value>Invalid email or password</value>
 	</data>
 	<data name="BusinessAccountLocked" xml:space="preserve">
-		<value>Account has been locked</value>
+		<value>Account has been locked. Please contact administrator.</value>
+	</data>
+	<data name="BusinessAccountBanned" xml:space="preserve">
+		<value>Your account has been permanently banned. Please contact administrator.</value>
+	</data>
+	<data name="BusinessAccountNotVerified" xml:space="preserve">
+		<value>Account not verified. Please check your email to activate your account.</value>
 	</data>
 	<data name="BusinessUserNotFound" xml:space="preserve">
 		<value>User not found</value>
 	</data>
 	<data name="BusinessInvalidToken" xml:space="preserve">
-		<value>Invalid token</value>
+		<value>Invalid or expired token.</value>
+	</data>
+	<data name="BusinessInvalidResetToken" xml:space="preserve">
+		<value>Invalid or expired reset token.</value>
 	</data>
 	<data name="BusinessTokenExpired" xml:space="preserve">
 		<value>Token expired</value>
@@ -85,10 +94,10 @@
 		<value>User creation failed</value>
 	</data>
 	<data name="BusinessRegistrationFailed" xml:space="preserve">
-		<value>Registration failed: {0}</value>
+		<value>Registration failed. Please try again later.</value>
 	</data>
 	<data name="BusinessLoginFailed" xml:space="preserve">
-		<value>Login failed: {0}</value>
+		<value>Login failed. Please try again later.</value>
 	</data>
 	<data name="BusinessUserNull" xml:space="preserve">
 		<value>User cannot be null</value>
@@ -103,10 +112,19 @@
 		<value>JWT Key is not configured</value>
 	</data>
 	<data name="BusinessInvalidRefreshToken" xml:space="preserve">
-		<value>Unable to refresh token, please login again</value>
+		<value>Unable to refresh token, please login again.</value>
+	</data>
+	<data name="BusinessTokenRefreshFailed" xml:space="preserve">
+		<value>Unable to refresh token. Please login again.</value>
 	</data>
 	<data name="BusinessPasswordTooWeak" xml:space="preserve">
-		<value>Password must contain at least 1 uppercase, 1 lowercase and 1 number</value>
+		<value>Password must be at least 6 characters, including uppercase, lowercase and number.</value>
+	</data>
+	<data name="BusinessPasswordResetFailed" xml:space="preserve">
+		<value>Password reset failed. Please try again later.</value>
+	</data>
+	<data name="BusinessPasswordChangeFailed" xml:space="preserve">
+		<value>Password change failed. Please try again later.</value>
 	</data>
 	<data name="BusinessInvalidRole" xml:space="preserve">
 		<value>Invalid role. Accepted: Candidate, Recruiter, Admin</value>
@@ -114,9 +132,110 @@
 	<data name="BusinessUserNotAuthenticated" xml:space="preserve">
 		<value>User not authenticated</value>
 	</data>
-
-		<data name="BusinessCannotIdentifyUser" xml:space="preserve">
+	<data name="BusinessCannotIdentifyUser" xml:space="preserve">
 		<value>Cannot identify user</value>
+	</data>
+	<data name="BusinessInvalidCurrentPassword" xml:space="preserve">
+		<value>Current password is incorrect</value>
+	</data>
+	<data name="BusinessNewPasswordSameAsOld" xml:space="preserve">
+		<value>New password cannot be the same as old password</value>
+	</data>
+	<data name="BusinessNoLocalAuthProvider" xml:space="preserve">
+		<value>Account does not use password for login.</value>
+	</data>
+	<data name="BusinessResetPasswordEmailSent" xml:space="preserve">
+		<value>Password reset email has been sent. Please check your inbox.</value>
+	</data>
+	<data name="BusinessVerificationEmailSent" xml:space="preserve">
+		<value>Verification email has been sent. Please check your inbox.</value>
+	</data>
+	<data name="BusinessEmailAlreadyVerified" xml:space="preserve">
+		<value>Email has already been verified.</value>
+	</data>
+	<data name="BusinessInvalidProvider" xml:space="preserve">
+		<value>Invalid authentication provider.</value>
+	</data>
+	<data name="BusinessCannotResetPassword" xml:space="preserve">
+		<value>Cannot reset password for this account. Please contact administrator.</value>
+	</data>
+	<data name="BusinessCannotChangePassword" xml:space="preserve">
+		<value>Cannot change password due to invalid account status.</value>
+	</data>
+	<data name="BusinessProcessingError" xml:space="preserve">
+		<value>An error occurred while processing your request. Please try again later.</value>
+	</data>
+	<data name="BusinessSocialLoginFailed" xml:space="preserve">
+		<value>Social login failed. Please try again later.</value>
+	</data>
+	<data name="BusinessEmailServiceError" xml:space="preserve">
+		<value>Email service error. Please try again later.</value>
+	</data>
+	<data name="BusinessForbidden" xml:space="preserve">
+		<value>You don't have permission to perform this action.</value>
+	</data>
+	<data name="BusinessUnauthorized" xml:space="preserve">
+		<value>You are not authorized to access this resource.</value>
+	</data>
+
+	<!-- ===== CV RELATED BUSINESS MESSAGES - ENGLISH ===== -->
+	<data name="BusinessNoFileUploaded" xml:space="preserve">
+		<value>No file uploaded</value>
+	</data>
+	<data name="BusinessOnlyPdfAllowed" xml:space="preserve">
+		<value>Only PDF files are allowed</value>
+	</data>
+	<data name="BusinessCVNotFound" xml:space="preserve">
+		<value>CV not found</value>
+	</data>
+	<data name="BusinessCVFileMissing" xml:space="preserve">
+		<value>CV file is missing</value>
+	</data>
+	<data name="BusinessAccessDenied" xml:space="preserve">
+		<value>You don't have permission to access this CV</value>
+	</data>
+	<data name="BusinessFileTooLarge" xml:space="preserve">
+		<value>File too large, maximum size is 10MB</value>
+	</data>
+	<data name="BusinessFileUploadFailed" xml:space="preserve">
+		<value>Failed to upload file</value>
+	</data>
+	<data name="BusinessDatabaseError" xml:space="preserve">
+		<value>Database error while saving CV</value>
+	</data>
+	<data name="BusinessCVDeleted" xml:space="preserve">
+		<value>CV has been successfully deleted</value>
+	</data>
+	<data name="BusinessCVNotAnalyzed" xml:space="preserve">
+		<value>CV has not been analyzed yet</value>
+	</data>
+
+	<!-- ===== JOB RELATED BUSINESS MESSAGES - ENGLISH ===== -->
+	<data name="BusinessJobNotFound" xml:space="preserve">
+		<value>Job not found</value>
+	</data>
+	<data name="BusinessJobNotActive" xml:space="preserve">
+		<value>Job is not active</value>
+	</data>
+	<data name="BusinessJobExpired" xml:space="preserve">
+		<value>Job has expired</value>
+	</data>
+	<data name="BusinessNoPermissionToUseCV" xml:space="preserve">
+		<value>You don't have permission to use this CV</value>
+	</data>
+
+	<!-- ===== APPLICATION RELATED BUSINESS MESSAGES - ENGLISH ===== -->
+	<data name="BusinessAlreadyApplied" xml:space="preserve">
+		<value>You have already applied for this job</value>
+	</data>
+	<data name="BusinessApplicationNotFound" xml:space="preserve">
+		<value>Application not found</value>
+	</data>
+	<data name="BusinessNoPermissionToUpdateApplication" xml:space="preserve">
+		<value>You don't have permission to update this application</value>
+	</data>
+	<data name="BusinessNoPermissionToViewApplications" xml:space="preserve">
+		<value>You don't have permission to view applications for this job</value>
 	</data>
 
 	<!-- ===== VALIDATION MESSAGES - ENGLISH ===== -->
@@ -144,6 +263,12 @@
 	<data name="ValidationInvalidRole" xml:space="preserve">
 		<value>Invalid role. Accepted: Candidate, Recruiter, Admin</value>
 	</data>
+	<data name="ValidationPasswordMismatch" xml:space="preserve">
+		<value>Passwords do not match</value>
+	</data>
+	<data name="ValidationTokenRequired" xml:space="preserve">
+		<value>Token is required</value>
+	</data>
 
 	<!-- ===== SUCCESS MESSAGES - ENGLISH ===== -->
 	<data name="SuccessRegistered" xml:space="preserve">
@@ -157,6 +282,18 @@
 	</data>
 	<data name="SuccessTokenRefreshed" xml:space="preserve">
 		<value>Token refreshed successfully</value>
+	</data>
+	<data name="SuccessPasswordChanged" xml:space="preserve">
+		<value>Password changed successfully</value>
+	</data>
+	<data name="SuccessPasswordReset" xml:space="preserve">
+		<value>Password reset successfully</value>
+	</data>
+	<data name="SuccessEmailVerified" xml:space="preserve">
+		<value>Email verified successfully</value>
+	</data>
+	<data name="SuccessEmailAlreadyVerified" xml:space="preserve">
+		<value>Email already verified</value>
 	</data>
 
 	<!-- ===== LOG DETAIL MESSAGES - ENGLISH ===== -->
@@ -178,162 +315,51 @@
 	<data name="LogJwtGenerationError" xml:space="preserve">
 		<value>Error generating JWT token for user {0}</value>
 	</data>
-
-	<data name="BusinessInvalidCurrentPassword" xml:space="preserve">
-		<value>Current password is incorrect</value>
+	<data name="LogUserAppliedForJob" xml:space="preserve">
+		<value>User {0} applied for job {1} with CV {2}</value>
 	</data>
-		<data name="BusinessNewPasswordSameAsOld" xml:space="preserve">
-		<value>New password cannot be the same as old password</value>
-	</data>
-		<data name="BusinessNoLocalAuthProvider" xml:space="preserve">
-		<value>Account does not support password change (social login)</value>
-	</data>
-		<data name="BusinessPasswordChangeFailed" xml:space="preserve">
-		<value>Password change failed, please try again</value>
-	</data>
-		<data name="SuccessPasswordChanged" xml:space="preserve">
-		<value>Password changed successfully</value>
-	</data>
-		<data name="ValidationPasswordMismatch" xml:space="preserve">
-		<value>Passwords do not match</value>
-	</data>
-	<data name="ValidationTokenRequired" xml:space="preserve">
-		<value>Token is required</value>
-	</data>
-	<!-- ===== FORGOT PASSWORD MESSAGES - ENGLISH ===== -->
-	<data name="BusinessResetPasswordEmailSent" xml:space="preserve">
-		<value>If your email is registered, you will receive a password reset link</value>
+	<data name="LogRecruiterUpdatedApplication" xml:space="preserve">
+		<value>Recruiter {0} updated application {1} to status {2}</value>
 	</data>
 
-		<!-- ===== VERIFICATION EMAIL MESSAGES - ENGLISH ===== -->
-		<data name="BusinessVerificationEmailSent" xml:space="preserve">
-		<value>If your email is registered, you will receive a verification link</value>
-	</data>
-
-		<!-- ===== GENERAL ERROR MESSAGES - ENGLISH ===== -->
-		<data name="BusinessProcessingError" xml:space="preserve">
-		<value>An error occurred while processing your request. Please try again later</value>
-	</data>
-	<data name="SuccessEmailVerified" xml:space="preserve">
-		<value>Email verified successfully</value>
-	</data>
-		<data name="SuccessEmailAlreadyVerified" xml:space="preserve">
-		<value>Email already verified</value>
-	</data>
-	<data name="BusinessEmailAlreadyVerified" xml:space="preserve">
-		<value>Email already verified</value>
-	</data>
-	<data name="SuccessPasswordReset" xml:space="preserve">
-		<value>Password reset successfully</value>
-	</data>
+	<!-- ===== CV UPLOAD MESSAGES - ENGLISH ===== -->
 	<data name="NoFileUploaded" xml:space="preserve">
 		<value>No file uploaded</value>
 	</data>
-		<data name="OnlyPdfAllowed" xml:space="preserve">
+	<data name="OnlyPdfAllowed" xml:space="preserve">
 		<value>Only PDF files are allowed</value>
 	</data>
-		<data name="CVNotFound" xml:space="preserve">
+	<data name="CVNotFound" xml:space="preserve">
 		<value>CV not found</value>
 	</data>
-		<data name="CVFileMissing" xml:space="preserve">
+	<data name="CVFileMissing" xml:space="preserve">
 		<value>CV file is missing</value>
 	</data>
-		<data name="AccessDenied" xml:space="preserve">
+	<data name="AccessDenied" xml:space="preserve">
 		<value>You don't have permission to access this CV</value>
 	</data>
-		<data name="UploadingCV" xml:space="preserve">
+	<data name="UploadingCV" xml:space="preserve">
 		<value>Uploading file: {0}, Size: {1} bytes</value>
 	</data>
-		<data name="UploadCVSuccess" xml:space="preserve">
+	<data name="UploadCVSuccess" xml:space="preserve">
 		<value>CV uploaded successfully for user {0}, CV ID: {1}</value>
 	</data>
-		<data name="UploadCVError" xml:space="preserve">
+	<data name="UploadCVError" xml:space="preserve">
 		<value>Error uploading CV</value>
 	</data>
-		<data name="DownloadCVError" xml:space="preserve">
+	<data name="DownloadCVError" xml:space="preserve">
 		<value>Error downloading CV {0}</value>
 	</data>
-		<data name="GetMyCVsError" xml:space="preserve">
+	<data name="GetMyCVsError" xml:space="preserve">
 		<value>Error getting user CVs</value>
 	</data>
 	<data name="FileRequired" xml:space="preserve">
 		<value>File is required</value>
 	</data>
-		<data name="FileNameRequired" xml:space="preserve">
+	<data name="FileNameRequired" xml:space="preserve">
 		<value>File name is required</value>
 	</data>
-		<data name="FileEmpty" xml:space="preserve">
+	<data name="FileEmpty" xml:space="preserve">
 		<value>File cannot be empty</value>
-	</data>
-	<!-- ===== BUSINESS MESSAGES - CV RELATED ===== -->
-	<data name="BusinessNoFileUploaded" xml:space="preserve">
-		<value>No file uploaded</value>
-	</data>
-		<data name="BusinessOnlyPdfAllowed" xml:space="preserve">
-		<value>Only PDF files are allowed</value>
-	</data>
-		<data name="BusinessCVNotFound" xml:space="preserve">
-		<value>CV not found</value>
-	</data>
-		<data name="BusinessCVFileMissing" xml:space="preserve">
-		<value>CV file is missing</value>
-	</data>
-		<data name="BusinessAccessDenied" xml:space="preserve">
-		<value>You don't have permission to access this CV</value>
-	</data>
-		<data name="BusinessFileTooLarge" xml:space="preserve">
-		<value>File too large, maximum size is 10MB</value>
-	</data>
-		<data name="BusinessFileUploadFailed" xml:space="preserve">
-		<value>Failed to upload file</value>
-	</data>
-		<data name="BusinessDatabaseError" xml:space="preserve">
-		<value>Database error while saving CV</value>
-	</data>
-	<data name="BusinessUnauthorized" xml:space="preserve">
-		<value>You are not authorized to access this resource</value>
-	</data>
-	<data name="BusinessForbidden" xml:space="preserve">
-		<value>You don't have permission to perform this action.</value>
-	</data>
-	<data name="BusinessCVDeleted" xml:space="preserve">
-		<value>CV has been successfully deleted</value>
-	</data>
-	<data name="BusinessJobNotFound" xml:space="preserve">
-		<value>Job not found</value>
-	</data>
-		<data name="BusinessJobNotActive" xml:space="preserve">
-		<value>Job is not active</value>
-	</data>
-		<data name="BusinessJobExpired" xml:space="preserve">
-		<value>Job has expired</value>
-	</data>
-		<data name="BusinessCVNotFound" xml:space="preserve">
-		<value>CV not found</value>
-	</data>
-		<data name="BusinessCVNotAnalyzed" xml:space="preserve">
-		<value>CV has not been analyzed yet</value>
-	</data>
-		<data name="BusinessAlreadyApplied" xml:space="preserve">
-		<value>You have already applied for this job</value>
-	</data>
-		<data name="BusinessApplicationNotFound" xml:space="preserve">
-		<value>Application not found</value>
-	</data>
-		<data name="BusinessNoPermissionToUpdateApplication" xml:space="preserve">
-		<value>You don't have permission to update this application</value>
-	</data>
-		<data name="BusinessNoPermissionToViewApplications" xml:space="preserve">
-		<value>You don't have permission to view applications for this job</value>
-	</data>
-		<data name="BusinessNoPermissionToUseCV" xml:space="preserve">
-		<value>You don't have permission to use this CV</value>
-	</data>
-	<!-- Log.en.resx -->
-	<data name="LogUserAppliedForJob" xml:space="preserve">
-		<value>User {0} applied for job {1} with CV {2}</value>
-	</data>
-		<data name="LogRecruiterUpdatedApplication" xml:space="preserve">
-		<value>Recruiter {0} updated application {1} to status {2}</value>
 	</data>
 </root>

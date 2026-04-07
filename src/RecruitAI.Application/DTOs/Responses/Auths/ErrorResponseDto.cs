@@ -1,7 +1,7 @@
 ﻿// RecruitAI.Application/DTOs/Responses/ErrorResponseDto.cs
 using RecruitAI.Domain.Enums;
 
-namespace RecruitAI.Application.DTOs.Responses
+namespace RecruitAI.Application.DTOs.Responses.Auths
 {
     public class ErrorResponseDto
     {

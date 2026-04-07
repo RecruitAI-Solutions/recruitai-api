@@ -1,7 +1,7 @@
 ﻿using RecruitAI.Domain.Enums;
 using System.Text.Json.Serialization;
 
-namespace RecruitAI.Application.DTOs.Responses
+namespace RecruitAI.Application.DTOs.Responses.Auths
 {
 	public class AuthResponseDto
 	{

@@ -25,6 +25,11 @@
 		/// <summary>
 		/// Tài khoản đã bị xóa (soft delete)
 		/// </summary>
-		Deleted = 5
+		Deleted = 5,
+
+		/// <summary>
+		/// Tài khoản bị cấm vĩnh viễn
+		/// </summary>
+		Banned = 6
 	}
 }

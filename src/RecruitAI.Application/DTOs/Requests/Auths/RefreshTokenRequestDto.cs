@@ -1,4 +1,4 @@
-﻿namespace RecruitAI.Application.DTOs.Requests
+﻿namespace RecruitAI.Application.DTOs.Requests.Auths
 {
     public class RefreshTokenRequestDto
     {
