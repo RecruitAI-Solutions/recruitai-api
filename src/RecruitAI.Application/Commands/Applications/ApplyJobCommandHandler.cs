@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
-using RecruitAI.Application.Commands.Applications;
 using RecruitAI.Application.DTOs.Responses.Applications;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
@@ -11,7 +10,7 @@ using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using System.Text.Json;
 
-namespace RecruitAI.Application.Handlers.Jobs;
+namespace RecruitAI.Application.Commands.Applications;
 
 public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobResponseDto>
 {

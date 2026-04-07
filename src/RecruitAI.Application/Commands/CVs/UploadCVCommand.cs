@@ -7,9 +7,9 @@ using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using RecruitAI.Domain.Interfaces;
-using RecruitAI.Application.DTOs.Responses;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Domain.Interfaces.Services;
+using RecruitAI.Application.DTOs.Responses.Auths;
 
 namespace RecruitAI.Application.Commands.CVs;
 

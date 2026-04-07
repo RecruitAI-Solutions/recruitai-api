@@ -1,13 +1,13 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
-using RecruitAI.Application.Commands.Applications;
 using RecruitAI.Application.DTOs.Responses.Applications;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
+using RecruitAI.Domain.Exceptions;
 
-namespace RecruitAI.Application.Handlers.Applications;
+namespace RecruitAI.Application.Commands.Applications;
 
 public class UpdateApplicationStatusCommandHandler : IRequestHandler<UpdateApplicationStatusCommand, UpdateApplicationStatusResponseDto>
 {

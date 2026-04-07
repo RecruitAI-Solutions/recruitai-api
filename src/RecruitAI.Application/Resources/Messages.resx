@@ -70,13 +70,22 @@
 		<value>Email hoặc mật khẩu không chính xác</value>
 	</data>
 	<data name="BusinessAccountLocked" xml:space="preserve">
-		<value>Tài khoản đã bị khóa</value>
+		<value>Tài khoản đã bị khóa. Vui lòng liên hệ quản trị viên.</value>
+	</data>
+	<data name="BusinessAccountBanned" xml:space="preserve">
+		<value>Tài khoản của bạn đã bị cấm vĩnh viễn. Vui lòng liên hệ quản trị viên.</value>
+	</data>
+	<data name="BusinessAccountNotVerified" xml:space="preserve">
+		<value>Tài khoản chưa được xác thực. Vui lòng kiểm tra email để kích hoạt tài khoản.</value>
 	</data>
 	<data name="BusinessUserNotFound" xml:space="preserve">
 		<value>Không tìm thấy người dùng</value>
 	</data>
 	<data name="BusinessInvalidToken" xml:space="preserve">
-		<value>Token không hợp lệ</value>
+		<value>Token không hợp lệ hoặc đã hết hạn.</value>
+	</data>
+	<data name="BusinessInvalidResetToken" xml:space="preserve">
+		<value>Token đặt lại mật khẩu không hợp lệ hoặc đã hết hạn.</value>
 	</data>
 	<data name="BusinessTokenExpired" xml:space="preserve">
 		<value>Token đã hết hạn</value>
@@ -85,10 +94,10 @@
 		<value>Tạo người dùng thất bại</value>
 	</data>
 	<data name="BusinessRegistrationFailed" xml:space="preserve">
-		<value>Đăng ký thất bại: {0}</value>
+		<value>Đăng ký thất bại. Vui lòng thử lại sau.</value>
 	</data>
 	<data name="BusinessLoginFailed" xml:space="preserve">
-		<value>Đăng nhập thất bại: {0}</value>
+		<value>Đăng nhập thất bại. Vui lòng thử lại sau.</value>
 	</data>
 	<data name="BusinessUserNull" xml:space="preserve">
 		<value>Người dùng không được để trống</value>
@@ -103,10 +112,19 @@
 		<value>Khóa JWT chưa được cấu hình</value>
 	</data>
 	<data name="BusinessInvalidRefreshToken" xml:space="preserve">
-		<value>Không thể làm mới token, vui lòng đăng nhập lại</value>
+		<value>Không thể làm mới token. Vui lòng đăng nhập lại.</value>
+	</data>
+	<data name="BusinessTokenRefreshFailed" xml:space="preserve">
+		<value>Không thể làm mới token. Vui lòng đăng nhập lại.</value>
 	</data>
 	<data name="BusinessPasswordTooWeak" xml:space="preserve">
-		<value>Mật khẩu phải chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 số</value>
+		<value>Mật khẩu phải có ít nhất 6 ký tự, bao gồm chữ hoa, chữ thường và số.</value>
+	</data>
+	<data name="BusinessPasswordResetFailed" xml:space="preserve">
+		<value>Đặt lại mật khẩu thất bại. Vui lòng thử lại sau.</value>
+	</data>
+	<data name="BusinessPasswordChangeFailed" xml:space="preserve">
+		<value>Đổi mật khẩu thất bại. Vui lòng thử lại sau.</value>
 	</data>
 	<data name="BusinessInvalidRole" xml:space="preserve">
 		<value>Vai trò không hợp lệ. Chấp nhận: Candidate, Recruiter, Admin</value>
@@ -114,9 +132,110 @@
 	<data name="BusinessUserNotAuthenticated" xml:space="preserve">
 		<value>Người dùng chưa xác thực</value>
 	</data>
-
-		<data name="BusinessCannotIdentifyUser" xml:space="preserve">
+	<data name="BusinessCannotIdentifyUser" xml:space="preserve">
 		<value>Không thể xác định người dùng</value>
+	</data>
+	<data name="BusinessInvalidCurrentPassword" xml:space="preserve">
+		<value>Mật khẩu hiện tại không chính xác</value>
+	</data>
+	<data name="BusinessNewPasswordSameAsOld" xml:space="preserve">
+		<value>Mật khẩu mới không được trùng với mật khẩu cũ</value>
+	</data>
+	<data name="BusinessNoLocalAuthProvider" xml:space="preserve">
+		<value>Tài khoản không sử dụng mật khẩu để đăng nhập.</value>
+	</data>
+	<data name="BusinessResetPasswordEmailSent" xml:space="preserve">
+		<value>Email đặt lại mật khẩu đã được gửi. Vui lòng kiểm tra hộp thư của bạn.</value>
+	</data>
+	<data name="BusinessVerificationEmailSent" xml:space="preserve">
+		<value>Email xác thực đã được gửi. Vui lòng kiểm tra hộp thư của bạn.</value>
+	</data>
+	<data name="BusinessEmailAlreadyVerified" xml:space="preserve">
+		<value>Email đã được xác thực trước đó.</value>
+	</data>
+	<data name="BusinessInvalidProvider" xml:space="preserve">
+		<value>Nhà cung cấp xác thực không hợp lệ.</value>
+	</data>
+	<data name="BusinessCannotResetPassword" xml:space="preserve">
+		<value>Không thể đặt lại mật khẩu cho tài khoản này. Vui lòng liên hệ quản trị viên.</value>
+	</data>
+	<data name="BusinessCannotChangePassword" xml:space="preserve">
+		<value>Không thể đổi mật khẩu do trạng thái tài khoản không hợp lệ.</value>
+	</data>
+	<data name="BusinessProcessingError" xml:space="preserve">
+		<value>Đã xảy ra lỗi trong quá trình xử lý. Vui lòng thử lại sau.</value>
+	</data>
+	<data name="BusinessSocialLoginFailed" xml:space="preserve">
+		<value>Đăng nhập qua mạng xã hội thất bại. Vui lòng thử lại sau.</value>
+	</data>
+	<data name="BusinessEmailServiceError" xml:space="preserve">
+		<value>Lỗi dịch vụ email. Vui lòng thử lại sau.</value>
+	</data>
+	<data name="BusinessForbidden" xml:space="preserve">
+		<value>Bạn không có quyền thực hiện hành động này.</value>
+	</data>
+	<data name="BusinessUnauthorized" xml:space="preserve">
+		<value>Bạn không có quyền truy cập tài nguyên này.</value>
+	</data>
+
+	<!-- ===== CV RELATED BUSINESS MESSAGES - TIẾNG VIỆT ===== -->
+	<data name="BusinessNoFileUploaded" xml:space="preserve">
+		<value>Chưa có file nào được tải lên</value>
+	</data>
+	<data name="BusinessOnlyPdfAllowed" xml:space="preserve">
+		<value>Chỉ chấp nhận file PDF</value>
+	</data>
+	<data name="BusinessCVNotFound" xml:space="preserve">
+		<value>Không tìm thấy CV</value>
+	</data>
+	<data name="BusinessCVFileMissing" xml:space="preserve">
+		<value>File CV không tồn tại</value>
+	</data>
+	<data name="BusinessAccessDenied" xml:space="preserve">
+		<value>Bạn không có quyền truy cập CV này</value>
+	</data>
+	<data name="BusinessFileTooLarge" xml:space="preserve">
+		<value>File quá lớn, kích thước tối đa 10MB</value>
+	</data>
+	<data name="BusinessFileUploadFailed" xml:space="preserve">
+		<value>Không thể tải file lên</value>
+	</data>
+	<data name="BusinessDatabaseError" xml:space="preserve">
+		<value>Lỗi database khi lưu CV</value>
+	</data>
+	<data name="BusinessCVDeleted" xml:space="preserve">
+		<value>CV đã được xóa thành công</value>
+	</data>
+	<data name="BusinessCVNotAnalyzed" xml:space="preserve">
+		<value>CV chưa được phân tích</value>
+	</data>
+
+	<!-- ===== JOB RELATED BUSINESS MESSAGES - TIẾNG VIỆT ===== -->
+	<data name="BusinessJobNotFound" xml:space="preserve">
+		<value>Không tìm thấy công việc</value>
+	</data>
+	<data name="BusinessJobNotActive" xml:space="preserve">
+		<value>Công việc không còn hoạt động</value>
+	</data>
+	<data name="BusinessJobExpired" xml:space="preserve">
+		<value>Công việc đã hết hạn</value>
+	</data>
+	<data name="BusinessNoPermissionToUseCV" xml:space="preserve">
+		<value>Bạn không có quyền sử dụng CV này</value>
+	</data>
+
+	<!-- ===== APPLICATION RELATED BUSINESS MESSAGES - TIẾNG VIỆT ===== -->
+	<data name="BusinessAlreadyApplied" xml:space="preserve">
+		<value>Bạn đã ứng tuyển vào công việc này rồi</value>
+	</data>
+	<data name="BusinessApplicationNotFound" xml:space="preserve">
+		<value>Không tìm thấy đơn ứng tuyển</value>
+	</data>
+	<data name="BusinessNoPermissionToUpdateApplication" xml:space="preserve">
+		<value>Bạn không có quyền cập nhật đơn ứng tuyển này</value>
+	</data>
+	<data name="BusinessNoPermissionToViewApplications" xml:space="preserve">
+		<value>Bạn không có quyền xem đơn ứng tuyển của công việc này</value>
 	</data>
 
 	<!-- ===== VALIDATION MESSAGES - TIẾNG VIỆT ===== -->
@@ -144,6 +263,12 @@
 	<data name="ValidationInvalidRole" xml:space="preserve">
 		<value>Vai trò không hợp lệ. Chấp nhận: Candidate, Recruiter, Admin</value>
 	</data>
+	<data name="ValidationPasswordMismatch" xml:space="preserve">
+		<value>Mật khẩu xác nhận không khớp</value>
+	</data>
+	<data name="ValidationTokenRequired" xml:space="preserve">
+		<value>Token là bắt buộc</value>
+	</data>
 
 	<!-- ===== SUCCESS MESSAGES - TIẾNG VIỆT ===== -->
 	<data name="SuccessRegistered" xml:space="preserve">
@@ -157,6 +282,18 @@
 	</data>
 	<data name="SuccessTokenRefreshed" xml:space="preserve">
 		<value>Làm mới token thành công</value>
+	</data>
+	<data name="SuccessPasswordChanged" xml:space="preserve">
+		<value>Đổi mật khẩu thành công</value>
+	</data>
+	<data name="SuccessPasswordReset" xml:space="preserve">
+		<value>Đặt lại mật khẩu thành công</value>
+	</data>
+	<data name="SuccessEmailVerified" xml:space="preserve">
+		<value>Xác thực email thành công</value>
+	</data>
+	<data name="SuccessEmailAlreadyVerified" xml:space="preserve">
+		<value>Email đã được xác thực trước đó</value>
 	</data>
 
 	<!-- ===== LOG DETAIL MESSAGES - TIẾNG VIỆT ===== -->
@@ -178,163 +315,51 @@
 	<data name="LogJwtGenerationError" xml:space="preserve">
 		<value>Lỗi tạo JWT token cho người dùng {0}</value>
 	</data>
-
-	<data name="BusinessInvalidCurrentPassword" xml:space="preserve">
-		<value>Mật khẩu hiện tại không chính xác</value>
+	<data name="LogUserAppliedForJob" xml:space="preserve">
+		<value>Người dùng {0} đã ứng tuyển vào công việc {1} với CV {2}</value>
 	</data>
-		<data name="BusinessNewPasswordSameAsOld" xml:space="preserve">
-		<value>Mật khẩu mới không được giống mật khẩu cũ</value>
-	</data>
-		<data name="BusinessNoLocalAuthProvider" xml:space="preserve">
-		<value>Tài khoản không hỗ trợ đổi mật khẩu (đăng nhập qua mạng xã hội)</value>
-	</data>
-		<data name="BusinessPasswordChangeFailed" xml:space="preserve">
-		<value>Đổi mật khẩu thất bại, vui lòng thử lại</value>
-	</data>
-		<data name="SuccessPasswordChanged" xml:space="preserve">
-		<value>Đổi mật khẩu thành công</value>
-	</data>
-		<data name="ValidationPasswordMismatch" xml:space="preserve">
-		<value>Mật khẩu xác nhận không khớp</value>
-	</data>
-	<data name="ValidationTokenRequired" xml:space="preserve">
-		<value>Token là bắt buộc</value>
-	</data>
-	<!-- ===== FORGOT PASSWORD MESSAGES - TIẾNG VIỆT ===== -->
-	<data name="BusinessResetPasswordEmailSent" xml:space="preserve">
-		<value>Nếu email của bạn đã đăng ký, bạn sẽ nhận được link đặt lại mật khẩu</value>
+	<data name="LogRecruiterUpdatedApplication" xml:space="preserve">
+		<value>Nhà tuyển dụng {0} đã cập nhật đơn ứng tuyển {1} sang trạng thái {2}</value>
 	</data>
 
-		<!-- ===== VERIFICATION EMAIL MESSAGES - TIẾNG VIỆT ===== -->
-		<data name="BusinessVerificationEmailSent" xml:space="preserve">
-		<value>Nếu email của bạn đã đăng ký, bạn sẽ nhận được link xác thực</value>
-	</data>
-
-		<!-- ===== GENERAL ERROR MESSAGES - TIẾNG VIỆT ===== -->
-		<data name="BusinessProcessingError" xml:space="preserve">
-		<value>Đã xảy ra lỗi trong quá trình xử lý. Vui lòng thử lại sau</value>
-	</data>
-	<data name="SuccessEmailVerified" xml:space="preserve">
-		<value>Xác thực email thành công</value>
-	</data>
-		<data name="SuccessEmailAlreadyVerified" xml:space="preserve">
-		<value>Email đã được xác thực trước đó</value>
-	</data>
-	<data name="BusinessEmailAlreadyVerified" xml:space="preserve">
-		<value>Email đã được xác thực trước đó</value>
-	</data>
-	<data name="SuccessPasswordReset" xml:space="preserve">
-		<value>Đặt lại mật khẩu thành công</value>
-	</data>
+	<!-- ===== CV UPLOAD MESSAGES - TIẾNG VIỆT ===== -->
 	<data name="NoFileUploaded" xml:space="preserve">
 		<value>Chưa có file nào được tải lên</value>
 	</data>
-		<data name="OnlyPdfAllowed" xml:space="preserve">
+	<data name="OnlyPdfAllowed" xml:space="preserve">
 		<value>Chỉ chấp nhận file PDF</value>
 	</data>
-		<data name="CVNotFound" xml:space="preserve">
+	<data name="CVNotFound" xml:space="preserve">
 		<value>Không tìm thấy CV</value>
 	</data>
-		<data name="CVFileMissing" xml:space="preserve">
+	<data name="CVFileMissing" xml:space="preserve">
 		<value>File CV không tồn tại</value>
 	</data>
-		<data name="AccessDenied" xml:space="preserve">
+	<data name="AccessDenied" xml:space="preserve">
 		<value>Bạn không có quyền truy cập CV này</value>
 	</data>
-		<data name="UploadingCV" xml:space="preserve">
+	<data name="UploadingCV" xml:space="preserve">
 		<value>Đang tải lên file: {0}, Kích thước: {1} bytes</value>
 	</data>
-		<data name="UploadCVSuccess" xml:space="preserve">
+	<data name="UploadCVSuccess" xml:space="preserve">
 		<value>Tải lên CV thành công cho user {0}, CV ID: {1}</value>
 	</data>
-		<data name="UploadCVError" xml:space="preserve">
+	<data name="UploadCVError" xml:space="preserve">
 		<value>Lỗi khi tải lên CV</value>
 	</data>
-		<data name="DownloadCVError" xml:space="preserve">
+	<data name="DownloadCVError" xml:space="preserve">
 		<value>Lỗi khi tải xuống CV {0}</value>
 	</data>
-		<data name="GetMyCVsError" xml:space="preserve">
+	<data name="GetMyCVsError" xml:space="preserve">
 		<value>Lỗi khi lấy danh sách CV</value>
 	</data>
 	<data name="FileRequired" xml:space="preserve">
 		<value>File không được để trống</value>
 	</data>
-		<data name="FileNameRequired" xml:space="preserve">
+	<data name="FileNameRequired" xml:space="preserve">
 		<value>Tên file không được để trống</value>
 	</data>
-		<data name="FileEmpty" xml:space="preserve">
+	<data name="FileEmpty" xml:space="preserve">
 		<value>File không được rỗng</value>
-	</data>
-	<!-- ===== BUSINESS MESSAGES - CV RELATED ===== -->
-	<data name="BusinessNoFileUploaded" xml:space="preserve">
-		<value>Chưa có file nào được tải lên</value>
-	</data>
-		<data name="BusinessOnlyPdfAllowed" xml:space="preserve">
-		<value>Chỉ chấp nhận file PDF</value>
-	</data>
-		<data name="BusinessCVNotFound" xml:space="preserve">
-		<value>Không tìm thấy CV</value>
-	</data>
-		<data name="BusinessCVFileMissing" xml:space="preserve">
-		<value>File CV không tồn tại</value>
-	</data>
-		<data name="BusinessAccessDenied" xml:space="preserve">
-		<value>Bạn không có quyền truy cập CV này</value>
-	</data>
-		<data name="BusinessFileTooLarge" xml:space="preserve">
-		<value>File quá lớn, kích thước tối đa 10MB</value>
-	</data>
-		<data name="BusinessFileUploadFailed" xml:space="preserve">
-		<value>Không thể tải file lên</value>
-	</data>
-		<data name="BusinessDatabaseError" xml:space="preserve">
-		<value>Lỗi database khi lưu CV</value>
-	</data>
-	<data name="BusinessUnauthorized" xml:space="preserve">
-		<value>Bạn không có quyền truy cập tài nguyên này</value>
-	</data>
-	<data name="BusinessForbidden" xml:space="preserve">
-		<value>Bạn không có quyền thực hiện hành động này.</value>
-	</data>
-	<data name="BusinessCVDeleted" xml:space="preserve">
-		<value>CV đã được xóa thành công</value>
-	</data>
-	<!-- Business.resx / Business.vi.resx -->
-	<data name="BusinessJobNotFound" xml:space="preserve">
-		<value>Không tìm thấy công việc</value>
-	</data>
-		<data name="BusinessJobNotActive" xml:space="preserve">
-		<value>Công việc không còn hoạt động</value>
-	</data>
-		<data name="BusinessJobExpired" xml:space="preserve">
-		<value>Công việc đã hết hạn</value>
-	</data>
-		<data name="BusinessCVNotFound" xml:space="preserve">
-		<value>Không tìm thấy CV</value>
-	</data>
-		<data name="BusinessCVNotAnalyzed" xml:space="preserve">
-		<value>CV chưa được phân tích</value>
-	</data>
-		<data name="BusinessAlreadyApplied" xml:space="preserve">
-		<value>Bạn đã ứng tuyển vào công việc này rồi</value>
-	</data>
-		<data name="BusinessApplicationNotFound" xml:space="preserve">
-		<value>Không tìm thấy đơn ứng tuyển</value>
-	</data>
-		<data name="BusinessNoPermissionToUpdateApplication" xml:space="preserve">
-		<value>Bạn không có quyền cập nhật đơn ứng tuyển này</value>
-	</data>
-		<data name="BusinessNoPermissionToViewApplications" xml:space="preserve">
-		<value>Bạn không có quyền xem đơn ứng tuyển của công việc này</value>
-	</data>
-		<data name="BusinessNoPermissionToUseCV" xml:space="preserve">
-		<value>Bạn không có quyền sử dụng CV này</value>
-	</data>
-	<!-- Log.resx / Log.vi.resx -->
-	<data name="LogUserAppliedForJob" xml:space="preserve">
-		<value>Người dùng {0} đã ứng tuyển vào công việc {1} với CV {2}</value>
-	</data>
-		<data name="LogRecruiterUpdatedApplication" xml:space="preserve">
-		<value>Nhà tuyển dụng {0} đã cập nhật đơn ứng tuyển {1} sang trạng thái {2}</value>
 	</data>
 </root>

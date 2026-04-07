@@ -6,12 +6,12 @@ using RecruitAI.Application.DTOs.CVs;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Queries.CVs;
 using RecruitAI.Application.Commands.CVs;
-using RecruitAI.Application.DTOs.Responses;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using AutoMapper;
 using RecruitAI.Application.Interfaces;
+using RecruitAI.Application.DTOs.Responses.Auths;
 
 namespace RecruitAI_API.Controllers.v1;
 
