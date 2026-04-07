@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using RecruitAI.Application.Commands.Jobs;
+using RecruitAI.Application.Commands.Applications;
 using RecruitAI.Domain.Enums;
 
 namespace RecruitAI.Application.Validators.Jobs;

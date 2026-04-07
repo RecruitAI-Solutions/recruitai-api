@@ -1,7 +1,7 @@
 ﻿using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Domain.Enums;
 
-namespace RecruitAI.Application.DTOs.Requests.Jobs;
+namespace RecruitAI.Application.DTOs.Requests.Applications;
 
 public class GetJobApplicationsRequestDto : PaginationRequestDto
 {

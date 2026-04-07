@@ -1,8 +1,8 @@
 ﻿using MediatR;
-using RecruitAI.Application.DTOs.Responses.Jobs;
+using RecruitAI.Application.DTOs.Responses.Applications;
 using RecruitAI.Domain.Enums;
 
-namespace RecruitAI.Application.Commands.Jobs;
+namespace RecruitAI.Application.Commands.Applications;
 
 public class UpdateApplicationStatusCommand : IRequest<UpdateApplicationStatusResponseDto>
 {

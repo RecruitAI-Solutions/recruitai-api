@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using RecruitAI.Application.DTOs.Common;
-using RecruitAI.Application.DTOs.Responses.Jobs;
+using RecruitAI.Application.DTOs.Responses.Applications;
 using RecruitAI.Domain.Enums;
 
-namespace RecruitAI.Application.Queries.Jobs;
+namespace RecruitAI.Application.Queries.Applications;
 
 public class GetJobApplicationsQuery : IRequest<PaginationResponseDto<JobApplicationDto>>
 {

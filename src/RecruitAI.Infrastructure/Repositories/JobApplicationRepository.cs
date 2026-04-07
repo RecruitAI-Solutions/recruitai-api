@@ -116,4 +116,13 @@ public class JobApplicationRepository : BaseRepository<JobApplication>, IJobAppl
 	{
 		return await _dbSet.CountAsync(x => x.JobId == jobId, cancellationToken);
 	}
+	public async Task<JobApplication?> GetDetailByIdAsync(Guid id, CancellationToken cancellationToken = default)
+	{
+		return await _dbSet
+			.Include(a => a.Job)
+			.Include(a => a.CV)
+				.ThenInclude(cv => cv.User)
+			.Include(a => a.Match)
+			.FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+	}
 }
