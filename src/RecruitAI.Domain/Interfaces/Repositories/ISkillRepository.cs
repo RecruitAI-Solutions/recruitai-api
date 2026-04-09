@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace RecruitAI.Domain.Interfaces.Repositories
 {
-	public interface ISkillRepository
+	public interface ISkillRepository: IBaseRepository<Skill>
 	{
 		// CRUD cơ bản
 		Task<Skill?> GetByIdAsync(int id, CancellationToken cancellationToken = default);

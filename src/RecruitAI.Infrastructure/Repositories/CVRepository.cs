@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RecruitAI.Domain.Common.CVs;
 using RecruitAI.Domain.Entities;
+using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Infrastructure.Data;
 
@@ -114,5 +115,48 @@ public class CVRepository : BaseRepository<CV>, ICVRepository
 				File.Delete(filePath);
 			}
 		}
+	}
+	public async Task<Dictionary<CVStatus, int>> CountCVsByStatusAsync(DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default)
+	{
+		var query = _dbSet.Where(c => !c.IsDeleted);
+
+		if (fromDate.HasValue)
+			query = query.Where(c => c.UploadedAt >= fromDate.Value);
+
+		if (toDate.HasValue)
+		{
+			var toDateEnd = toDate.Value.Date.AddDays(1).AddTicks(-1);
+			query = query.Where(c => c.UploadedAt <= toDateEnd);
+		}
+
+		var items = await query
+			.GroupBy(c => c.Status)
+			.Select(g => new { Status = g.Key, Count = g.Count() })
+			.ToListAsync(cancellationToken);
+
+		return items.ToDictionary(x => x.Status, x => x.Count);
+	}
+
+	public async Task<int[]> CountCVsByDayAsync(int days, DateTime? endDate = null, CancellationToken cancellationToken = default)
+	{
+		var end = endDate ?? DateTime.UtcNow;
+		var startDate = end.AddDays(-days + 1).Date;
+		var result = new int[days];
+
+		var items = await _dbSet
+			.Where(c => c.UploadedAt >= startDate && !c.IsDeleted)
+			.GroupBy(c => c.UploadedAt.Date)
+			.Select(g => new { Date = g.Key, Count = g.Count() })
+			.ToListAsync(cancellationToken);
+
+		var dict = items.ToDictionary(x => x.Date, x => x.Count);
+
+		for (int i = 0; i < days; i++)
+		{
+			var date = startDate.AddDays(i);
+			result[i] = dict.ContainsKey(date) ? dict[date] : 0;
+		}
+
+		return result;
 	}
 }

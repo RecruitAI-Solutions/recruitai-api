@@ -461,6 +461,15 @@ builder.Services.AddAuthorization(options =>
 			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P013") ||
 			context.User.IsInRole("ADMIN")
 		));
+
+	/// <summary>
+	/// Xem thống kê (P014)
+	/// </summary>
+	options.AddPolicy("ViewAnalytics", policy =>
+	policy.RequireAssertion(context =>
+		context.User.HasClaim(c => c.Type == "permission" && c.Value == "P014") ||
+		context.User.IsInRole("ADMIN")
+	));
 });
 
 // 4. RAZOR RUNTIME COMPILATION
