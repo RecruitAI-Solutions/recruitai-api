@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
+using RecruitAI.Infrastructure.Data.SeedData;
 
 namespace RecruitAI.Infrastructure.Data.Configurations
 {

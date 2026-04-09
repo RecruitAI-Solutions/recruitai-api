@@ -53,8 +53,6 @@ namespace RecruitAI.Infrastructure.Data.Configurations
 
 			entity.HasIndex(e => e.IsActive)
 				.HasDatabaseName("IX_Skills_IsActive");
-
-			entity.HasData(SkillSeedData.GetSkills());
 		}
 	}
 }
