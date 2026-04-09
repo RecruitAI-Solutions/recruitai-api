@@ -508,4 +508,19 @@
 		<data name="AuditFieldMatchPercentage" xml:space="preserve">
 		<value>Phần trăm phù hợp</value>
 	</data>
+	<data name="AuditFieldName" xml:space="preserve">
+		<value>Tên</value>
+	</data>
+		<data name="AuditFieldCategory" xml:space="preserve">
+		<value>Danh mục</value>
+	</data>
+		<data name="AuditFieldAliases" xml:space="preserve">
+		<value>Bí danh</value>
+	</data>
+		<data name="AuditFieldIsActive" xml:space="preserve">
+		<value>Trạng thái</value>
+	</data>
+	<data name="AuditActionMatch" xml:space="preserve">
+		<value>Match CV</value>
+	</data>
 </root>

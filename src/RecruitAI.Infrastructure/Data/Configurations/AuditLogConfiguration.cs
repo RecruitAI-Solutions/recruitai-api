@@ -18,6 +18,9 @@ namespace RecruitAI.Infrastructure.Data.Configurations
 				.IsRequired()
 				.HasConversion<int>();  // Lưu dưới dạng int
 
+			entity.Property(e => e.EntityId)
+				.IsRequired()
+				.HasMaxLength(50);
 
 			entity.Property(e => e.EntityName)
 				.IsRequired()

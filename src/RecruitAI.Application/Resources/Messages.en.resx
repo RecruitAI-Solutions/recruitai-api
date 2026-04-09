@@ -508,4 +508,19 @@
 		<data name="AuditFieldMatchPercentage" xml:space="preserve">
 		<value>Match Percentage</value>
 	</data>
+	<data name="AuditFieldName" xml:space="preserve">
+		<value>Name</value>
+	</data>
+		<data name="AuditFieldCategory" xml:space="preserve">
+		<value>Category</value>
+	</data>
+		<data name="AuditFieldAliases" xml:space="preserve">
+		<value>Aliases</value>
+	</data>
+		<data name="AuditFieldIsActive" xml:space="preserve">
+		<value>Status</value>
+	</data>
+	<data name="AuditActionMatch" xml:space="preserve">
+		<value>Match CV</value>
+	</data>
 </root>

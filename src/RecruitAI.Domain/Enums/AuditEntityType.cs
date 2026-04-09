@@ -5,6 +5,7 @@
 		User = 1,
 		CV = 2,
 		Job = 3,
-		Application = 4
+		Application = 4,
+		Skill = 5,
 	}
 }
