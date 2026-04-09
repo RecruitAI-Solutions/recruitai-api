@@ -269,6 +269,12 @@
 	<data name="ValidationTokenRequired" xml:space="preserve">
 		<value>Token is required</value>
 	</data>
+	<data name="ValidationInvalidPhoneNumber" xml:space="preserve">
+		<value>Invalid phone number format</value>
+	</data>
+		<data name="ValidationDateOfBirthInFuture" xml:space="preserve">
+		<value>Date of birth cannot be in the future</value>
+	</data>
 
 	<!-- ===== SUCCESS MESSAGES - ENGLISH ===== -->
 	<data name="SuccessRegistered" xml:space="preserve">

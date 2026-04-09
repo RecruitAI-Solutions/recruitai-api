@@ -12,10 +12,12 @@ namespace RecruitAI.Application.Validators.Auths
 			.MustAsync(async (email, ct) => !await validationService.IsEmailUniqueAsync(email, ct))
 			.WithMessage(msg.Business("UserNotFound"));
 
-			//Có thể kiểm tra email có tồn tại không (tùy chọn)
+			// Kiểm tra email đã tồn tại
 			RuleFor(x => x.Email)
-				 .MustAsync(async (email, ct) => !await validationService.IsEmailUniqueAsync(email, ct))
-				 .WithMessage(msg.Business("UserNotFound"));
+				.NotEmpty().WithMessage(msg.Validation("EmailRequired"))
+				.EmailAddress().WithMessage(msg.Validation("EmailInvalid"))
+				.MustAsync(async (email, ct) => !await validationService.IsEmailUniqueAsync(email, ct))
+				.WithMessage(msg.Business("UserNotFound"));
 		}
 	}
 }
