@@ -1,6 +1,7 @@
 ﻿// RecruitAI.Application/Commands/CVs/DeleteCVCommand.cs
 using MediatR;
 using Microsoft.Extensions.Logging;
+using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
@@ -52,7 +53,7 @@ public class DeleteCVCommandHandler : IRequestHandler<DeleteCVCommand>
 			await _auditLogService.LogAsync(
 				AuditEntityType.CV,
 				AuditAction.Delete,
-				cv.Id,
+				cv.Id.ToEntityId(),
 				cv.FileName,
 				null,
 				null,

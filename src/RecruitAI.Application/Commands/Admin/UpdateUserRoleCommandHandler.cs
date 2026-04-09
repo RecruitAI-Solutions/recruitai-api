@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.DTOs.Responses.Admin;
+using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
@@ -53,7 +54,7 @@ namespace RecruitAI.Application.Commands.Admin
 			await _auditLogService.LogAsync(
 				AuditEntityType.User,
 				AuditAction.ChangeRole,
-				user.Id,
+				user.Id.ToEntityId(),
 				user.Email,
 				oldRole.ToString(),
 				request.Role.ToString(),

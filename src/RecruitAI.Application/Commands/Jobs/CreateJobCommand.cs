@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.DTOs.Jobs;
+using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Entities;
@@ -101,7 +102,7 @@ public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobDeta
 			await _auditLogService.LogAsync(
 				AuditEntityType.Job,
 				AuditAction.CreateJob,
-				job.Id,
+				job.Id.ToEntityId(),
 				job.Title,
 				null,
 				JsonSerializer.Serialize(jobData), 

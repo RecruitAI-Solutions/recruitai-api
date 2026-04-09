@@ -52,7 +52,7 @@ public class UpdateApplicationStatusCommandHandler : IRequestHandler<UpdateAppli
 		await _auditLogService.LogAsync(
 			AuditEntityType.Application,
 			AuditAction.UpdateStatus,
-			application.Id,
+			application.Id.ToEntityId(),
 			$"{job.Title} - {application.CV?.FileName}",
 			oldStatus.ToString(),
 			request.Status.ToString(),
