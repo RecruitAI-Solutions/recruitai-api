@@ -39,6 +39,7 @@ namespace RecruitAI.Application.Helpers
 				AuditAction.DeleteJob => msg.Get("AuditActionDeleteJob"),
 				AuditAction.Apply => msg.Get("AuditActionApply"),
 				AuditAction.UpdateStatus => msg.Get("AuditActionUpdateStatus"),
+				AuditAction.Match => msg.Get("AuditActionMatch"),
 				_ => action.ToString()
 			};
 		}

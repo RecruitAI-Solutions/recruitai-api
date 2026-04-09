@@ -24,6 +24,9 @@
 
 		// Application actions
 		Apply = 15,
-		UpdateStatus = 16
+		UpdateStatus = 16,
+
+		// AI actions
+		Match = 17
 	}
 }

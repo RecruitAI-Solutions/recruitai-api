@@ -7,7 +7,7 @@ namespace RecruitAI.Application.Interfaces.Services
 		Task LogAsync(
 			AuditEntityType entityType,  
 			AuditAction action,
-			Guid entityId,
+			string entityId,
 			string entityName,
 			string? oldValue = null,
 			string? newValue = null,
