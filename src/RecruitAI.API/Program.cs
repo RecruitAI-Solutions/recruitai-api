@@ -19,6 +19,7 @@ using RecruitAI.Infrastructure.Data;
 using Serilog;
 using System.Globalization;
 using System.Text;
+using RecruitAI.Infrastructure.Data.SeedData;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -543,6 +544,10 @@ using (var scope = app.Services.CreateScope())
 			{
 				logger.LogInformation(ProgramMessages.Log("NoPendingMigration"));
 			}
+
+			logger.LogInformation("Calling DatabaseSeeder.SeedAsync...");
+			await RecruitAI.Infrastructure.Data.SeedData.DatabaseSeeder.SeedAsync(db, logger);
+			logger.LogInformation("DatabaseSeeder.SeedAsync completed");
 
 			var tables = await db.Database.SqlQuery<string>($@"
 				SELECT TABLE_NAME 
