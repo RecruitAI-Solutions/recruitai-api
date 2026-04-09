@@ -5,6 +5,7 @@ using RecruitAI.Application.Commands.Admin;
 using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Application.DTOs.Requests.Admin;
 using RecruitAI.Application.DTOs.Responses.Admin;
+using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Queries.Admin;
@@ -299,7 +300,7 @@ namespace RecruitAI.API.Controllers.v1
 				var query = new GetEntityAuditLogsQuery
 				{
 					EntityType = parsedEntityType,
-					EntityId = entityId,
+					EntityId = entityId.ToEntityId(),
 					Page = page,
 					PageSize = pageSize
 				};

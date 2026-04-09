@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
+using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
@@ -57,7 +58,7 @@ public class DeleteJobCommandHandler : IRequestHandler<DeleteJobCommand>
 			await _auditLogService.LogAsync(
 				AuditEntityType.Job,
 				AuditAction.DeleteJob,
-				job.Id,
+				job.Id.ToEntityId(),
 				job.Title,
 				null,
 				null,

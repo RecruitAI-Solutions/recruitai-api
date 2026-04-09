@@ -2,6 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.DTOs.Jobs;
+using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
@@ -111,7 +112,7 @@ public class UpdateJobCommandHandler : IRequestHandler<UpdateJobCommand, JobDeta
 			await _auditLogService.LogAsync(
 				AuditEntityType.Job,
 				AuditAction.UpdateJob,
-				existingJob.Id,
+				existingJob.Id.ToEntityId(),
 				existingJob.Title,
 				JsonSerializer.Serialize(new { oldTitle, oldLocation, oldSalaryMin, oldSalaryMax, oldDepartment, oldEmploymentType, oldExperienceLevel, oldBenefits, oldExpirationDate }),
 				JsonSerializer.Serialize(new { existingJob.Title, existingJob.Location, existingJob.SalaryMin, existingJob.SalaryMax, existingJob.Department, existingJob.EmploymentType, existingJob.ExperienceLevel, existingJob.Benefits, existingJob.ExpirationDate }),

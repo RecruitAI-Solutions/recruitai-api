@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using RecruitAI.Application.DTOs.Requests.AI;
 using RecruitAI.Application.DTOs.Responses.AI;
+using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Entities;
@@ -122,7 +123,7 @@ namespace RecruitAI.Application.Services
 			await _auditLogService.LogAsync(
 				AuditEntityType.CV,
 				AuditAction.Analyze,
-				cv.Id,
+				cv.Id.ToEntityId(),
 				cv.FileName,
 				null,
 				JsonSerializer.Serialize(analysisData),

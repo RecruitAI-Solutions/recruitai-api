@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.DTOs.Responses.Auths;
+using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Entities;
@@ -142,7 +143,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 				await _auditLogService.LogAsync(
 					AuditEntityType.CV,
 					AuditAction.Upload,
-					cv.Id,
+					cv.Id.ToEntityId(),
 					cv.FileName,
 					null,
 					JsonSerializer.Serialize(cvData),
