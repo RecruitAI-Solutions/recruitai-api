@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.DTOs.Responses.Admin;
 using RecruitAI.Application.Interfaces;
+using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 
@@ -11,11 +12,16 @@ namespace RecruitAI.Application.Commands.Admin
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ILogger<DeleteUserCommandHandler> _logger;
+		private readonly IAuditLogService _auditLogService;  
 
-		public DeleteUserCommandHandler(IUnitOfWork unitOfWork, ILogger<DeleteUserCommandHandler> logger)
+		public DeleteUserCommandHandler(
+			IUnitOfWork unitOfWork,
+			ILogger<DeleteUserCommandHandler> logger,
+			IAuditLogService auditLogService)  
 		{
 			_unitOfWork = unitOfWork;
 			_logger = logger;
+			_auditLogService = auditLogService;
 		}
 
 		public async Task<AdminUserDeleteResponseDto> Handle(DeleteUserCommand request, CancellationToken cancellationToken)
@@ -30,6 +36,17 @@ namespace RecruitAI.Application.Commands.Admin
 
 			if (user == null)
 				throw new BusinessException(ErrorCode.UserNotFound, "User not found");
+
+			// Ghi audit log trước khi xóa
+			await _auditLogService.LogAsync(
+				AuditEntityType.User,
+				AuditAction.Delete,
+				user.Id,
+				user.Email,
+				null,
+				null,
+				null,
+				cancellationToken);
 
 			await _unitOfWork.Users.SoftDeleteAsync(request.UserId, cancellationToken);
 			await _unitOfWork.SaveChangesAsync(cancellationToken);

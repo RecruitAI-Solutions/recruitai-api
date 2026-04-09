@@ -368,4 +368,145 @@
 	<data name="FileEmpty" xml:space="preserve">
 		<value>File không được rỗng</value>
 	</data>
+
+	<!-- ===== AUDIT LOG MESSAGES - TIẾNG VIỆT ===== -->
+
+	<!-- Entity Types -->
+	<data name="AuditEntityTypeUser" xml:space="preserve">
+	<value>Người dùng</value>
+</data>
+	<data name="AuditEntityTypeCV" xml:space="preserve">
+	<value>CV</value>
+</data>
+	<data name="AuditEntityTypeJob" xml:space="preserve">
+	<value>Công việc</value>
+</data>
+	<data name="AuditEntityTypeApplication" xml:space="preserve">
+	<value>Đơn ứng tuyển</value>
+</data>
+
+	<!-- Actions -->
+	<data name="AuditActionCreate" xml:space="preserve">
+		<value>Tạo mới</value>
+	</data>
+		<data name="AuditActionUpdate" xml:space="preserve">
+		<value>Cập nhật</value>
+	</data>
+		<data name="AuditActionDelete" xml:space="preserve">
+		<value>Xóa</value>
+	</data>
+		<data name="AuditActionLogin" xml:space="preserve">
+		<value>Đăng nhập</value>
+	</data>
+		<data name="AuditActionLogout" xml:space="preserve">
+		<value>Đăng xuất</value>
+	</data>
+		<data name="AuditActionChangePassword" xml:space="preserve">
+		<value>Đổi mật khẩu</value>
+	</data>
+		<data name="AuditActionChangeStatus" xml:space="preserve">
+		<value>Thay đổi trạng thái</value>
+	</data>
+		<data name="AuditActionChangeRole" xml:space="preserve">
+		<value>Thay đổi vai trò</value>
+	</data>
+		<data name="AuditActionUpload" xml:space="preserve">
+		<value>Tải lên</value>
+	</data>
+		<data name="AuditActionAnalyze" xml:space="preserve">
+		<value>Phân tích</value>
+	</data>
+		<data name="AuditActionCreateJob" xml:space="preserve">
+		<value>Tạo công việc</value>
+	</data>
+		<data name="AuditActionUpdateJob" xml:space="preserve">
+		<value>Cập nhật công việc</value>
+	</data>
+		<data name="AuditActionDeleteJob" xml:space="preserve">
+		<value>Xóa công việc</value>
+	</data>
+		<data name="AuditActionApply" xml:space="preserve">
+		<value>Ứng tuyển</value>
+	</data>
+		<data name="AuditActionUpdateStatus" xml:space="preserve">
+		<value>Cập nhật trạng thái đơn</value>
+	</data>
+	<data name="AuditActionRefreshToken" xml:space="preserve">
+		<value>Làm mới token</value>
+	</data>
+
+	<!-- Validation -->
+	<data name="ValidationAuditLogNotFound" xml:space="preserve">
+		<value>Không tìm thấy bản ghi audit log</value>
+	</data>
+	<!-- ===== AUDIT LOG FIELD LABELS - TIẾNG VIỆT ===== -->
+	<data name="AuditFieldEmail" xml:space="preserve">
+		<value>Email</value>
+	</data>
+		<data name="AuditFieldRole" xml:space="preserve">
+		<value>Vai trò</value>
+	</data>
+		<data name="AuditFieldFullName" xml:space="preserve">
+		<value>Họ tên</value>
+	</data>
+		<data name="AuditFieldPhoneNumber" xml:space="preserve">
+		<value>Số điện thoại</value>
+	</data>
+		<data name="AuditFieldGender" xml:space="preserve">
+		<value>Giới tính</value>
+	</data>
+		<data name="AuditFieldDateOfBirth" xml:space="preserve">
+		<value>Ngày sinh</value>
+	</data>
+		<data name="AuditFieldStatus" xml:space="preserve">
+		<value>Trạng thái</value>
+	</data>
+		<data name="AuditFieldFileName" xml:space="preserve">
+		<value>Tên file</value>
+	</data>
+		<data name="AuditFieldFileSize" xml:space="preserve">
+		<value>Kích thước</value>
+	</data>
+		<data name="AuditFieldTitle" xml:space="preserve">
+		<value>Tiêu đề</value>
+	</data>
+		<data name="AuditFieldLocation" xml:space="preserve">
+		<value>Địa điểm</value>
+	</data>
+		<data name="AuditFieldSalaryMin" xml:space="preserve">
+		<value>Lương tối thiểu</value>
+	</data>
+		<data name="AuditFieldSalaryMax" xml:space="preserve">
+		<value>Lương tối đa</value>
+	</data>
+		<data name="AuditFieldDepartment" xml:space="preserve">
+		<value>Phòng ban</value>
+	</data>
+		<data name="AuditFieldEmploymentType" xml:space="preserve">
+		<value>Loại hình công việc</value>
+	</data>
+		<data name="AuditFieldExperienceLevel" xml:space="preserve">
+		<value>Cấp độ kinh nghiệm</value>
+	</data>
+		<data name="AuditFieldBenefits" xml:space="preserve">
+		<value>Phúc lợi</value>
+	</data>
+		<data name="AuditFieldExpirationDate" xml:space="preserve">
+		<value>Ngày hết hạn</value>
+	</data>
+		<data name="AuditFieldProvider" xml:space="preserve">
+		<value>Nhà cung cấp</value>
+	</data>
+		<data name="AuditFieldSkillsCount" xml:space="preserve">
+		<value>Số lượng kỹ năng</value>
+	</data>
+		<data name="AuditFieldJobId" xml:space="preserve">
+		<value>ID công việc</value>
+	</data>
+		<data name="AuditFieldCvId" xml:space="preserve">
+		<value>ID CV</value>
+	</data>
+		<data name="AuditFieldMatchPercentage" xml:space="preserve">
+		<value>Phần trăm phù hợp</value>
+	</data>
 </root>

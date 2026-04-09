@@ -14,15 +14,18 @@ public class UpdateApplicationStatusCommandHandler : IRequestHandler<UpdateAppli
 	private readonly IUnitOfWork _unitOfWork;
 	private readonly ILogger<UpdateApplicationStatusCommandHandler> _logger;
 	private readonly IMessageService _msg;
+	private readonly IAuditLogService _auditLogService;  
 
 	public UpdateApplicationStatusCommandHandler(
 		IUnitOfWork unitOfWork,
 		ILogger<UpdateApplicationStatusCommandHandler> logger,
-		IMessageService msg)
+		IMessageService msg,
+		IAuditLogService auditLogService)  
 	{
 		_unitOfWork = unitOfWork;
 		_logger = logger;
 		_msg = msg;
+		_auditLogService = auditLogService;
 	}
 
 	public async Task<UpdateApplicationStatusResponseDto> Handle(UpdateApplicationStatusCommand request, CancellationToken cancellationToken)
@@ -35,6 +38,8 @@ public class UpdateApplicationStatusCommandHandler : IRequestHandler<UpdateAppli
 		if (job == null || job.RecruiterId != request.RecruiterId)
 			_msg.Throw(ErrorCode.Forbidden, "NoPermissionToUpdateApplication");
 
+		var oldStatus = application.Status;  // ✅ Lưu giá trị cũ
+
 		application.Status = request.Status;
 		application.ReviewedAt = DateTime.UtcNow;
 
@@ -42,6 +47,18 @@ public class UpdateApplicationStatusCommandHandler : IRequestHandler<UpdateAppli
 			application.Notes = request.Notes;
 
 		_unitOfWork.JobApplications.Update(application);
+
+		// Ghi audit log
+		await _auditLogService.LogAsync(
+			AuditEntityType.Application,
+			AuditAction.UpdateStatus,
+			application.Id,
+			$"{job.Title} - {application.CV?.FileName}",
+			oldStatus.ToString(),
+			request.Status.ToString(),
+			request.Notes,
+			cancellationToken);
+
 		await _unitOfWork.SaveChangesAsync(cancellationToken);
 
 		_logger.LogInformation(_msg.Log("RecruiterUpdatedApplication"),
