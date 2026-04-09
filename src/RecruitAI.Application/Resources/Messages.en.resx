@@ -368,4 +368,144 @@
 	<data name="FileEmpty" xml:space="preserve">
 		<value>File cannot be empty</value>
 	</data>
+	<!-- ===== AUDIT LOG MESSAGES - ENGLISH ===== -->
+
+	<!-- Entity Types -->
+	<data name="AuditEntityTypeUser" xml:space="preserve">
+	<value>User</value>
+</data>
+	<data name="AuditEntityTypeCV" xml:space="preserve">
+	<value>CV</value>
+</data>
+	<data name="AuditEntityTypeJob" xml:space="preserve">
+	<value>Job</value>
+</data>
+	<data name="AuditEntityTypeApplication" xml:space="preserve">
+	<value>Application</value>
+</data>
+
+	<!-- Actions -->
+	<data name="AuditActionCreate" xml:space="preserve">
+		<value>Create</value>
+	</data>
+		<data name="AuditActionUpdate" xml:space="preserve">
+		<value>Update</value>
+	</data>
+		<data name="AuditActionDelete" xml:space="preserve">
+		<value>Delete</value>
+	</data>
+		<data name="AuditActionLogin" xml:space="preserve">
+		<value>Login</value>
+	</data>
+		<data name="AuditActionLogout" xml:space="preserve">
+		<value>Logout</value>
+	</data>
+		<data name="AuditActionChangePassword" xml:space="preserve">
+		<value>Change Password</value>
+	</data>
+		<data name="AuditActionChangeStatus" xml:space="preserve">
+		<value>Change Status</value>
+	</data>
+		<data name="AuditActionChangeRole" xml:space="preserve">
+		<value>Change Role</value>
+	</data>
+		<data name="AuditActionUpload" xml:space="preserve">
+		<value>Upload</value>
+	</data>
+		<data name="AuditActionAnalyze" xml:space="preserve">
+		<value>Analyze</value>
+	</data>
+		<data name="AuditActionCreateJob" xml:space="preserve">
+		<value>Create Job</value>
+	</data>
+		<data name="AuditActionUpdateJob" xml:space="preserve">
+		<value>Update Job</value>
+	</data>
+		<data name="AuditActionDeleteJob" xml:space="preserve">
+		<value>Delete Job</value>
+	</data>
+		<data name="AuditActionApply" xml:space="preserve">
+		<value>Apply</value>
+	</data>
+		<data name="AuditActionUpdateStatus" xml:space="preserve">
+		<value>Update Status</value>
+	</data>
+	<data name="AuditActionRefreshToken" xml:space="preserve">
+		<value>Refresh Token</value>
+	</data>
+
+	<!-- Validation -->
+	<data name="ValidationAuditLogNotFound" xml:space="preserve">
+		<value>Audit log not found</value>
+	</data>
+	<!-- ===== AUDIT LOG FIELD LABELS - ENGLISH ===== -->
+	<data name="AuditFieldEmail" xml:space="preserve">
+		<value>Email</value>
+	</data>
+		<data name="AuditFieldRole" xml:space="preserve">
+		<value>Role</value>
+	</data>
+		<data name="AuditFieldFullName" xml:space="preserve">
+		<value>Full Name</value>
+	</data>
+		<data name="AuditFieldPhoneNumber" xml:space="preserve">
+		<value>Phone Number</value>
+	</data>
+		<data name="AuditFieldGender" xml:space="preserve">
+		<value>Gender</value>
+	</data>
+		<data name="AuditFieldDateOfBirth" xml:space="preserve">
+		<value>Date of Birth</value>
+	</data>
+		<data name="AuditFieldStatus" xml:space="preserve">
+		<value>Status</value>
+	</data>
+		<data name="AuditFieldFileName" xml:space="preserve">
+		<value>File Name</value>
+	</data>
+		<data name="AuditFieldFileSize" xml:space="preserve">
+		<value>File Size</value>
+	</data>
+		<data name="AuditFieldTitle" xml:space="preserve">
+		<value>Title</value>
+	</data>
+		<data name="AuditFieldLocation" xml:space="preserve">
+		<value>Location</value>
+	</data>
+		<data name="AuditFieldSalaryMin" xml:space="preserve">
+		<value>Min Salary</value>
+	</data>
+		<data name="AuditFieldSalaryMax" xml:space="preserve">
+		<value>Max Salary</value>
+	</data>
+		<data name="AuditFieldDepartment" xml:space="preserve">
+		<value>Department</value>
+	</data>
+		<data name="AuditFieldEmploymentType" xml:space="preserve">
+		<value>Employment Type</value>
+	</data>
+		<data name="AuditFieldExperienceLevel" xml:space="preserve">
+		<value>Experience Level</value>
+	</data>
+		<data name="AuditFieldBenefits" xml:space="preserve">
+		<value>Benefits</value>
+	</data>
+		<data name="AuditFieldExpirationDate" xml:space="preserve">
+		<value>Expiration Date</value>
+	</data>
+		<data name="AuditFieldProvider" xml:space="preserve">
+		<value>Provider</value>
+	</data>
+		<data name="AuditFieldSkillsCount" xml:space="preserve">
+		<value>Skills Count</value>
+	</data>
+		<data name="AuditFieldJobId" xml:space="preserve">
+		<value>Job ID</value>
+	</data>
+		<data name="AuditFieldCvId" xml:space="preserve">
+		<value>CV ID</value>
+	</data>
+		<data name="AuditFieldMatchPercentage" xml:space="preserve">
+		<value>Match Percentage</value>
+	</data>
 </root>

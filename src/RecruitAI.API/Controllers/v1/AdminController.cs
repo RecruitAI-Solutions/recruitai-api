@@ -2,12 +2,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RecruitAI.Application.Commands.Admin;
+using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Application.DTOs.Requests.Admin;
 using RecruitAI.Application.DTOs.Responses.Admin;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Queries.Admin;
 using RecruitAI.Domain.Enums;
+using RecruitAI.Domain.Exceptions;
 using RecruitAI_API.Controllers.v1;
 
 namespace RecruitAI.API.Controllers.v1
@@ -215,6 +217,95 @@ namespace RecruitAI.API.Controllers.v1
 				return await _mediator.Send(query);
 			});
 		}
+		/// <summary>
+		/// Get audit logs list with pagination and filters
+		/// </summary>
+		[HttpGet("audit-logs")]
+		[Authorize(Policy = "ViewAnalytics")]
+		[ProducesResponseType(typeof(PaginationResponseDto<AuditLogResponseDto>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		public async Task<ActionResult<PaginationResponseDto<AuditLogResponseDto>>> GetAuditLogs(
+			[FromQuery] int page = 1,
+			[FromQuery] int pageSize = 20,
+			[FromQuery] string? entityType = null,
+			[FromQuery] string? action = null,
+			[FromQuery] Guid? userId = null,
+			[FromQuery] DateTime? fromDate = null,
+			[FromQuery] DateTime? toDate = null,
+			[FromQuery] string? keyword = null,
+			[FromQuery] string sortBy = "changedAt",
+			[FromQuery] string sortOrder = "desc")
+		{
+			return await ExecuteAsync<PaginationResponseDto<AuditLogResponseDto>>(async () =>
+			{
+				var query = new GetAuditLogsQuery
+				{
+					Page = page,
+					PageSize = pageSize,
+					EntityType = entityType,
+					Action = action,
+					UserId = userId,
+					FromDate = fromDate,
+					ToDate = toDate,
+					Keyword = keyword,
+					SortBy = sortBy,
+					SortOrder = sortOrder
+				};
 
+				return await _mediator.Send(query);
+			});
+		}
+
+		/// <summary>
+		/// Get audit log detail by id
+		/// </summary>
+		[HttpGet("audit-logs/{id}")]
+		[Authorize(Policy = "ViewAnalytics")]
+		[ProducesResponseType(typeof(AuditLogDetailResponseDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<ActionResult<AuditLogDetailResponseDto>> GetAuditLogDetail(Guid id)
+		{
+			return await ExecuteAsync<AuditLogDetailResponseDto>(async () =>
+			{
+				var query = new GetAuditLogDetailQuery { Id = id };
+				return await _mediator.Send(query);
+			});
+		}
+
+		/// <summary>
+		/// Get audit logs for a specific entity
+		/// </summary>
+		[HttpGet("audit-logs/entity/{entityType}/{entityId}")]
+		[Authorize(Policy = "ViewAnalytics")]
+		[ProducesResponseType(typeof(PaginationResponseDto<AuditLogResponseDto>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		public async Task<ActionResult<PaginationResponseDto<AuditLogResponseDto>>> GetEntityAuditLogs(
+			string entityType,
+			Guid entityId,
+			[FromQuery] int page = 1,
+			[FromQuery] int pageSize = 20)
+		{
+			return await ExecuteAsync<PaginationResponseDto<AuditLogResponseDto>>(async () =>
+			{
+				if (!Enum.TryParse<AuditEntityType>(entityType, true, out var parsedEntityType))
+				{
+					throw new BusinessException(ErrorCode.InvalidData, "Invalid entity type");
+				}
+
+				var query = new GetEntityAuditLogsQuery
+				{
+					EntityType = parsedEntityType,
+					EntityId = entityId,
+					Page = page,
+					PageSize = pageSize
+				};
+
+				return await _mediator.Send(query);
+			});
+		}
 	}
 }

@@ -4,6 +4,10 @@ using Microsoft.Extensions.Logging;
 using RecruitAI.Application.DTOs.Requests.AI;
 using RecruitAI.Application.DTOs.Responses.AI;
 using RecruitAI.Application.Interfaces.Services;
+using RecruitAI.Domain.Entities;
+using RecruitAI.Domain.Enums;
+using RecruitAI.Infrastructure.Services;
+using System.Text.Json;
 
 namespace RecruitAI.Application.Commands.AI
 {

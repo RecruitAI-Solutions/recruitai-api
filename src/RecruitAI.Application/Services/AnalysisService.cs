@@ -7,6 +7,7 @@ using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using RecruitAI.Domain.Interfaces.Services;
+using System.Text.Json;
 
 namespace RecruitAI.Application.Services
 {
@@ -15,18 +16,21 @@ namespace RecruitAI.Application.Services
 		private readonly IUnitOfWork _uow;
 		private readonly ILogger<AnalysisService> _logger;
 		private readonly IMessageService _msg;
-		private readonly IPdfService _pdfService; 
+		private readonly IPdfService _pdfService;
+		private readonly IAuditLogService _auditLogService;
 
 		public AnalysisService(
 			IUnitOfWork uow,
 			ILogger<AnalysisService> logger,
 			IMessageService msg,
-			IPdfService pdfService) 
+			IPdfService pdfService,
+			IAuditLogService auditLogService) 
 		{
 			_uow = uow;
 			_logger = logger;
 			_msg = msg;
-			_pdfService = pdfService;  
+			_pdfService = pdfService;
+			_auditLogService = auditLogService;
 		}
 
 		public async Task<AnalyzeCvResponseDto> AnalyzeCVAsync(AnalyzeCvRequestDto request, Guid userId)
@@ -82,7 +86,7 @@ namespace RecruitAI.Application.Services
 			foreach (var skill in allSkills)
 			{
 				var confidence = CalculateConfidence(cvText, skill);
-				if (confidence > 0.3) 
+				if (confidence > 0.3)
 				{
 					matchedSkills.Add(new SkillMatchDto
 					{
@@ -108,6 +112,23 @@ namespace RecruitAI.Application.Services
 			cv.Status = CVStatus.Analyzed;
 			cv.AnalyzedAt = DateTime.UtcNow;
 			await _uow.CVs.UpdateAsync(cv);
+
+			// Ghi audit log - bỏ cancellationToken
+			var analysisData = new Dictionary<string, string>
+			{
+				[_msg.Get("AuditFieldSkillsCount")] = matchedSkills.Count.ToString()
+			};
+
+			await _auditLogService.LogAsync(
+				AuditEntityType.CV,
+				AuditAction.Analyze,
+				cv.Id,
+				cv.FileName,
+				null,
+				JsonSerializer.Serialize(analysisData),
+				null,
+				default); 
+
 			await _uow.SaveChangesAsync();
 
 			return new AnalyzeCvResponseDto
