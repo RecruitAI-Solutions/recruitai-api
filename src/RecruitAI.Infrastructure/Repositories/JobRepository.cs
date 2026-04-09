@@ -1,11 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RecruitAI.Application.DTOs;
-using RecruitAI.Domain.Interfaces.Repositories;
-using RecruitAI.Domain.Entities;
-using RecruitAI.Domain.Interfaces;
-using RecruitAI.Infrastructure.Data;
 using RecruitAI.Domain.Common.Jobs;
 using RecruitAI.Domain.Common.Paginations;
+using RecruitAI.Domain.Entities;
+using RecruitAI.Domain.Enums;
+using RecruitAI.Domain.Interfaces;
+using RecruitAI.Domain.Interfaces.Repositories;
+using RecruitAI.Infrastructure.Data;
 
 namespace RecruitAI.Infrastructure.Repositories;
 
@@ -325,5 +326,48 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 			.ToListAsync();
 
 		_context.JobSkills.RemoveRange(skills);
+	}
+	public async Task<Dictionary<JobStatus, int>> CountJobsByStatusAsync(DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default)
+	{
+		var query = _dbSet.Where(j => !j.IsDeleted);
+
+		if (fromDate.HasValue)
+			query = query.Where(j => j.CreatedAt >= fromDate.Value);
+
+		if (toDate.HasValue)
+		{
+			var toDateEnd = toDate.Value.Date.AddDays(1).AddTicks(-1);
+			query = query.Where(j => j.CreatedAt <= toDateEnd);
+		}
+
+		var items = await query
+			.GroupBy(j => j.Status)
+			.Select(g => new { Status = g.Key, Count = g.Count() })
+			.ToListAsync(cancellationToken);
+
+		return items.ToDictionary(x => x.Status, x => x.Count);
+	}
+
+	public async Task<int[]> CountJobsByDayAsync(int days, DateTime? endDate = null, CancellationToken cancellationToken = default)
+	{
+		var end = endDate ?? DateTime.UtcNow;
+		var startDate = end.AddDays(-days + 1).Date;
+		var result = new int[days];
+
+		var items = await _dbSet
+			.Where(j => j.CreatedAt >= startDate && !j.IsDeleted)
+			.GroupBy(j => j.CreatedAt.Date)
+			.Select(g => new { Date = g.Key, Count = g.Count() })
+			.ToListAsync(cancellationToken);
+
+		var dict = items.ToDictionary(x => x.Date, x => x.Count);
+
+		for (int i = 0; i < days; i++)
+		{
+			var date = startDate.AddDays(i);
+			result[i] = dict.ContainsKey(date) ? dict[date] : 0;
+		}
+
+		return result;
 	}
 }

@@ -193,5 +193,28 @@ namespace RecruitAI.API.Controllers.v1
 				return await _mediator.Send(command);
 			});
 		}
+		/// <summary>
+		/// Get admin dashboard statistics
+		/// </summary>
+		[HttpGet("stats")]
+		[Authorize(Policy = "ViewAnalytics")]
+		[ProducesResponseType(typeof(StatsResponseDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		public async Task<ActionResult<StatsResponseDto>> GetStats(
+		[FromQuery] DateTime? fromDate = null,
+		[FromQuery] DateTime? toDate = null)
+		{
+			return await ExecuteAsync<StatsResponseDto>(async () =>
+			{
+				var query = new GetAdminStatsQuery
+				{
+					FromDate = fromDate,
+					ToDate = toDate
+				};
+				return await _mediator.Send(query);
+			});
+		}
+
 	}
 }

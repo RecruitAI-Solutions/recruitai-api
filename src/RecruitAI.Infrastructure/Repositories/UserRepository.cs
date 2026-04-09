@@ -211,5 +211,25 @@ namespace RecruitAI.Infrastructure.Repositories
 			_dbSet.Update(user);
 			return true;
 		}
+		public async Task<Dictionary<UserRole, int>> CountUsersByRoleAsync(DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default)
+		{
+			var query = _dbSet.AsQueryable();
+
+			if (fromDate.HasValue)
+				query = query.Where(u => u.CreatedAt >= fromDate.Value);
+
+			if (toDate.HasValue)
+			{
+				var toDateEnd = toDate.Value.Date.AddDays(1).AddTicks(-1);
+				query = query.Where(u => u.CreatedAt <= toDateEnd);
+			}
+
+			var items = await query
+				.GroupBy(u => u.Role)
+				.Select(g => new { Role = g.Key, Count = g.Count() })
+				.ToListAsync(cancellationToken);
+
+			return items.ToDictionary(x => x.Role, x => x.Count);
+		}
 	}
 }
