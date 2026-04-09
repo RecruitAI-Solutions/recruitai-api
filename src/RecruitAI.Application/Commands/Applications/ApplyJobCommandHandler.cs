@@ -18,17 +18,20 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 	private readonly IMatchingService _matchingService;
 	private readonly ILogger<ApplyJobCommandHandler> _logger;
 	private readonly IMessageService _msg;
+	private readonly IAuditLogService _auditLogService;  
 
 	public ApplyJobCommandHandler(
 		IUnitOfWork unitOfWork,
 		IMatchingService matchingService,
 		ILogger<ApplyJobCommandHandler> logger,
-		IMessageService msg)
+		IMessageService msg,
+		IAuditLogService auditLogService)  
 	{
 		_unitOfWork = unitOfWork;
 		_matchingService = matchingService;
 		_logger = logger;
 		_msg = msg;
+		_auditLogService = auditLogService;
 	}
 
 	public async Task<ApplyJobResponseDto> Handle(ApplyJobCommand request, CancellationToken cancellationToken)
@@ -109,6 +112,24 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 		// 7. Update job applications count
 		job.Applications++;
 		_unitOfWork.Jobs.Update(job);
+
+		// Ghi audit log
+		var applicationData = new Dictionary<string, string>
+		{
+			[_msg.Get("AuditFieldJobId")] = request.JobId.ToString(),
+			[_msg.Get("AuditFieldCvId")] = request.CvId.ToString(),
+			[_msg.Get("AuditFieldMatchPercentage")] = matchResult.MatchPercentage.ToString()
+		};
+
+		await _auditLogService.LogAsync(
+			AuditEntityType.Application,
+			AuditAction.Apply,
+			application.Id,
+			$"{job.Title} - {cv.FileName}",
+			null,
+			JsonSerializer.Serialize(applicationData),
+			null,
+			cancellationToken);
 
 		await _unitOfWork.SaveChangesAsync(cancellationToken);
 

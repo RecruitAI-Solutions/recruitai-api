@@ -21,7 +21,7 @@ public partial class RecruitDevContext : DbContext
 	public DbSet<JobSkill> JobSkills { get; set; }
 	public DbSet<JobApplication> JobApplications { get; set; }
 	public DbSet<JobApplicationMatch> JobApplicationMatches { get; set; }
-
+	public DbSet<AuditLog> AuditLogs { get; set; }
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -37,6 +37,7 @@ public partial class RecruitDevContext : DbContext
 		modelBuilder.ApplyConfiguration(new JobSkillConfiguration());
 		modelBuilder.ApplyConfiguration(new JobApplicationConfiguration());
 		modelBuilder.ApplyConfiguration(new JobApplicationMatchConfiguration());
+		modelBuilder.ApplyConfiguration(new AuditLogConfiguration());
 
 		OnModelCreatingPartial(modelBuilder);
 	}
