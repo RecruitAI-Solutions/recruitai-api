@@ -1,6 +1,7 @@
 ﻿using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Application.DTOs.Responses.AI;
 using RecruitAI.Application.Interfaces;
+using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
@@ -11,10 +12,12 @@ namespace RecruitAI.Application.Services
 	public class MatchingService : IMatchingService
 	{
 		private readonly IUnitOfWork _unitOfWork;
+		private readonly IAuditLogService _auditLogService;
 
-		public MatchingService(IUnitOfWork unitOfWork)
+		public MatchingService(IUnitOfWork unitOfWork, IAuditLogService auditLogService)
 		{
 			_unitOfWork = unitOfWork;
+			_auditLogService = auditLogService;
 		}
 
 		public async Task<MatchCvJobResponseDto> CalculateAndSaveMatchAsync(
@@ -124,8 +127,28 @@ namespace RecruitAI.Application.Services
 				existingMatch.MatchedSkillsJson = JsonSerializer.Serialize(matchedSkills);
 				existingMatch.MissingSkillsJson = JsonSerializer.Serialize(missingSkills);
 				existingMatch.CalculatedAt = DateTime.UtcNow;
-				_unitOfWork.JobApplicationMatches.Update(existingMatch); // Bỏ await, dùng Update
+				_unitOfWork.JobApplicationMatches.Update(existingMatch);
 			}
+
+			var matchData = new Dictionary<string, string>
+			{
+				["cvId"] = cvId.ToString(),
+				["jobId"] = jobId.ToString(),
+				["matchPercentage"] = matchPercentage.ToString(),
+				["matchedSkillsCount"] = matchedCount.ToString(),
+				["requiredSkillsCount"] = requiredCount.ToString()
+			};
+
+			await _auditLogService.LogAsync(
+				AuditEntityType.CV,
+				AuditAction.Match,
+				cvId.ToString(),
+				$"{cv.FileName} - {job.Title}",
+				null,
+				JsonSerializer.Serialize(matchData),
+				null,
+				cancellationToken);
+
 
 			await _unitOfWork.SaveChangesAsync(cancellationToken);
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RecruitAI.Application.DTOs.Requests.Skill;
 using RecruitAI.Application.DTOs.Responses.Skill;
+using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Entities;
@@ -10,6 +11,7 @@ using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using RecruitAI_API.Controllers.v1;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace RecruitAI.API.Controllers.v1
 {
@@ -19,21 +21,21 @@ namespace RecruitAI.API.Controllers.v1
 	public class SkillsController : BaseController
 	{
 		private readonly IUnitOfWork _uow;
+		private readonly IAuditLogService _auditLogService;
 
 		public SkillsController(
 			IMediator mediator,
 			ILogger<SkillsController> logger,
 			IMessageService messageService,
 			IUnitOfWork uow,
-			IWorkContext workContext)
+			IWorkContext workContext,
+			IAuditLogService auditLogService)
 			: base(mediator, logger, messageService, workContext)
 		{
 			_uow = uow;
+			_auditLogService = auditLogService;
 		}
 
-		/// <summary>
-		/// Lấy danh sách skills với phân trang và lọc
-		/// </summary>
 		[HttpGet]
 		[AllowAnonymous]
 		[ProducesResponseType(typeof(SkillSearchResponseDto), StatusCodes.Status200OK)]
@@ -66,9 +68,6 @@ namespace RecruitAI.API.Controllers.v1
 			});
 		}
 
-		/// <summary>
-		/// Lấy chi tiết skill theo ID
-		/// </summary>
 		[HttpGet("{id}")]
 		[AllowAnonymous]
 		[ProducesResponseType(typeof(SkillResponseDto), StatusCodes.Status200OK)]
@@ -88,9 +87,6 @@ namespace RecruitAI.API.Controllers.v1
 			});
 		}
 
-		/// <summary>
-		/// Lấy danh sách categories
-		/// </summary>
 		[HttpGet("categories")]
 		[AllowAnonymous]
 		[ProducesResponseType(typeof(IEnumerable<string>), StatusCodes.Status200OK)]
@@ -102,9 +98,6 @@ namespace RecruitAI.API.Controllers.v1
 			});
 		}
 
-		/// <summary>
-		/// Gợi ý skills cho autocomplete
-		/// </summary>
 		[HttpGet("suggest")]
 		[AllowAnonymous]
 		[ProducesResponseType(typeof(IEnumerable<SkillSuggestionDto>), StatusCodes.Status200OK)]
@@ -129,9 +122,6 @@ namespace RecruitAI.API.Controllers.v1
 			});
 		}
 
-		/// <summary>
-		/// Tạo skill mới (Admin only)
-		/// </summary>
 		[HttpPost]
 		[Authorize(Roles = "ADMIN")]
 		[ProducesResponseType(typeof(SkillResponseDto), StatusCodes.Status201Created)]
@@ -142,7 +132,6 @@ namespace RecruitAI.API.Controllers.v1
 		{
 			return await ExecuteAsync<SkillResponseDto>(async () =>
 			{
-				// Kiểm tra trùng tên
 				if (await _uow.Skills.ExistsByNameAsync(request.Name, cancellationToken))
 				{
 					throw new BusinessException(ErrorCode.SkillAlreadyExists,
@@ -159,15 +148,29 @@ namespace RecruitAI.API.Controllers.v1
 				};
 
 				await _uow.Skills.AddAsync(skill, cancellationToken);
+
+				var newValue = new Dictionary<string, string>
+				{
+					[_msg.Get("AuditFieldName")] = skill.Name,
+					[_msg.Get("AuditFieldCategory")] = skill.Category ?? ""
+				};
+
+				await _auditLogService.LogAsync(
+					AuditEntityType.Skill,
+					AuditAction.Create,
+					skill.Id.ToEntityIdWithPrefix("Skill"),
+					skill.Name,
+					null,
+					JsonSerializer.Serialize(newValue),
+					null,
+					cancellationToken);
+
 				await _uow.SaveChangesAsync(cancellationToken);
 
 				return MapToResponseDto(skill);
 			}, "SkillCreated");
 		}
 
-		/// <summary>
-		/// Cập nhật skill (Admin only)
-		/// </summary>
 		[HttpPut("{id}")]
 		[Authorize(Roles = "ADMIN")]
 		[ProducesResponseType(typeof(SkillResponseDto), StatusCodes.Status200OK)]
@@ -185,7 +188,14 @@ namespace RecruitAI.API.Controllers.v1
 				if (existing == null)
 					throw new BusinessException(ErrorCode.SkillNotFound, _msg.Business("SkillNotFound"));
 
-				// Kiểm tra trùng tên (nếu tên thay đổi)
+				var oldValue = new Dictionary<string, string>
+				{
+					[_msg.Get("AuditFieldName")] = existing.Name,
+					[_msg.Get("AuditFieldCategory")] = existing.Category ?? "",
+					[_msg.Get("AuditFieldAliases")] = existing.Aliases ?? "",
+					[_msg.Get("AuditFieldIsActive")] = existing.IsActive.ToString()
+				};
+
 				if (existing.Name != request.Name &&
 					await _uow.Skills.ExistsByNameAsync(request.Name, cancellationToken))
 				{
@@ -203,13 +213,28 @@ namespace RecruitAI.API.Controllers.v1
 				await _uow.Skills.UpdateAsync(existing, cancellationToken);
 				await _uow.SaveChangesAsync(cancellationToken);
 
+				var newValue = new Dictionary<string, string>
+				{
+					[_msg.Get("AuditFieldName")] = existing.Name,
+					[_msg.Get("AuditFieldCategory")] = existing.Category ?? "",
+					[_msg.Get("AuditFieldAliases")] = existing.Aliases ?? "",
+					[_msg.Get("AuditFieldIsActive")] = existing.IsActive.ToString()
+				};
+
+				await _auditLogService.LogAsync(
+					AuditEntityType.Skill,
+					AuditAction.Update,
+					existing.Id.ToEntityIdWithPrefix("Skill"),
+					existing.Name,
+					JsonSerializer.Serialize(oldValue),
+					JsonSerializer.Serialize(newValue),
+					null,
+					cancellationToken);
+
 				return MapToResponseDto(existing);
 			}, "SkillUpdated");
 		}
 
-		/// <summary>
-		/// Xóa skill (soft delete) - Admin only
-		/// </summary>
 		[HttpDelete("{id}")]
 		[Authorize(Roles = "ADMIN")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -220,6 +245,21 @@ namespace RecruitAI.API.Controllers.v1
 			{
 				if (!await _uow.Skills.ExistsAsync(id, cancellationToken))
 					throw new BusinessException(ErrorCode.SkillNotFound, _msg.Business("SkillNotFound"));
+
+				var skill = await _uow.Skills.GetByIdAsync(id, cancellationToken);
+
+				if (skill != null)
+				{
+					await _auditLogService.LogAsync(
+						AuditEntityType.Skill,
+						AuditAction.Delete,
+						skill.Id.ToEntityIdWithPrefix("Skill"),
+						skill.Name,
+						null,
+						null,
+						null,
+						cancellationToken);
+				}
 
 				await _uow.Skills.DeleteAsync(id, cancellationToken);
 				await _uow.SaveChangesAsync(cancellationToken);

@@ -7,7 +7,7 @@ namespace RecruitAI.Domain.Entities
 		public Guid Id { get; set; }
 		public AuditEntityType EntityType { get; set; }      // User, CV, Job, Application
 		public AuditAction Action { get; set; }           // Create, Update, Delete, Login, ChangeStatus, ChangeRole, Apply, Analyze, Upload
-		public Guid EntityId { get; set; }                          // ID của thực thể bị thay đổi
+		public string EntityId { get; set; }                          // ID của thực thể bị thay đổi
 		public string EntityName { get; set; } = string.Empty;      // Tên hiển thị (email, title, filename)
 		public string? OldValue { get; set; }                       // JSON giá trị cũ
 		public string? NewValue { get; set; }                       // JSON giá trị mới
