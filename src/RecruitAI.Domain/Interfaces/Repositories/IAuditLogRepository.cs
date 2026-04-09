@@ -21,7 +21,7 @@ namespace RecruitAI.Domain.Interfaces.Repositories
 
 		Task<PagedResult<AuditLog>> GetEntityAuditLogsAsync(
 			AuditEntityType entityType,
-			Guid entityId,
+			string entityId,
 			int page,
 			int pageSize,
 			CancellationToken cancellationToken = default);

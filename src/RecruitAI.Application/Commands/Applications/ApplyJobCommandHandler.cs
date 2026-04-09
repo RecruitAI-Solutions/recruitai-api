@@ -124,7 +124,7 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 		await _auditLogService.LogAsync(
 			AuditEntityType.Application,
 			AuditAction.Apply,
-			application.Id,
+			application.Id.ToEntityId(),
 			$"{job.Title} - {cv.FileName}",
 			null,
 			JsonSerializer.Serialize(applicationData),

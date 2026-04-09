@@ -128,7 +128,7 @@ namespace RecruitAI.Application.Services
 				await _auditLogService.LogAsync(
 					AuditEntityType.User,
 					AuditAction.Create,
-					user.Id,
+					user.Id.ToEntityId(),
 					user.Email,
 					null,
 					JsonSerializer.Serialize(new Dictionary<string, string>
@@ -247,7 +247,7 @@ namespace RecruitAI.Application.Services
 				await _auditLogService.LogAsync(
 					AuditEntityType.User,
 					AuditAction.Login,
-					user.Id,
+					user.Id.ToEntityId(),
 					user.Email,
 					null,
 					null,
@@ -315,7 +315,7 @@ namespace RecruitAI.Application.Services
 					await _auditLogService.LogAsync(
 						AuditEntityType.User,
 						AuditAction.Logout,
-						token.User.Id,
+						token.User.Id.ToEntityId(),
 						token.User.Email,
 						null,
 						null,
@@ -395,7 +395,7 @@ namespace RecruitAI.Application.Services
 				await _auditLogService.LogAsync(
 					AuditEntityType.User,
 					AuditAction.RefreshToken,
-					user.Id,
+					user.Id.ToEntityId(),
 					user.Email,
 					null,
 					null,
@@ -503,7 +503,7 @@ namespace RecruitAI.Application.Services
 				await _auditLogService.LogAsync(
 					AuditEntityType.User,
 					AuditAction.ChangePassword,
-					user.Id,
+					user.Id.ToEntityId(),
 					user.Email,
 					null,
 					null,
@@ -699,7 +699,7 @@ namespace RecruitAI.Application.Services
 				await _auditLogService.LogAsync(
 					AuditEntityType.User,
 					AuditAction.ChangePassword,
-					user.Id,
+					user.Id.ToEntityId(),
 					user.Email,
 					null,
 					null,
@@ -858,7 +858,7 @@ namespace RecruitAI.Application.Services
 				await _auditLogService.LogAsync(
 					AuditEntityType.User,
 					AuditAction.Update,
-					user.Id,
+					user.Id.ToEntityId(),
 					user.Email,
 					"EmailVerified: false",
 					"EmailVerified: true",
@@ -950,7 +950,7 @@ namespace RecruitAI.Application.Services
 						await _auditLogService.LogAsync(
 							AuditEntityType.User,
 							AuditAction.Create,
-							user.Id,
+							user.Id.ToEntityId(),
 							user.Email,
 							null,
 							JsonSerializer.Serialize(new Dictionary<string, string>
@@ -1012,7 +1012,7 @@ namespace RecruitAI.Application.Services
 				await _auditLogService.LogAsync(
 					AuditEntityType.User,
 					AuditAction.Login,
-					user.Id,
+					user.Id.ToEntityId(),
 					user.Email,
 					null,
 					null,

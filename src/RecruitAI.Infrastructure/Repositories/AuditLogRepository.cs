@@ -93,7 +93,7 @@ namespace RecruitAI.Infrastructure.Repositories
 
 		public async Task<PagedResult<AuditLog>> GetEntityAuditLogsAsync(
 			AuditEntityType entityType,
-			Guid entityId,
+			string entityId,
 			int page,
 			int pageSize,
 			CancellationToken cancellationToken = default)
