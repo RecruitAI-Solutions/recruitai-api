@@ -1,6 +1,7 @@
 ﻿using RecruitAI.Domain.Common.Jobs;
 using RecruitAI.Domain.Common.Paginations;
 using RecruitAI.Domain.Entities;
+using RecruitAI.Domain.Enums;
 
 namespace RecruitAI.Domain.Interfaces.Repositories;
 
@@ -23,4 +24,6 @@ public interface IJobRepository : IBaseRepository<Job>
 	Task AddJobSkillsAsync(Guid jobId, List<int> skillIds, bool isRequired = true);
 	Task UpdateJobSkillsAsync(Guid jobId, List<int> skillIds);
 	Task RemoveJobSkillsAsync(Guid jobId);
+	Task<Dictionary<JobStatus, int>> CountJobsByStatusAsync(DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default);
+	Task<int[]> CountJobsByDayAsync(int days, DateTime? endDate = null, CancellationToken cancellationToken = default);
 }

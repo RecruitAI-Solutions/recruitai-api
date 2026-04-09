@@ -2,7 +2,7 @@
 
 namespace RecruitAI.Domain.Interfaces.Repositories
 {
-	public interface ICVAnalysisRepository
+	public interface ICVAnalysisRepository: IBaseRepository<CVAnalysisResult>
 	{
 		Task<CVAnalysisResult?> GetByIdAsync(Guid id);
 		Task<IEnumerable<CVAnalysisResult>> GetByCVIdAsync(Guid cvId);
