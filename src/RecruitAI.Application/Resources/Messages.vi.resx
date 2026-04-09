@@ -269,6 +269,12 @@
 	<data name="ValidationTokenRequired" xml:space="preserve">
 		<value>Token là bắt buộc</value>
 	</data>
+	<data name="ValidationInvalidPhoneNumber" xml:space="preserve">
+		<value>Số điện thoại không hợp lệ</value>
+	</data>
+		<data name="ValidationDateOfBirthInFuture" xml:space="preserve">
+		<value>Ngày sinh không thể là ngày trong tương lai</value>
+	</data>
 
 	<!-- ===== SUCCESS MESSAGES - TIẾNG VIỆT ===== -->
 	<data name="SuccessRegistered" xml:space="preserve">
