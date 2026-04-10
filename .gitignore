@@ -52,8 +52,7 @@ docker-compose.override.yml
 *.env              # THÊM: tất cả file env
 
 # Uploaded files
-wwwroot/uploads/
-wwwroot/uploads/**/*
+wwwroot/uploads/**/*.*
 !wwwroot/uploads/.gitkeep
 
 # Ignore all PDF files

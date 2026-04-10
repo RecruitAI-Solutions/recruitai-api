@@ -11,6 +11,7 @@ using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Queries.Admin;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
+using RecruitAI.Infrastructure.Services;
 using RecruitAI_API.Controllers.v1;
 
 namespace RecruitAI.API.Controllers.v1
@@ -20,13 +21,17 @@ namespace RecruitAI.API.Controllers.v1
 	[Authorize(Policy = "AdminOnly")]
 	public class AdminController : BaseController
 	{
+		private readonly IAvatarCleanupService _avatarCleanupService;
+
 		public AdminController(
 			IMediator mediator,
 			ILogger<AdminController> logger,
 			IMessageService messageService,
-			IWorkContext workContext)
+			IWorkContext workContext,
+			IAvatarCleanupService avatarCleanupService)
 			: base(mediator, logger, messageService, workContext)
 		{
+			_avatarCleanupService = avatarCleanupService;
 		}
 
 		/// <summary>
@@ -307,6 +312,22 @@ namespace RecruitAI.API.Controllers.v1
 
 				return await _mediator.Send(query);
 			});
+		}
+
+		/// <summary>
+		/// Clean up orphaned avatar files (Admin only)
+		/// </summary>
+		[HttpPost("cleanup-avatars")]
+		[Authorize(Policy = "AdminOnly")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		public async Task<IActionResult> CleanupAvatars([FromQuery] bool force = false)
+		{
+			return await ExecuteAsync(async () =>
+			{
+				await _avatarCleanupService.CleanupOrphanedAvatarsAsync(force);
+			}, "Avatar cleanup completed");
 		}
 	}
 }

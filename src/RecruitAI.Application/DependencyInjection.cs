@@ -14,6 +14,7 @@ using RecruitAI.Application.Validators.CVs;
 using RecruitAI.Application.Validators.AI;
 using RecruitAI.Application.Validators.Emails;
 using RecruitAI.Application.Validators.Jobs;
+using RecruitAI.Infrastructure.BackgroundServices;
 
 namespace RecruitAI.Application
 {
@@ -42,6 +43,9 @@ namespace RecruitAI.Application
 			services.AddScoped<IEmailService, EmailService>();
 			services.AddScoped<IMatchingService, MatchingService>();
 			services.AddScoped<IAuditLogService, AuditLogService>();
+			services.AddScoped<IImageService, ImageService>();
+			services.AddScoped<IAvatarCleanupService, AvatarCleanupService>();
+			services.AddHostedService<AvatarCleanupBackgroundService>();
 
 			//Validators
 			services.AddScoped<RegisterRequestValidator>();
