@@ -2,9 +2,12 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.DTOs.Jobs;
+using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
+using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
+using System.Text.Json;
 
 namespace RecruitAI.Application.Commands.Jobs;
 
@@ -41,15 +44,21 @@ public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobDeta
 	private readonly IUnitOfWork _uow;
 	private readonly IMapper _mapper;
 	private readonly ILogger<CreateJobCommandHandler> _logger;
+	private readonly IAuditLogService _auditLogService;
+	private readonly IMessageService _msg;
 
 	public CreateJobCommandHandler(
 		IUnitOfWork uow,
 		IMapper mapper,
-		ILogger<CreateJobCommandHandler> logger)
+		ILogger<CreateJobCommandHandler> logger,
+		IAuditLogService auditLogService,
+		IMessageService messageService)  
 	{
 		_uow = uow;
 		_mapper = mapper;
 		_logger = logger;
+		_auditLogService = auditLogService;
+		_msg = messageService;
 	}
 
 	public async Task<JobDetailDto> Handle(CreateJobCommand request, CancellationToken cancellationToken)
@@ -80,6 +89,26 @@ public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobDeta
 			}
 
 			await _uow.Jobs.AddAsync(job, cancellationToken);
+
+			// Ghi audit log
+			var jobData = new Dictionary<string, string>
+			{
+				[_msg.Get("AuditFieldTitle")] = job.Title,
+				[_msg.Get("AuditFieldLocation")] = job.Location
+			};
+			if (job.SalaryMin.HasValue) jobData[_msg.Get("AuditFieldSalaryMin")] = job.SalaryMin.Value.ToString("N0");
+			if (job.SalaryMax.HasValue) jobData[_msg.Get("AuditFieldSalaryMax")] = job.SalaryMax.Value.ToString("N0");
+
+			await _auditLogService.LogAsync(
+				AuditEntityType.Job,
+				AuditAction.CreateJob,
+				job.Id.ToEntityId(),
+				job.Title,
+				null,
+				JsonSerializer.Serialize(jobData), 
+				null,
+				cancellationToken);
+
 			await _uow.SaveChangesAsync(cancellationToken);
 
 			// Job với Include JobSkills và Skill để mapping

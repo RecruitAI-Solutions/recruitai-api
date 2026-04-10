@@ -116,4 +116,56 @@ public class JobApplicationRepository : BaseRepository<JobApplication>, IJobAppl
 	{
 		return await _dbSet.CountAsync(x => x.JobId == jobId, cancellationToken);
 	}
+	public async Task<JobApplication?> GetDetailByIdAsync(Guid id, CancellationToken cancellationToken = default)
+	{
+		return await _dbSet
+			.Include(a => a.Job)
+			.Include(a => a.CV)
+				.ThenInclude(cv => cv.User)
+			.Include(a => a.Match)
+			.FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
+	}
+	public async Task<Dictionary<JobApplicationStatus, int>> CountApplicationsByStatusAsync(DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default)
+	{
+		var query = _dbSet.AsQueryable();
+
+		if (fromDate.HasValue)
+			query = query.Where(a => a.AppliedAt >= fromDate.Value);
+
+		if (toDate.HasValue)
+		{
+			var toDateEnd = toDate.Value.Date.AddDays(1).AddTicks(-1);
+			query = query.Where(a => a.AppliedAt <= toDateEnd);
+		}
+
+		var items = await query
+			.GroupBy(a => a.Status)
+			.Select(g => new { Status = g.Key, Count = g.Count() })
+			.ToListAsync(cancellationToken);
+
+		return items.ToDictionary(x => x.Status, x => x.Count);
+	}
+
+	public async Task<int[]> CountApplicationsByDayAsync(int days, DateTime? endDate = null, CancellationToken cancellationToken = default)
+	{
+		var end = endDate ?? DateTime.UtcNow;
+		var startDate = end.AddDays(-days + 1).Date;
+		var result = new int[days];
+
+		var items = await _dbSet
+			.Where(a => a.AppliedAt >= startDate)
+			.GroupBy(a => a.AppliedAt.Date)
+			.Select(g => new { Date = g.Key, Count = g.Count() })
+			.ToListAsync(cancellationToken);
+
+		var dict = items.ToDictionary(x => x.Date, x => x.Count);
+
+		for (int i = 0; i < days; i++)
+		{
+			var date = startDate.AddDays(i);
+			result[i] = dict.ContainsKey(date) ? dict[date] : 0;
+		}
+
+		return result;
+	}
 }

@@ -1,14 +1,15 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using RecruitAI.Application.DTOs.Requests;
-using RecruitAI.Application.DTOs.Responses;
+using RecruitAI.Application.Commands.Auths;
+using RecruitAI.Application.DTOs.Auths;
+using RecruitAI.Application.DTOs.Requests.Auths;
+using RecruitAI.Application.DTOs.Responses.Auths;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Authentication;
-using RecruitAI.Application.DTOs.Auths;
 
 namespace RecruitAI_API.Controllers.v1;
 
@@ -315,4 +316,37 @@ public class AuthController : BaseController
 	}
 
 	#endregion
+
+	/// <summary>
+	/// Update current user profile
+	/// </summary>
+	[HttpPut("profile")]
+	[Authorize(Policy = "EditProfile")]
+	[ProducesResponseType(typeof(UpdateProfileResponseDto), StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status400BadRequest)]
+	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<ActionResult<UpdateProfileResponseDto>> UpdateProfile(
+		[FromBody] UpdateProfileRequestDto request,
+		CancellationToken cancellationToken)
+	{
+		return await ExecuteAsync<UpdateProfileResponseDto>(async () =>
+		{
+			var userId = GetCurrentUserId();
+			if (userId == null)
+				throw new UnauthorizedAccessException();
+
+			var command = new UpdateProfileCommand
+			{
+				UserId = userId.Value,
+				FullName = request.FullName,
+				PhoneNumber = request.PhoneNumber,
+				Gender = request.Gender,
+				DateOfBirth = request.DateOfBirth,
+				AvatarUrl = request.AvatarUrl
+			};
+
+			return await _mediator.Send(command, cancellationToken);
+		});
+	}
 }

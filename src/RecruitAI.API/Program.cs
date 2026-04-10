@@ -9,6 +9,7 @@ using Microsoft.OpenApi.Models;
 using RecruitAI.API.Middleware;
 using RecruitAI.Application;
 using RecruitAI.Application.DTOs.Responses;
+using RecruitAI.Application.DTOs.Responses.Auths;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Validators.Auths;
@@ -18,6 +19,7 @@ using RecruitAI.Infrastructure.Data;
 using Serilog;
 using System.Globalization;
 using System.Text;
+using RecruitAI.Infrastructure.Data.SeedData;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -314,9 +316,16 @@ builder.Services.AddAuthorization(options =>
 
 	options.AddPolicy("ViewPermissions", policy =>
 		policy.RequireAssertion(context =>
-			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P013") || // ✅ P013 = Manage Roles
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P013") || 
 			context.User.IsInRole("ADMIN")
 		));
+
+	options.AddPolicy("EditProfile", policy =>  
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P005") ||
+			context.User.IsInRole("ADMIN")
+		));
+
 
 	// ===== CV PERMISSIONS =====
 	options.AddPolicy("UploadCV", policy =>
@@ -460,6 +469,15 @@ builder.Services.AddAuthorization(options =>
 			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P013") ||
 			context.User.IsInRole("ADMIN")
 		));
+
+	/// <summary>
+	/// Xem thống kê (P014)
+	/// </summary>
+	options.AddPolicy("ViewAnalytics", policy =>
+	policy.RequireAssertion(context =>
+		context.User.HasClaim(c => c.Type == "permission" && c.Value == "P014") ||
+		context.User.IsInRole("ADMIN")
+	));
 });
 
 // 4. RAZOR RUNTIME COMPILATION
@@ -533,6 +551,10 @@ using (var scope = app.Services.CreateScope())
 			{
 				logger.LogInformation(ProgramMessages.Log("NoPendingMigration"));
 			}
+
+			logger.LogInformation("Calling DatabaseSeeder.SeedAsync...");
+			await RecruitAI.Infrastructure.Data.SeedData.DatabaseSeeder.SeedAsync(db, logger);
+			logger.LogInformation("DatabaseSeeder.SeedAsync completed");
 
 			var tables = await db.Database.SqlQuery<string>($@"
 				SELECT TABLE_NAME 

@@ -11,6 +11,10 @@ using System.Reflection;
 using RecruitAI.Application.Behaviors;
 using RecruitAI.Application.Validators.Auths;
 using RecruitAI.Application.Validators.CVs;
+using RecruitAI.Application.Validators.AI;
+using RecruitAI.Application.Validators.Emails;
+using RecruitAI.Application.Validators.Jobs;
+using RecruitAI.Infrastructure.BackgroundServices;
 
 namespace RecruitAI.Application
 {
@@ -38,6 +42,10 @@ namespace RecruitAI.Application
 			services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 			services.AddScoped<IEmailService, EmailService>();
 			services.AddScoped<IMatchingService, MatchingService>();
+			services.AddScoped<IAuditLogService, AuditLogService>();
+			services.AddScoped<IImageService, ImageService>();
+			services.AddScoped<IAvatarCleanupService, AvatarCleanupService>();
+			services.AddHostedService<AvatarCleanupBackgroundService>();
 
 			//Validators
 			services.AddScoped<RegisterRequestValidator>();
@@ -45,6 +53,12 @@ namespace RecruitAI.Application
 			services.AddScoped<ForgotPasswordRequestValidator>();
 			services.AddScoped<ResetPasswordRequestValidator>();
 			services.AddScoped<UploadCVCommandValidator>();
+			services.AddScoped<AnalyzeCvRequestValidator>();
+			services.AddScoped<ChangePasswordRequestValidator>();
+			services.AddScoped<UpdateProfileCommandValidator>();
+			services.AddScoped<VerifyEmailRequestValidator>();
+			services.AddScoped<ApplyJobCommandValidator>();
+			services.AddScoped<UpdateApplicationStatusValidator>();
 
 			services.AddLocalization();
 

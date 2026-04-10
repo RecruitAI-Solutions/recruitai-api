@@ -105,7 +105,8 @@ namespace RecruitAI.Application.Services
 			if (string.IsNullOrWhiteSpace(phoneNumber))
 				return false;
 
-			// Regex đơn giản cho số điện thoại VN (10 số, bắt đầu bằng 0)
+			// Regex cho số điện thoại VN: bắt đầu bằng 0 hoặc +84, sau đó là 9-10 số
+			// Ví dụ: 0901234567, 0912345678, 0987654321, +84901234567
 			return System.Text.RegularExpressions.Regex.IsMatch(phoneNumber, @"^(0|\+84)[3-9][0-9]{8}$");
 		}
 	}

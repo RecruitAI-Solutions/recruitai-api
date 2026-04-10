@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RecruitAI.Domain.Interfaces.Repositories;
+using RecruitAI.Domain.Common.Paginations;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
+using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Infrastructure.Data;
 
 namespace RecruitAI.Infrastructure.Repositories
@@ -127,6 +128,108 @@ namespace RecruitAI.Infrastructure.Repositories
 			}
 
 			return await query.FirstOrDefaultAsync(cancellationToken);
+		}
+
+		public async Task<PagedResult<User>> GetUsersAsync(
+			int page,
+			int pageSize,
+			UserRole? role,
+			UserStatus? status,
+			string? keyword,
+			string sortBy,
+			string sortOrder,
+			CancellationToken cancellationToken = default)
+		{
+			var query = _dbSet.AsQueryable();
+
+			// Filter by role
+			if (role.HasValue)
+			{
+				query = query.Where(u => u.Role == role.Value);
+			}
+
+			// Filter by status
+			if (status.HasValue)
+			{
+				query = query.Where(u => u.Status == status.Value);
+			}
+
+			// Search by keyword (email, fullname, phone)
+			if (!string.IsNullOrWhiteSpace(keyword))
+			{
+				query = query.Where(u =>
+					u.Email.Contains(keyword) ||
+					u.FullName.Contains(keyword) ||
+					(u.PhoneNumber != null && u.PhoneNumber.Contains(keyword)));
+			}
+
+			var total = await query.CountAsync(cancellationToken);
+
+			// Sorting
+			query = sortBy?.ToLower() switch
+			{
+				"fullname" => sortOrder == "asc"
+					? query.OrderBy(u => u.FullName)
+					: query.OrderByDescending(u => u.FullName),
+				"email" => sortOrder == "asc"
+					? query.OrderBy(u => u.Email)
+					: query.OrderByDescending(u => u.Email),
+				"status" => sortOrder == "asc"
+					? query.OrderBy(u => u.Status)
+					: query.OrderByDescending(u => u.Status),
+				_ => sortOrder == "asc"
+					? query.OrderBy(u => u.CreatedAt)
+					: query.OrderByDescending(u => u.CreatedAt)
+			};
+
+			var items = await query
+				.Skip((page - 1) * pageSize)
+				.Take(pageSize)
+				.ToListAsync(cancellationToken);
+
+			return new PagedResult<User>
+			{
+				Items = items,
+				Total = total
+			};
+		}
+
+		public async Task<User?> GetDetailByIdAsync(Guid id, CancellationToken cancellationToken = default)
+		{
+			return await _dbSet
+				.FirstOrDefaultAsync(u => u.Id == id, cancellationToken);
+		}
+
+		public async Task<bool> SoftDeleteAsync(Guid userId, CancellationToken cancellationToken = default)
+		{
+			var user = await _dbSet.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+			if (user == null) return false;
+
+			// Soft delete - mark as deleted
+			user.Status = UserStatus.Banned;
+			user.UpdatedAt = DateTime.UtcNow;
+			_dbSet.Update(user);
+			return true;
+		}
+		public async Task<Dictionary<UserRole, int>> CountUsersByRoleAsync(DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default)
+		{
+			var query = _dbSet.AsQueryable();
+
+			if (fromDate.HasValue)
+				query = query.Where(u => u.CreatedAt >= fromDate.Value);
+
+			if (toDate.HasValue)
+			{
+				var toDateEnd = toDate.Value.Date.AddDays(1).AddTicks(-1);
+				query = query.Where(u => u.CreatedAt <= toDateEnd);
+			}
+
+			var items = await query
+				.GroupBy(u => u.Role)
+				.Select(g => new { Role = g.Key, Count = g.Count() })
+				.ToListAsync(cancellationToken);
+
+			return items.ToDictionary(x => x.Role, x => x.Count);
 		}
 	}
 }

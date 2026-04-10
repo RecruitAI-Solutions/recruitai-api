@@ -2,14 +2,16 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using RecruitAI.Application.DTOs.Responses.Auths;
+using RecruitAI.Application.Helpers;
+using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using RecruitAI.Domain.Interfaces;
-using RecruitAI.Application.DTOs.Responses;
-using RecruitAI.Application.Interfaces;
 using RecruitAI.Domain.Interfaces.Services;
+using System.Text.Json;
 
 namespace RecruitAI.Application.Commands.CVs;
 
@@ -29,19 +31,22 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 	private readonly ILogger<UploadCVCommandHandler> _logger;
 	private readonly IMessageService _msg;
 	private readonly IPdfService _pdfService;
+	private readonly IAuditLogService _auditLogService;  
 
 	public UploadCVCommandHandler(
 		IUnitOfWork uow,
 		IWebHostEnvironment env,
 		ILogger<UploadCVCommandHandler> logger,
 		IMessageService messageService,
-		IPdfService pdfService)
+		IPdfService pdfService,
+		IAuditLogService auditLogService)  
 	{
 		_uow = uow;
 		_env = env;
 		_logger = logger;
 		_msg = messageService;
 		_pdfService = pdfService;
+		_auditLogService = auditLogService;
 	}
 
 	public async Task<UploadCVResponseDto> Handle(UploadCVCommand request, CancellationToken cancellationToken)
@@ -53,21 +58,21 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 			{
 				throw new BusinessException(
 					ErrorCode.InvalidFile,
-					_msg.Business("EmptyFile")); 
+					_msg.Business("EmptyFile"));
 			}
 
 			if (request.FileSize > 10 * 1024 * 1024) // 10MB
 			{
 				throw new BusinessException(
 					ErrorCode.FileTooLarge,
-					_msg.Business("FileTooLarge"));  
+					_msg.Business("FileTooLarge"));
 			}
 
 			if (!request.ContentType.Equals("application/pdf", StringComparison.OrdinalIgnoreCase))
 			{
 				throw new BusinessException(
 					ErrorCode.InvalidFileType,
-					_msg.Business("OnlyPdfAllowed"));  
+					_msg.Business("OnlyPdfAllowed"));
 			}
 
 			var cvId = Guid.NewGuid();
@@ -80,7 +85,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 			{
 				throw new BusinessException(
 					ErrorCode.ConfigurationError,
-					"Web root path not configured");  
+					"Web root path not configured");
 			}
 
 			var fileName = $"{cvId}_{Guid.NewGuid()}.pdf";
@@ -107,7 +112,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 				_logger.LogError(ex, "Failed to save file to disk");
 				throw new BusinessException(
 					ErrorCode.FileUploadFailed,
-					_msg.Business("FileUploadFailed"));  
+					_msg.Business("FileUploadFailed"));
 			}
 
 			// Lưu database
@@ -127,7 +132,25 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 			try
 			{
 				await _uow.CVs.AddAsync(cv);
-				await _uow.SaveChangesAsync(cancellationToken);
+
+				// Ghi audit log sau khi lưu thành công
+				var cvData = new Dictionary<string, string>
+				{
+					[_msg.Get("AuditFieldFileName")] = cv.FileName,
+					[_msg.Get("AuditFieldFileSize")] = cv.FileSize.ToString()
+				};
+
+				await _auditLogService.LogAsync(
+					AuditEntityType.CV,
+					AuditAction.Upload,
+					cv.Id.ToEntityId(),
+					cv.FileName,
+					null,
+					JsonSerializer.Serialize(cvData),
+					null,
+					cancellationToken);
+
+				await _uow.SaveChangesAsync(cancellationToken);				
 			}
 			catch (Exception ex)
 			{
@@ -141,9 +164,8 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 
 				throw new BusinessException(
 					ErrorCode.DatabaseError,
-					_msg.Business("DatabaseError"));  
+					_msg.Business("DatabaseError"));
 			}
-
 
 			try
 			{
@@ -151,7 +173,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 				cv.ExtractedText = extractedText;
 				cv.Status = CVStatus.Completed;
 
-				cv.ProcessedAt = DateTime.UtcNow;  
+				cv.ProcessedAt = DateTime.UtcNow;
 				cv.ErrorMessage = null;
 
 				await _uow.SaveChangesAsync(cancellationToken);
@@ -189,7 +211,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 			_logger.LogError(ex, "Unexpected error uploading CV for user {UserId}", request.UserId);
 			throw new BusinessException(
 				ErrorCode.InternalServerError,
-				_msg.Business("InternalServerError"));  
+				_msg.Business("InternalServerError"));
 		}
 	}
 
@@ -201,7 +223,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 		{
 			throw new BusinessException(
 				ErrorCode.ConfigurationError,
-				"Web root path not configured");  
+				"Web root path not configured");
 		}
 
 		return Path.Combine(

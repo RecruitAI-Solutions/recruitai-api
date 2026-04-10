@@ -1,7 +1,9 @@
 ﻿// RecruitAI.Application/Commands/CVs/DeleteCVCommand.cs
 using MediatR;
 using Microsoft.Extensions.Logging;
+using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
+using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 
@@ -17,11 +19,16 @@ public class DeleteCVCommandHandler : IRequestHandler<DeleteCVCommand>
 {
 	private readonly IUnitOfWork _uow;
 	private readonly ILogger<DeleteCVCommandHandler> _logger;
+	private readonly IAuditLogService _auditLogService;  
 
-	public DeleteCVCommandHandler(IUnitOfWork uow, ILogger<DeleteCVCommandHandler> logger)
+	public DeleteCVCommandHandler(
+		IUnitOfWork uow,
+		ILogger<DeleteCVCommandHandler> logger,
+		IAuditLogService auditLogService) 
 	{
 		_uow = uow;
 		_logger = logger;
+		_auditLogService = auditLogService;
 	}
 
 	public async Task Handle(DeleteCVCommand request, CancellationToken cancellationToken)
@@ -41,6 +48,17 @@ public class DeleteCVCommandHandler : IRequestHandler<DeleteCVCommand>
 			{
 				throw new BusinessException(ErrorCode.Forbidden, "Bạn không có quyền xóa CV này");
 			}
+
+			// Ghi audit log trước khi xóa
+			await _auditLogService.LogAsync(
+				AuditEntityType.CV,
+				AuditAction.Delete,
+				cv.Id.ToEntityId(),
+				cv.FileName,
+				null,
+				null,
+				null,
+				cancellationToken);
 
 			// Soft delete
 			cv.IsDeleted = true;

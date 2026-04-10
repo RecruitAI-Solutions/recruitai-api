@@ -1,5 +1,5 @@
 ﻿using FluentValidation;
-using RecruitAI.Application.Commands.Jobs;
+using RecruitAI.Application.Commands.Applications;
 
 namespace RecruitAI.Application.Validators.Jobs;
 

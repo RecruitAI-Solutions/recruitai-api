@@ -1,9 +1,10 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
+using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
+using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
-using RecruitAI.Domain.Interfaces;
 
 namespace RecruitAI.Application.Commands.Jobs;
 
@@ -17,13 +18,16 @@ public class DeleteJobCommandHandler : IRequestHandler<DeleteJobCommand>
 {
 	private readonly IUnitOfWork _uow;
 	private readonly ILogger<DeleteJobCommandHandler> _logger;
+	private readonly IAuditLogService _auditLogService;  
 
 	public DeleteJobCommandHandler(
 		IUnitOfWork uow,
-		ILogger<DeleteJobCommandHandler> logger)
+		ILogger<DeleteJobCommandHandler> logger,
+		IAuditLogService auditLogService) 
 	{
 		_uow = uow;
 		_logger = logger;
+		_auditLogService = auditLogService;
 	}
 
 	public async Task Handle(DeleteJobCommand request, CancellationToken cancellationToken)
@@ -49,6 +53,17 @@ public class DeleteJobCommandHandler : IRequestHandler<DeleteJobCommand>
 					ErrorCode.Forbidden,
 					"Bạn không có quyền xóa công việc này");
 			}
+
+			// Ghi audit log trước khi xóa
+			await _auditLogService.LogAsync(
+				AuditEntityType.Job,
+				AuditAction.DeleteJob,
+				job.Id.ToEntityId(),
+				job.Title,
+				null,
+				null,
+				null,
+				cancellationToken);
 
 			// Soft delete
 			job.MarkAsDeleted();

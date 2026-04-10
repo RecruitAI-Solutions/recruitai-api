@@ -12,6 +12,7 @@ using RecruitAI.Infrastructure.Data;
 using RecruitAI.Infrastructure.Repositories;
 using RecruitAI.Infrastructure.Services;
 using RecruitAI.Infrastructure.Services.Geocoding;
+using RecruitAI.Infrastructure.Settings;
 
 
 namespace RecruitAI.Infrastructure
@@ -38,6 +39,8 @@ namespace RecruitAI.Infrastructure
 			services.AddScoped<IAnalysisService, AnalysisService>();
 			services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
 			services.AddScoped<IJobApplicationMatchRepository, JobApplicationMatchRepository>();
+			services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+
 
 			services.AddScoped<IWorkContext, WorkContext>();
 			services.AddScoped<IEmailTemplateService, EmailTemplateService>();
@@ -65,6 +68,9 @@ namespace RecruitAI.Infrastructure
 			//Register other infrastructure services
 			services.AddScoped<IJwtService, JwtService>();
 			services.AddScoped<IPdfService, PdfService>();
+
+			//Settings
+			services.AddSingleton<IStorageSettings, StorageSettings>();
 
 			return services;
 		}

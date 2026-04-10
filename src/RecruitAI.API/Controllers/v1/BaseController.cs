@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using RecruitAI.Application.DTOs.Responses;
+using RecruitAI.Application.DTOs.Responses.Auths;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
@@ -135,6 +135,7 @@ public abstract class BaseController : ControllerBase
 			if (!string.IsNullOrEmpty(successMessage))
 			{
 				_logger.LogInformation(_msg.Log(successMessage));
+				return Ok(new { message = successMessage });
 			}
 
 			return Ok();
