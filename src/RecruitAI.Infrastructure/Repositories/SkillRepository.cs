@@ -147,6 +147,10 @@ namespace RecruitAI.Infrastructure.Repositories
 				.OrderBy(s => s.Name)
 				.ToListAsync();
 		}
-
+		public async Task<Skill?> GetByNameAsync(string name, CancellationToken cancellationToken = default)
+		{
+			return await _dbSet
+				.FirstOrDefaultAsync(s => s.Name == name, cancellationToken);
+		}
 	}
 }

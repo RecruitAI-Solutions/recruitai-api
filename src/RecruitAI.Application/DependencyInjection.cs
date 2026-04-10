@@ -15,6 +15,7 @@ using RecruitAI.Application.Validators.AI;
 using RecruitAI.Application.Validators.Emails;
 using RecruitAI.Application.Validators.Jobs;
 using RecruitAI.Infrastructure.BackgroundServices;
+using RecruitAI.Infrastructure.Services.AI;
 
 namespace RecruitAI.Application
 {
@@ -46,6 +47,7 @@ namespace RecruitAI.Application
 			services.AddScoped<IImageService, ImageService>();
 			services.AddScoped<IAvatarCleanupService, AvatarCleanupService>();
 			services.AddHostedService<AvatarCleanupBackgroundService>();
+			services.AddScoped<IAIExtractionService, DeepSeekExtractionService>();
 
 			//Validators
 			services.AddScoped<RegisterRequestValidator>();
