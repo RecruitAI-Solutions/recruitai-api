@@ -16,6 +16,8 @@ namespace RecruitAI.Domain.Interfaces.Repositories
 		Task<bool> ExistsAsync(int id, CancellationToken cancellationToken = default);
 		Task<bool> ExistsByNameAsync(string name, CancellationToken cancellationToken = default);
 
+		Task<Skill?> GetByNameAsync(string name, CancellationToken cancellationToken = default);
+
 		// Tìm kiếm
 		Task<(IEnumerable<Skill> Items, int TotalCount)> SearchAsync(
 			string? keyword = null,
