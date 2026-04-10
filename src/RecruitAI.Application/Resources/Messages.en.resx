@@ -523,4 +523,19 @@
 	<data name="AuditActionMatch" xml:space="preserve">
 		<value>Match CV</value>
 	</data>
+	<data name="BusinessInvalidImageFormat" xml:space="preserve">
+		<value>Invalid file format. Only JPG, PNG, GIF, WEBP are allowed</value>
+	</data>
+		<data name="BusinessNoAvatarToDelete" xml:space="preserve">
+		<value>You don't have an avatar to delete</value>
+	</data>
+		<data name="SuccessAvatarDeleted" xml:space="preserve">
+		<value>Avatar deleted successfully</value>
+	</data>
+		<data name="AuditFieldAvatarUrl" xml:space="preserve">
+		<value>Avatar URL</value>
+	</data>
+		<data name="AuditFieldThumbnailUrl" xml:space="preserve">
+		<value>Thumbnail URL</value>
+	</data>
 </root>

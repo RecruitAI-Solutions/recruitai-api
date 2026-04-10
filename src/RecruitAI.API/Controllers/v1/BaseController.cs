@@ -135,6 +135,7 @@ public abstract class BaseController : ControllerBase
 			if (!string.IsNullOrEmpty(successMessage))
 			{
 				_logger.LogInformation(_msg.Log(successMessage));
+				return Ok(new { message = successMessage });
 			}
 
 			return Ok();

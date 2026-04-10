@@ -316,9 +316,16 @@ builder.Services.AddAuthorization(options =>
 
 	options.AddPolicy("ViewPermissions", policy =>
 		policy.RequireAssertion(context =>
-			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P013") || // ✅ P013 = Manage Roles
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P013") || 
 			context.User.IsInRole("ADMIN")
 		));
+
+	options.AddPolicy("EditProfile", policy =>  
+		policy.RequireAssertion(context =>
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P005") ||
+			context.User.IsInRole("ADMIN")
+		));
+
 
 	// ===== CV PERMISSIONS =====
 	options.AddPolicy("UploadCV", policy =>
