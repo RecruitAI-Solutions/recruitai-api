@@ -21,5 +21,7 @@ namespace RecruitAI.Application.Interfaces
 		Task CommitTransactionAsync(CancellationToken cancellationToken = default);
 		Task RollbackTransactionAsync(CancellationToken cancellationToken = default);
 		bool HasActiveTransaction { get; }
+
+		Task<int> GetMaxSkillIdAsync(CancellationToken cancellationToken = default);
 	}
 }

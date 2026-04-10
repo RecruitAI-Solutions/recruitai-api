@@ -61,6 +61,8 @@ builder.Services.AddControllers(options =>
 	options.Filters.AddService<ValidationFilter>();
 });
 
+builder.Services.AddMemoryCache();
+
 // 3.2 API Explorer & Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

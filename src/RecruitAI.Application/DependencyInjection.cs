@@ -48,6 +48,8 @@ namespace RecruitAI.Application
 			services.AddScoped<IAvatarCleanupService, AvatarCleanupService>();
 			services.AddHostedService<AvatarCleanupBackgroundService>();
 			services.AddScoped<IAIExtractionService, DeepSeekExtractionService>();
+			services.AddScoped<IAIMatchingService, DeepSeekMatchingService>();
+			services.AddScoped<ISkillService, SkillService>();
 
 			//Validators
 			services.AddScoped<RegisterRequestValidator>();
