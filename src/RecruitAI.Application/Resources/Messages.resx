@@ -524,4 +524,19 @@
 	<data name="AuditActionMatch" xml:space="preserve">
 		<value>Match CV</value>
 	</data>
+	<data name="BusinessInvalidImageFormat" xml:space="preserve">
+		<value>File không hợp lệ. Chỉ chấp nhận JPG, PNG, GIF, WEBP</value>
+	</data>
+		<data name="BusinessNoAvatarToDelete" xml:space="preserve">
+		<value>Bạn chưa có ảnh đại diện để xóa</value>
+	</data>
+		<data name="SuccessAvatarDeleted" xml:space="preserve">
+		<value>Đã xóa ảnh đại diện</value>
+	</data>
+		<data name="AuditFieldAvatarUrl" xml:space="preserve">
+		<value>Ảnh đại diện</value>
+	</data>
+		<data name="AuditFieldThumbnailUrl" xml:space="preserve">
+		<value>Ảnh thu nhỏ</value>
+	</data>
 </root>
