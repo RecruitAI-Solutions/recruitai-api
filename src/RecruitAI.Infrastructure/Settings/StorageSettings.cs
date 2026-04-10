@@ -17,5 +17,6 @@ namespace RecruitAI.Infrastructure.Settings
 		public string[] AllowedExtensions => _configuration.GetSection("Storage:AllowedExtensions").Get<string[]>()
 			?? new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
 		public int CleanupDays => _configuration.GetValue<int>("Storage:CleanupDays", 30);
+		public string DefaultAvatarUrl => _configuration["Storage:DefaultAvatarUrl"] ?? "/imgs/default_avatar/default.png";
 	}
 }

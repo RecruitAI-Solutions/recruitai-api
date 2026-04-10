@@ -18,5 +18,8 @@ namespace RecruitAI.Application.DTOs.Auths
 		public DateTime CreatedAt { get; set; }
 		public DateTime? LastLoginAt { get; set; }
 		public string? AvatarUrl { get; set; }
+		public string DisplayAvatarUrl => string.IsNullOrEmpty(AvatarUrl)
+		? "/imgs/default_avatar/default.png"
+		: AvatarUrl;
 	}
 }

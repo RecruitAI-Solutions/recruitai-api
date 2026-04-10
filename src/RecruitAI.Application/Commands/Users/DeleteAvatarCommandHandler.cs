@@ -16,6 +16,7 @@ namespace RecruitAI.Application.Commands.Users
 		private readonly ILogger<DeleteAvatarCommandHandler> _logger;
 		private readonly IAuditLogService _auditLogService;
 		private readonly IMessageService _msg;
+		public const string DefaultAvatarUrl = "/imgs/default_avatar/default.png";
 
 		public DeleteAvatarCommandHandler(
 			IUnitOfWork unitOfWork,
@@ -44,7 +45,7 @@ namespace RecruitAI.Application.Commands.Users
 				return new DeleteAvatarResponseDto
 				{
 					Message = _msg.Business("NoAvatarToDelete"),
-					AvatarUrl = "/uploads/avatars/default.png"
+					AvatarUrl = DeleteAvatarCommandHandler.DefaultAvatarUrl
 				};
 			}
 
@@ -72,7 +73,7 @@ namespace RecruitAI.Application.Commands.Users
 			return new DeleteAvatarResponseDto
 			{
 				Message = _msg.Success("AvatarDeleted"),
-				AvatarUrl = "/uploads/avatars/default.png"
+				AvatarUrl = DeleteAvatarCommandHandler.DefaultAvatarUrl
 			};
 		}
 	}
