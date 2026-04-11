@@ -168,4 +168,11 @@ public class JobApplicationRepository : BaseRepository<JobApplication>, IJobAppl
 
 		return result;
 	}
+
+	public async Task<int> CountByJobIdAsync(Guid jobId, CancellationToken cancellationToken = default)
+	{
+		return await _context.JobApplications
+			.Where(a => a.JobId == jobId)
+			.CountAsync(cancellationToken);
+	}
 }

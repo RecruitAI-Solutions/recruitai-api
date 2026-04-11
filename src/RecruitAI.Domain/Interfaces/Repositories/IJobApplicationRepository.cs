@@ -16,4 +16,5 @@ public interface IJobApplicationRepository : IBaseRepository<JobApplication>
 	Task<JobApplication?> GetDetailByIdAsync(Guid id, CancellationToken cancellationToken = default);
 	Task<Dictionary<JobApplicationStatus, int>> CountApplicationsByStatusAsync(DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default);
 	Task<int[]> CountApplicationsByDayAsync(int days, DateTime? endDate = null, CancellationToken cancellationToken = default);
+	Task<int> CountByJobIdAsync(Guid jobId, CancellationToken cancellationToken = default);
 }
