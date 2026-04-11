@@ -1,4 +1,5 @@
-﻿using RecruitAI.Application.DTOs.Common;
+﻿using RecruitAI.Application.DTOs.AI;
+using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Domain.Enums;
 
 namespace RecruitAI.Application.DTOs.Responses.Applications;
@@ -17,4 +18,5 @@ public class ApplyJobResponseDto
 	public List<SkillMatchDetailDto> MissingSkills { get; set; } = new();
 	public JobApplicationStatus Status { get; set; }
 	public DateTime AppliedAt { get; set; }
+	public AIRecommendationDto? AiAnalysis { get; set; }
 }
