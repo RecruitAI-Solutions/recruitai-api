@@ -50,6 +50,7 @@ namespace RecruitAI.Application
 			services.AddScoped<IAIExtractionService, DeepSeekExtractionService>();
 			services.AddScoped<IAIMatchingService, DeepSeekMatchingService>();
 			services.AddScoped<ISkillService, SkillService>();
+			services.AddScoped<IAIRecommendationService, DeepSeekRecommendationService>();
 
 			//Validators
 			services.AddScoped<RegisterRequestValidator>();
