@@ -7,6 +7,13 @@
 		<RootNamespace>RecruitAI_API</RootNamespace>
 		<EnableHotReload>true</EnableHotReload>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <Compile Remove="Logs\**" />
+	  <Content Remove="Logs\**" />
+	  <EmbeddedResource Remove="Logs\**" />
+	  <None Remove="Logs\**" />
+	</ItemGroup>
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
 	</ItemGroup>
@@ -45,7 +52,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Logs\" />
 		<Folder Include="wwwroot\imgs\default_avatar\" />
 	</ItemGroup>
 
