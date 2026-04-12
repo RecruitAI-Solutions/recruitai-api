@@ -17,5 +17,10 @@ public class JobListDto
 	public DateTime ExpirationDate { get; set; }
 	public bool IsActive { get; set; }
 
+	// Enum friendly names
+	public string CurrencyName { get; set; } = string.Empty;
+	public string EmploymentTypeName { get; set; } = string.Empty;
+	public string ExperienceLevelName { get; set; } = string.Empty;
+
 	public List<string> SkillNames { get; set; } = new();
 }

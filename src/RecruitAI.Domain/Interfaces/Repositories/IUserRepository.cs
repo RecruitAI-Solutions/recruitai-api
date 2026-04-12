@@ -18,8 +18,8 @@ namespace RecruitAI.Domain.Interfaces.Repositories
 		Task<IEnumerable<User>> GetActiveUsersAsync(CancellationToken cancellationToken = default);
 		Task UpdateLastLoginAsync(Guid userId, CancellationToken cancellationToken = default);
 		Task UpdateUserStatusAsync(Guid userId, UserStatus status, CancellationToken cancellationToken = default);
-		Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-		Task<bool> AnyAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken = default);
+		new Task<User?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+		new Task<bool> AnyAsync(Expression<Func<User, bool>> predicate, CancellationToken cancellationToken = default);
 		Task<PagedResult<User>> GetUsersAsync(
 			int page,
 			int pageSize,

@@ -15,6 +15,9 @@ using System.Text.Json;
 
 namespace RecruitAI.API.Controllers.v1
 {
+	/// <summary>
+	/// Quản lý danh mục kỹ năng
+	/// </summary>
 	[ApiController]
 	[Route("api/v1/skills")]
 	[Authorize]
@@ -35,7 +38,12 @@ namespace RecruitAI.API.Controllers.v1
 			_uow = uow;
 			_auditLogService = auditLogService;
 		}
-
+		/// <summary>
+		/// Tìm kiếm kỹ năng với phân trang và bộ lọc
+		/// </summary>
+		/// <param name="request">Bộ lọc tìm kiếm (từ khóa, danh mục, trạng thái)</param>
+		/// <param name="cancellationToken">Token hủy</param>
+		/// <returns>Danh sách kỹ năng</returns>
 		[HttpGet]
 		[AllowAnonymous]
 		[ProducesResponseType(typeof(SkillSearchResponseDto), StatusCodes.Status200OK)]
@@ -67,7 +75,12 @@ namespace RecruitAI.API.Controllers.v1
 				return response;
 			});
 		}
-
+		/// <summary>
+		/// Lấy chi tiết kỹ năng theo ID
+		/// </summary>
+		/// <param name="id">ID của kỹ năng</param>
+		/// <param name="cancellationToken">Token hủy</param>
+		/// <returns>Thông tin chi tiết kỹ năng</returns>
 		[HttpGet("{id}")]
 		[AllowAnonymous]
 		[ProducesResponseType(typeof(SkillResponseDto), StatusCodes.Status200OK)]
@@ -86,7 +99,11 @@ namespace RecruitAI.API.Controllers.v1
 				return MapToResponseDto(skill);
 			});
 		}
-
+		/// <summary>
+		/// Lấy danh sách các danh mục kỹ năng (để lọc)
+		/// </summary>
+		/// <param name="cancellationToken">Token hủy</param>
+		/// <returns>Danh sách danh mục</returns>
 		[HttpGet("categories")]
 		[AllowAnonymous]
 		[ProducesResponseType(typeof(IEnumerable<string>), StatusCodes.Status200OK)]
@@ -97,7 +114,13 @@ namespace RecruitAI.API.Controllers.v1
 				return await _uow.Skills.GetAllCategoriesAsync(cancellationToken);
 			});
 		}
-
+		/// <summary>
+		/// Gợi ý kỹ năng theo từ khóa (autocomplete)
+		/// </summary>
+		/// <param name="q">Từ khóa tìm kiếm</param>
+		/// <param name="limit">Số lượng kết quả tối đa</param>
+		/// <param name="cancellationToken">Token hủy</param>
+		/// <returns>Danh sách kỹ năng gợi ý</returns>
 		[HttpGet("suggest")]
 		[AllowAnonymous]
 		[ProducesResponseType(typeof(IEnumerable<SkillSuggestionDto>), StatusCodes.Status200OK)]
@@ -121,7 +144,12 @@ namespace RecruitAI.API.Controllers.v1
 				});
 			});
 		}
-
+		/// <summary>
+		/// Tạo kỹ năng mới (chỉ Admin)
+		/// </summary>
+		/// <param name="request">Thông tin kỹ năng mới</param>
+		/// <param name="cancellationToken">Token hủy</param>
+		/// <returns>Kỹ năng vừa tạo</returns>
 		[HttpPost]
 		[Authorize(Roles = "ADMIN")]
 		[ProducesResponseType(typeof(SkillResponseDto), StatusCodes.Status201Created)]
@@ -170,7 +198,13 @@ namespace RecruitAI.API.Controllers.v1
 				return MapToResponseDto(skill);
 			}, "SkillCreated");
 		}
-
+		/// <summary>
+		/// Cập nhật kỹ năng (chỉ Admin)
+		/// </summary>
+		/// <param name="id">ID của kỹ năng</param>
+		/// <param name="request">Thông tin cập nhật</param>
+		/// <param name="cancellationToken">Token hủy</param>
+		/// <returns>Kỹ năng sau khi cập nhật</returns>
 		[HttpPut("{id}")]
 		[Authorize(Roles = "ADMIN")]
 		[ProducesResponseType(typeof(SkillResponseDto), StatusCodes.Status200OK)]
@@ -234,7 +268,12 @@ namespace RecruitAI.API.Controllers.v1
 				return MapToResponseDto(existing);
 			}, "SkillUpdated");
 		}
-
+		/// <summary>
+		/// Xóa kỹ năng (chỉ Admin)
+		/// </summary>
+		/// <param name="id">ID của kỹ năng</param>
+		/// <param name="cancellationToken">Token hủy</param>
+		/// <returns>Kết quả xóa</returns>
 		[HttpDelete("{id}")]
 		[Authorize(Roles = "ADMIN")]
 		[ProducesResponseType(StatusCodes.Status204NoContent)]

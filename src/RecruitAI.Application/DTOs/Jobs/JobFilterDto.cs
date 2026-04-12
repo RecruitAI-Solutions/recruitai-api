@@ -37,7 +37,18 @@ public class JobFilterDto : PaginationRequestDto
 	/// <summary>
 	/// Kỹ năng (tìm kiếm chứa)
 	/// </summary>
-	public string? Skill { get; set; }
+  public string? Skill { get; set; }
+
+	/// <summary>
+	/// Danh sách kỹ năng để lọc (support multiple). If MatchAllSkills is true, job must contain all skills; otherwise any match.
+	/// Binds from query string as repeated parameters: ?skills=java&skills=csharp
+	/// </summary>
+	public List<string>? Skills { get; set; }
+
+	/// <summary>
+	/// Nếu true thì job phải có tất cả các kỹ năng trong Skills (AND). Nếu false (mặc định) thì bất kỳ kỹ năng trùng khớp sẽ được chấp nhận (OR).
+	/// </summary>
+	public bool MatchAllSkills { get; set; } = false;
 
 	/// <summary>
 	/// Sắp xếp theo trường nào (createdAt, salary, title)

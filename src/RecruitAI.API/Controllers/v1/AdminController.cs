@@ -16,6 +16,9 @@ using RecruitAI_API.Controllers.v1;
 
 namespace RecruitAI.API.Controllers.v1
 {
+	/// <summary>
+	/// Quản lý hệ thống - Chỉ dành cho Admin
+	/// </summary>
 	[ApiController]
 	[Route("api/v1/admin")]
 	[Authorize(Policy = "AdminOnly")]
@@ -35,8 +38,16 @@ namespace RecruitAI.API.Controllers.v1
 		}
 
 		/// <summary>
-		/// Get users list with pagination and filters
+		/// Lấy danh sách người dùng có phân trang và bộ lọc
 		/// </summary>
+		/// <param name="page">Số trang (bắt đầu từ 1)</param>
+		/// <param name="pageSize">Số lượng bản ghi mỗi trang</param>
+		/// <param name="role">Lọc theo vai trò (CANDIDATE, RECRUITER, ADMIN)</param>
+		/// <param name="status">Lọc theo trạng thái (0: PendingVerification, 1: Active, 2: Suspended, 3: Banned)</param>
+		/// <param name="keyword">Tìm kiếm theo email hoặc tên</param>
+		/// <param name="sortBy">Sắp xếp theo trường (createdAt, email, fullName)</param>
+		/// <param name="sortOrder">Thứ tự sắp xếp (asc, desc)</param>
+		/// <returns>Danh sách người dùng</returns>
 		[HttpGet("users")]
 		[Authorize(Policy = "ManageUsers")]
 		[ProducesResponseType(typeof(AdminUserListResponseDto), StatusCodes.Status200OK)]
@@ -69,8 +80,10 @@ namespace RecruitAI.API.Controllers.v1
 		}
 
 		/// <summary>
-		/// Get user detail by id
+		/// Lấy chi tiết người dùng theo ID
 		/// </summary>
+		/// <param name="id">ID của người dùng</param>
+		/// <returns>Thông tin chi tiết người dùng</returns>
 		[HttpGet("users/{id}")]
 		[Authorize(Policy = "ManageUsers")]
 		[ProducesResponseType(typeof(AdminUserDetailResponseDto), StatusCodes.Status200OK)]
@@ -91,8 +104,11 @@ namespace RecruitAI.API.Controllers.v1
 		}
 
 		/// <summary>
-		/// Update user information
+		/// Cập nhật thông tin người dùng
 		/// </summary>
+		/// <param name="id">ID của người dùng</param>
+		/// <param name="request">Thông tin cập nhật</param>
+		/// <returns>Thông tin người dùng sau khi cập nhật</returns>
 		[HttpPut("users/{id}")]
 		[Authorize(Policy = "ManageUsers")]
 		[ProducesResponseType(typeof(AdminUserDetailResponseDto), StatusCodes.Status200OK)]
@@ -122,8 +138,11 @@ namespace RecruitAI.API.Controllers.v1
 		}
 
 		/// <summary>
-		/// Update user status (Active, Suspended, Banned)
+		/// Cập nhật trạng thái người dùng (Active, Suspended, Banned)
 		/// </summary>
+		/// <param name="id">ID của người dùng</param>
+		/// <param name="request">Trạng thái và lý do</param>
+		/// <returns>Kết quả cập nhật</returns>
 		[HttpPatch("users/{id}/status")]
 		[Authorize(Policy = "ManageUsers")]
 		[ProducesResponseType(typeof(AdminUserStatusUpdateResponseDto), StatusCodes.Status200OK)]
@@ -149,8 +168,11 @@ namespace RecruitAI.API.Controllers.v1
 		}
 
 		/// <summary>
-		/// Update user role (CANDIDATE, RECRUITER, ADMIN)
+		/// Cập nhật vai trò người dùng (CANDIDATE, RECRUITER, ADMIN)
 		/// </summary>
+		/// <param name="id">ID của người dùng</param>
+		/// <param name="request">Vai trò mới</param>
+		/// <returns>Kết quả cập nhật</returns>
 		[HttpPatch("users/{id}/role")]
 		[Authorize(Policy = "ManageRoles")]
 		[ProducesResponseType(typeof(AdminUserRoleUpdateResponseDto), StatusCodes.Status200OK)]
@@ -175,8 +197,10 @@ namespace RecruitAI.API.Controllers.v1
 		}
 
 		/// <summary>
-		/// Delete user (soft delete)
+		/// Xóa người dùng (xóa mềm)
 		/// </summary>
+		/// <param name="id">ID của người dùng</param>
+		/// <returns>Kết quả xóa</returns>
 		[HttpDelete("users/{id}")]
 		[Authorize(Policy = "ManageUsers")]
 		[ProducesResponseType(typeof(AdminUserDeleteResponseDto), StatusCodes.Status200OK)]
@@ -202,8 +226,11 @@ namespace RecruitAI.API.Controllers.v1
 			});
 		}
 		/// <summary>
-		/// Get admin dashboard statistics
+		/// Lấy thống kê tổng quan cho Dashboard Admin
 		/// </summary>
+		/// <param name="fromDate">Ngày bắt đầu (tùy chọn)</param>
+		/// <param name="toDate">Ngày kết thúc (tùy chọn)</param>
+		/// <returns>Thống kê số lượng người dùng, công việc, ứng tuyển</returns>
 		[HttpGet("stats")]
 		[Authorize(Policy = "ViewAnalytics")]
 		[ProducesResponseType(typeof(StatsResponseDto), StatusCodes.Status200OK)]
@@ -224,8 +251,19 @@ namespace RecruitAI.API.Controllers.v1
 			});
 		}
 		/// <summary>
-		/// Get audit logs list with pagination and filters
+		/// Lấy danh sách nhật ký hệ thống với phân trang và bộ lọc
 		/// </summary>
+		/// <param name="page">Số trang</param>
+		/// <param name="pageSize">Số lượng mỗi trang</param>
+		/// <param name="entityType">Loại thực thể (User, CV, Job, Application)</param>
+		/// <param name="action">Hành động (Create, Update, Delete, Login,...)</param>
+		/// <param name="userId">Lọc theo ID người dùng</param>
+		/// <param name="fromDate">Ngày bắt đầu</param>
+		/// <param name="toDate">Ngày kết thúc</param>
+		/// <param name="keyword">Từ khóa tìm kiếm</param>
+		/// <param name="sortBy">Sắp xếp theo trường</param>
+		/// <param name="sortOrder">Thứ tự sắp xếp</param>
+		/// <returns>Danh sách nhật ký</returns>
 		[HttpGet("audit-logs")]
 		[Authorize(Policy = "ViewAnalytics")]
 		[ProducesResponseType(typeof(PaginationResponseDto<AuditLogResponseDto>), StatusCodes.Status200OK)]
@@ -264,8 +302,10 @@ namespace RecruitAI.API.Controllers.v1
 		}
 
 		/// <summary>
-		/// Get audit log detail by id
+		/// Lấy chi tiết nhật ký theo ID
 		/// </summary>
+		/// <param name="id">ID của nhật ký</param>
+		/// <returns>Chi tiết nhật ký</returns>
 		[HttpGet("audit-logs/{id}")]
 		[Authorize(Policy = "ViewAnalytics")]
 		[ProducesResponseType(typeof(AuditLogDetailResponseDto), StatusCodes.Status200OK)]
@@ -282,8 +322,13 @@ namespace RecruitAI.API.Controllers.v1
 		}
 
 		/// <summary>
-		/// Get audit logs for a specific entity
+		/// Lấy nhật ký của một thực thể cụ thể
 		/// </summary>
+		/// <param name="entityType">Loại thực thể</param>
+		/// <param name="entityId">ID của thực thể</param>
+		/// <param name="page">Số trang</param>
+		/// <param name="pageSize">Số lượng mỗi trang</param>
+		/// <returns>Danh sách nhật ký của thực thể</returns>
 		[HttpGet("audit-logs/entity/{entityType}/{entityId}")]
 		[Authorize(Policy = "ViewAnalytics")]
 		[ProducesResponseType(typeof(PaginationResponseDto<AuditLogResponseDto>), StatusCodes.Status200OK)]
@@ -315,8 +360,10 @@ namespace RecruitAI.API.Controllers.v1
 		}
 
 		/// <summary>
-		/// Clean up orphaned avatar files (Admin only)
+		/// Dọn dẹp file avatar không còn liên kết (chỉ Admin)
 		/// </summary>
+		/// <param name="force">Dọn dẹp ngay cả khi có lỗi</param>
+		/// <returns>Kết quả dọn dẹp</returns>
 		[HttpPost("cleanup-avatars")]
 		[Authorize(Policy = "AdminOnly")]
 		[ProducesResponseType(StatusCodes.Status200OK)]

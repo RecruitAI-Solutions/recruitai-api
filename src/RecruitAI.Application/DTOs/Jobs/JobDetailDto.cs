@@ -21,6 +21,11 @@ public class JobDetailDto
 	public ExperienceLevel ExperienceLevel { get; set; }
 	public string Department { get; set; } = string.Empty;
 
+	// Enum friendly names
+	public string CurrencyName { get; set; } = string.Empty;
+	public string EmploymentTypeName { get; set; } = string.Empty;
+	public string ExperienceLevelName { get; set; } = string.Empty;
+
 	// Kỹ năng
 	public List<int> SkillIds { get; set; } = new();
 	public List<SkillDto> SkillDetails { get; set; } = new();

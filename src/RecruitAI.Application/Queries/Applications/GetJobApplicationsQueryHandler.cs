@@ -65,7 +65,9 @@ public class GetJobApplicationsQueryHandler : IRequestHandler<GetJobApplications
 				RequiredSkillCount = app.Match?.RequiredSkillCount ?? 0,
 				MatchedSkills = matchedSkills,
 				MissingSkills = missingSkills,
-				Status = app.Status,
+                Status = app.Status,
+				StatusName = app.Status.ToString(),
+				StatusDisplay = _msg.Get($"ApplicationStatus.{app.Status}"),
 				AppliedAt = app.AppliedAt,
 				CvDownloadUrl = $"/api/v1/cv/{app.CVId}/download"
 			});

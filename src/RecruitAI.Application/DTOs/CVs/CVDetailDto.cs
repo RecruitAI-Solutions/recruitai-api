@@ -12,6 +12,12 @@ public class CVDetailDto
 	public DateTime UploadedAt { get; set; }
 	public DateTime? ProcessedAt { get; set; }
 	public CVStatus Status { get; set; }
+
+	// For API: numeric status code
+	public int StatusCode => (int)Status;
+
+	// For API: human-readable status name
+	public string StatusName => Status.ToString();
 	public string? ErrorMessage { get; set; }
 	public string DownloadUrl { get; set; } = string.Empty;
 	public string FormattedFileSize => GetFormattedFileSize();

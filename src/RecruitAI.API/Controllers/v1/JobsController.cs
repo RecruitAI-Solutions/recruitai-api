@@ -11,7 +11,9 @@ using RecruitAI.Domain.Interfaces;
 
 
 namespace RecruitAI_API.Controllers.v1;
-
+/// <summary>
+/// Quản lý tin tuyển dụng
+/// </summary>
 [Authorize]
 [Route("api/v1/[controller]")]
 public class JobsController : BaseController

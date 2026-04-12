@@ -17,6 +17,8 @@ public class ApplyJobResponseDto
 	public List<SkillMatchDetailDto> MatchedSkills { get; set; } = new();
 	public List<SkillMatchDetailDto> MissingSkills { get; set; } = new();
 	public JobApplicationStatus Status { get; set; }
+ public string StatusName { get; set; } = string.Empty;
+	public string? StatusDisplay { get; set; }
 	public DateTime AppliedAt { get; set; }
 	public AIRecommendationDto? AiAnalysis { get; set; }
 }

@@ -4,12 +4,12 @@ using System.Threading.Tasks;
 
 namespace RecruitAI.Domain.Interfaces.Repositories
 {
-	public interface ISkillRepository: IBaseRepository<Skill>
+	public interface ISkillRepository : IBaseRepository<Skill>
 	{
 		// CRUD cơ bản
 		Task<Skill?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
-		Task<Skill> AddAsync(Skill skill, CancellationToken cancellationToken = default);
-		Task UpdateAsync(Skill skill, CancellationToken cancellationToken = default);
+		new Task<Skill> AddAsync(Skill skill, CancellationToken cancellationToken = default);
+		new Task UpdateAsync(Skill skill, CancellationToken cancellationToken = default);
 		Task DeleteAsync(int id, CancellationToken cancellationToken = default); // Soft delete
 
 		// Kiểm tra tồn tại
@@ -36,7 +36,7 @@ namespace RecruitAI.Domain.Interfaces.Repositories
 		Task<IEnumerable<string>> GetAllCategoriesAsync(CancellationToken cancellationToken = default);
 		Task<IEnumerable<Skill>> GetAllActiveAsync(CancellationToken cancellationToken = default);
 
-		Task<IEnumerable<Skill>> GetAllAsync(CancellationToken cancellationToken = default);
+		new Task<IEnumerable<Skill>> GetAllAsync(CancellationToken cancellationToken = default);
 
 	}
 }

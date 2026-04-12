@@ -198,7 +198,8 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 				FilePath = relativePath,
 				FileSize = request.FileSize,
 				UploadedAt = cv.UploadedAt,
-				Status = cv.Status.ToString()
+           Status = (int)cv.Status,
+			StatusName = cv.Status.ToString()
 			};
 		}
 		catch (BusinessException)

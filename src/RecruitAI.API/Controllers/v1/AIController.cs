@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using RecruitAI.Application.Commands.AI;
 using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Application.DTOs.Requests.AI;
+using RecruitAI.Domain.Enums;
 using RecruitAI.Application.DTOs.Responses.AI;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
@@ -14,6 +15,9 @@ using RecruitAI_API.Controllers.v1;
 
 namespace RecruitAI.API.Controllers.v1
 {
+	/// <summary>
+	/// AI Controller - Xử lý phân tích CV và matching với công việc
+	/// </summary>
 	[ApiController]
 	[Route("api/v1/[controller]")]
 	[Authorize]
@@ -35,6 +39,11 @@ namespace RecruitAI.API.Controllers.v1
 		/// <summary>
 		/// Phân tích CV để trích xuất kỹ năng
 		/// </summary>
+		/// <remarks>
+		/// Hệ thống sẽ đọc nội dung CV, sử dụng AI để nhận diện các kỹ năng 
+		/// và lưu vào cơ sở dữ liệu.
+		/// </remarks>
+		/// <returns>Kết quả phân tích (Processing hoặc Completed)</returns>
 		[Authorize(Policy = "AnalyzeCV")]
 		[HttpPost("analyze-cv")]
 		[ProducesResponseType(typeof(AnalyzeCvResponseDto), StatusCodes.Status200OK)]
@@ -51,7 +60,7 @@ namespace RecruitAI.API.Controllers.v1
 			command.UserId = userId.Value;
 			var result = await _mediator.Send(command);
 
-			if (result.Status == "processing")
+			if (result.Status == (int)CVStatus.Processing)
 				return Accepted(result);
 
 			return Ok(result);
@@ -60,6 +69,8 @@ namespace RecruitAI.API.Controllers.v1
 		/// <summary>
 		/// Lấy kết quả phân tích CV
 		/// </summary>
+		/// <param name="cvId">ID của CV đã phân tích</param>
+		/// <returns>Danh sách kỹ năng đã trích xuất và độ tin cậy</returns>
 		[Authorize(Policy = "ViewCVAnalysis")]
 		[HttpGet("analysis/{cvId}")]
 		[ProducesResponseType(typeof(AnalysisResultDto), StatusCodes.Status200OK)]
@@ -85,8 +96,16 @@ namespace RecruitAI.API.Controllers.v1
 		}
 
 		/// <summary>
-		/// Match CV với Job (tính toán và lưu kết quả)
+		/// Match CV với công việc (tính toán và lưu kết quả)
 		/// </summary>
+		/// <remarks>
+		/// Sử dụng AI để đánh giá độ phù hợp dựa trên:
+		/// - Kỹ năng (50%)
+		/// - Kinh nghiệm (25%)
+		/// - Mức lương (15%)
+		/// - Địa điểm (10%)
+		/// </remarks>
+		/// <returns>Điểm match chi tiết và phân tích từ AI</returns>
 		[Authorize(Policy = "MatchCVJob")]
 		[HttpPost("match-cv-job")]
 		[ProducesResponseType(typeof(MatchCvJobResponseDto), StatusCodes.Status200OK)]
@@ -109,8 +128,11 @@ namespace RecruitAI.API.Controllers.v1
 
 
 		/// <summary>
-		/// Lấy kết quả match giữa CV và Job (đã lưu)
+		/// Lấy kết quả match giữa CV và công việc (đã lưu)
 		/// </summary>
+		/// <param name="cvId">ID của CV</param>
+		/// <param name="jobId">ID của công việc</param>
+		/// <returns>Kết quả match đã lưu trước đó</returns>
 		[Authorize(Policy = "ViewMatchResults")]
 		[HttpGet("match")]
 		[ProducesResponseType(typeof(MatchCvJobResponseDto), StatusCodes.Status200OK)]
@@ -132,6 +154,13 @@ namespace RecruitAI.API.Controllers.v1
 		/// <summary>
 		/// Lấy tất cả kết quả match của một CV
 		/// </summary>
+		/// <param name="cvId">ID của CV</param>
+		/// <param name="page">Số trang</param>
+		/// <param name="pageSize">Số lượng mỗi trang</param>
+		/// <param name="minMatch">Lọc theo điểm match tối thiểu</param>
+		/// <param name="sortBy">Sắp xếp theo trường</param>
+		/// <param name="sortOrder">Thứ tự sắp xếp</param>
+		/// <returns>Danh sách các công việc đã match với điểm số</returns>
 		[Authorize(Policy = "ViewMatchResults")]
 		[HttpGet("match/cv/{cvId}")]
 		[ProducesResponseType(typeof(PaginationResponseDto<CvMatchSummaryDto>), StatusCodes.Status200OK)]

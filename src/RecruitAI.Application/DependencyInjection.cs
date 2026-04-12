@@ -16,6 +16,7 @@ using RecruitAI.Application.Validators.Emails;
 using RecruitAI.Application.Validators.Jobs;
 using RecruitAI.Infrastructure.BackgroundServices;
 using RecruitAI.Infrastructure.Services.AI;
+using AutoMapper;
 
 namespace RecruitAI.Application
 {
@@ -30,7 +31,14 @@ namespace RecruitAI.Application
 				cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 			});
 
-			services.AddAutoMapper(typeof(DependencyInjection));
+			// Register AutoMapper manually to avoid dependency on AutoMapper.Extensions when using AutoMapper v14
+			var mapperConfig = new AutoMapper.MapperConfiguration(cfg =>
+			{
+				cfg.AddMaps(typeof(DependencyInjection).Assembly);
+			});
+			var mapper = mapperConfig.CreateMapper();
+			services.AddSingleton(mapper);
+			services.AddSingleton(mapperConfig);
 
 			services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 
