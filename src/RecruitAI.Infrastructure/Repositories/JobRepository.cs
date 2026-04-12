@@ -16,7 +16,7 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 
 	public JobRepository(RecruitDevContext context) : base(context)
 	{
-		_context = context; 
+		_context = context;
 	}
 
 	public async Task<Job?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -26,6 +26,47 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 			.Include(j => j.JobSkills)
 				.ThenInclude(js => js.Skill)
 			.FirstOrDefaultAsync(j => j.Id == id && !j.IsDeleted, cancellationToken);
+	}
+
+	private IQueryable<Job> ApplySkillFilter(IQueryable<Job> query, JobFilter filter)
+	{
+		if (!string.IsNullOrWhiteSpace(filter.Skill))
+		{
+			var search = filter.Skill.Trim();
+			query = query.Where(j => j.JobSkills.Any(js =>
+				js.Skill.Name.Contains(search) ||
+				(js.Skill.Aliases != null && js.Skill.Aliases.Contains(search))));
+		}
+
+		if (filter.Skills != null && filter.Skills.Any())
+		{
+			var skills = filter.Skills
+				.Where(s => !string.IsNullOrWhiteSpace(s))
+				.Select(s => s.Trim())
+				.Distinct()
+				.ToList();
+
+			if (skills.Any())
+			{
+				if (filter.MatchAllSkills)
+				{
+					var jobIds = _context.JobSkills
+						.Where(js => skills.Any(sk => js.Skill.Name.Contains(sk) || (js.Skill.Aliases != null && js.Skill.Aliases.Contains(sk))))
+						.GroupBy(js => js.JobId)
+						.Where(g => g.Select(js => js.SkillId).Distinct().Count() == skills.Count)
+						.Select(g => g.Key);
+
+					query = query.Where(j => jobIds.Contains(j.Id));
+				}
+				else
+				{
+					query = query.Where(j => j.JobSkills.Any(js =>
+						skills.Any(sk => js.Skill.Name.Contains(sk) || (js.Skill.Aliases != null && js.Skill.Aliases.Contains(sk)))));
+				}
+			}
+		}
+
+		return query;
 	}
 
 	public async Task<PagedResult<Job>> GetJobsAsync(
@@ -69,12 +110,7 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 			query = query.Where(j => j.ExperienceLevel == filter.ExperienceLevel);
 		}
 
-		if (!string.IsNullOrWhiteSpace(filter.Skill))
-		{
-			query = query.Where(j => j.JobSkills.Any(js =>
-				js.Skill.Name.Contains(filter.Skill) ||
-				(js.Skill.Aliases != null && js.Skill.Aliases.Contains(filter.Skill))));
-		}
+		query = ApplySkillFilter(query, filter);
 
 		// Get total count before pagination
 		var total = await query.CountAsync(cancellationToken);
@@ -145,7 +181,7 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 	{
 		var query = _dbSet
 			.Include(j => j.Recruiter)
-			.Include(j => j.JobSkills) 
+			.Include(j => j.JobSkills)
 				.ThenInclude(js => js.Skill)
 			.Where(j => !j.IsDeleted && j.RecruiterId == recruiterId);
 
@@ -167,12 +203,8 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 
 		if (filter.ExperienceLevel.HasValue)
 			query = query.Where(j => j.ExperienceLevel == filter.ExperienceLevel.Value);
-		if (!string.IsNullOrWhiteSpace(filter.Skill))
-		{
-			query = query.Where(j => j.JobSkills.Any(js =>
-				js.Skill.Name.Contains(filter.Skill) ||
-				(js.Skill.Aliases != null && js.Skill.Aliases.Contains(filter.Skill))));
-		}
+
+		query = ApplySkillFilter(query, filter);
 
 		var total = await query.CountAsync(cancellationToken);
 
@@ -204,7 +236,7 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 	{
 		var query = _dbSet
 			.Include(j => j.Recruiter)
-			.Include(j => j.JobSkills) 
+			.Include(j => j.JobSkills)
 				.ThenInclude(js => js.Skill)
 			.Where(j => j.IsDeleted);
 

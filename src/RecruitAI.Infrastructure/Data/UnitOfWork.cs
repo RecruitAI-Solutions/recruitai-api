@@ -1,8 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Infrastructure.Repositories;
+using System.Linq;
 
 namespace RecruitAI.Infrastructure.Data
 {
@@ -132,6 +134,16 @@ namespace RecruitAI.Infrastructure.Data
 					_currentTransaction = null;
 				}
 			}
+		}
+
+		public async Task<int> GetMaxSkillIdAsync(CancellationToken cancellationToken = default)
+		{
+			var maxId = await _context.Skills
+				.Select(s => s.Id)
+				.OrderByDescending(s => s)
+				.FirstOrDefaultAsync(cancellationToken);
+
+			return maxId;
 		}
 
 		/// <summary>

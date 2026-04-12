@@ -21,6 +21,12 @@ public class JobProfile : Profile
 					? src.JobSkills.Where(js => js.Skill != null).Select(js => js.Skill.Name).ToList()
 					: new List<string>()));
 
+		// Map enum names for client-friendly display
+		CreateMap<Job, JobListDto>()
+			.ForMember(dest => dest.CurrencyName, opt => opt.MapFrom(src => src.Currency.ToString()))
+			.ForMember(dest => dest.EmploymentTypeName, opt => opt.MapFrom(src => src.EmploymentType.ToString()))
+			.ForMember(dest => dest.ExperienceLevelName, opt => opt.MapFrom(src => src.ExperienceLevel.ToString()));
+
 		// Job -> JobDetailDto
 		CreateMap<Job, JobDetailDto>()
 			.ForMember(dest => dest.RecruiterName,
@@ -45,6 +51,12 @@ public class JobProfile : Profile
 							IsRequired = js.IsRequired
 						}).ToList()
 					: new List<SkillDto>()));
+
+		// Map enum names for detail DTO
+		CreateMap<Job, JobDetailDto>()
+			.ForMember(dest => dest.CurrencyName, opt => opt.MapFrom(src => src.Currency.ToString()))
+			.ForMember(dest => dest.EmploymentTypeName, opt => opt.MapFrom(src => src.EmploymentType.ToString()))
+			.ForMember(dest => dest.ExperienceLevelName, opt => opt.MapFrom(src => src.ExperienceLevel.ToString()));
 
 		// ===== COMMAND -> JOB =====
 

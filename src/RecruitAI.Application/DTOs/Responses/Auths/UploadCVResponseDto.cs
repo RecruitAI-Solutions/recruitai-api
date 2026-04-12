@@ -27,10 +27,15 @@ public class UploadCVResponseDto
 	/// </summary>
 	public DateTime UploadedAt { get; set; }
 
-	/// <summary>
-	/// Trạng thái xử lý (Pending/Processing/Completed/Failed)
+    /// <summary>
+	/// Trạng thái xử lý (numeric code)
 	/// </summary>
-	public string Status { get; set; } = string.Empty;
+	public int Status { get; set; }
+
+	/// <summary>
+	/// Tên trạng thái (ví dụ: "Completed")
+	/// </summary>
+	public string StatusName { get; set; } = string.Empty;
 
 	/// <summary>
 	/// Link download file (nếu cần)

@@ -7,7 +7,9 @@ using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 
 namespace RecruitAI_API.Controllers.v1;
-
+/// <summary>
+/// Tra cứu địa chỉ và bản đồ (sử dụng Vietmap API)
+/// </summary>
 [AllowAnonymous]
 public class GeocodingController : BaseController
 {

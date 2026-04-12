@@ -1,5 +1,7 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using RecruitAI.Application.DTOs.AI;
 using RecruitAI.Application.DTOs.Responses.Applications;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
@@ -18,20 +20,26 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 	private readonly IMatchingService _matchingService;
 	private readonly ILogger<ApplyJobCommandHandler> _logger;
 	private readonly IMessageService _msg;
-	private readonly IAuditLogService _auditLogService;  
+	private readonly IAuditLogService _auditLogService;
+	private readonly IAIRecommendationService _aiRecommendationService;
+	private readonly IConfiguration _configuration;
 
 	public ApplyJobCommandHandler(
 		IUnitOfWork unitOfWork,
 		IMatchingService matchingService,
 		ILogger<ApplyJobCommandHandler> logger,
 		IMessageService msg,
-		IAuditLogService auditLogService)  
+		IAuditLogService auditLogService,
+		IAIRecommendationService aiRecommendationService,
+		IConfiguration configuration)
 	{
 		_unitOfWork = unitOfWork;
 		_matchingService = matchingService;
 		_logger = logger;
 		_msg = msg;
 		_auditLogService = auditLogService;
+		_aiRecommendationService = aiRecommendationService;
+		_configuration = configuration;
 	}
 
 	public async Task<ApplyJobResponseDto> Handle(ApplyJobCommand request, CancellationToken cancellationToken)
@@ -64,7 +72,7 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 
 		// 4. Calculate or get match result
 		var matchResult = await _matchingService.CalculateAndSaveMatchAsync(
-			request.CvId, request.JobId, request.UserId);
+			request.CvId, request.JobId, request.UserId, cancellationToken);
 
 		// 5. Create job application
 		var application = new JobApplication
@@ -113,12 +121,47 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 		job.Applications++;
 		_unitOfWork.Jobs.Update(job);
 
-		// Ghi audit log
+		// 8. AI Recommendation (optional, không ảnh hưởng luồng chính)
+		AIRecommendationDto? aiAnalysis = null;
+		var enableRecommendation = _configuration.GetValue<bool>("AI:EnableRecommendation", true);
+
+		if (enableRecommendation)
+		{
+			try
+			{
+				var matchedSkillNames = matchResult.MatchedSkills.Select(s => s.Name).ToList();
+				var missingSkillNames = matchResult.MissingSkills.Select(s => s.Name).ToList();
+				var requiredSkillNames = job.JobSkills
+					.Where(js => js.Skill != null)
+					.Select(js => js.Skill!.Name)
+					.ToList();
+
+				var applicationCount = await _unitOfWork.JobApplications
+					.CountByJobIdAsync(request.JobId, cancellationToken);
+
+				aiAnalysis = await _aiRecommendationService.GetRecommendationAsync(
+					matchedSkillNames,
+					missingSkillNames,
+					job.Title,
+					requiredSkillNames,
+					applicationCount,
+					cancellationToken);
+
+				_logger.LogInformation("AI recommendation generated for application {ApplicationId}", application.Id);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogWarning(ex, "AI recommendation failed for application {ApplicationId}, continuing without analysis", application.Id);
+			}
+		}
+
+		// 9. Ghi audit log
 		var applicationData = new Dictionary<string, string>
 		{
 			[_msg.Get("AuditFieldJobId")] = request.JobId.ToString(),
 			[_msg.Get("AuditFieldCvId")] = request.CvId.ToString(),
-			[_msg.Get("AuditFieldMatchPercentage")] = matchResult.MatchPercentage.ToString()
+			[_msg.Get("AuditFieldMatchPercentage")] = matchResult.MatchPercentage.ToString(),
+			["hasAiAnalysis"] = (aiAnalysis != null).ToString()
 		};
 
 		await _auditLogService.LogAsync(
@@ -136,6 +179,7 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 		_logger.LogInformation(_msg.Log("UserAppliedForJob"),
 			request.UserId, request.JobId, request.CvId);
 
+		// 10. Trả về response
 		return new ApplyJobResponseDto
 		{
 			ApplicationId = application.Id,
@@ -148,8 +192,11 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 			RequiredSkillCount = matchResult.RequiredSkillCount,
 			MatchedSkills = matchResult.MatchedSkills,
 			MissingSkills = matchResult.MissingSkills,
-			Status = application.Status,
-			AppliedAt = application.AppliedAt
+            Status = application.Status,
+			StatusName = application.Status.ToString(),
+			StatusDisplay = _msg.Get($"ApplicationStatus.{application.Status}"),
+			AppliedAt = application.AppliedAt,
+			AiAnalysis = aiAnalysis
 		};
 	}
 }

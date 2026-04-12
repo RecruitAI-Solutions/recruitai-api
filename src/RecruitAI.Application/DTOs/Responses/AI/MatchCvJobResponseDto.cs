@@ -12,5 +12,11 @@ namespace RecruitAI.Application.DTOs.Responses.AI
 		public List<SkillMatchDetailDto> MatchedSkills { get; set; } = new();
 		public List<SkillMatchDetailDto> MissingSkills { get; set; } = new();
 		public DateTime CalculatedAt { get; set; }
+
+		// Thêm cho AI
+		public string? AiReason { get; set; }
+		public bool UsedAI { get; set; }
+		public long CvVersion { get; set; }
+		public long JobVersion { get; set; }
 	}
 }

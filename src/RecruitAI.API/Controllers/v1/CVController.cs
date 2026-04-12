@@ -14,7 +14,9 @@ using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.DTOs.Responses.Auths;
 
 namespace RecruitAI_API.Controllers.v1;
-
+/// <summary>
+/// Quản lý CV của ứng viên
+/// </summary>
 [Authorize]
 [Route("api/v1/[controller]")]
 public class CVController : BaseController
@@ -35,6 +37,11 @@ public class CVController : BaseController
 		_mapper = mapper;
 	}
 
+	/// <summary>
+	/// Tải lên CV mới (hỗ trợ file PDF)
+	/// </summary>
+	/// <param name="file">File PDF cần tải lên (tối đa 10MB)</param>
+	/// <returns>Thông tin CV đã lưu</returns>
 	[HttpPost("upload")]
 	[Authorize(Policy = "UploadCV")]
 	[RequestSizeLimit(10 * 1024 * 1024)]
@@ -72,6 +79,12 @@ public class CVController : BaseController
 		}, "UploadCVSuccess");
 	}
 
+	/// <summary>
+	/// Lấy danh sách CV của tôi (ứng viên hiện tại)
+	/// </summary>
+	/// <param name="filter">Bộ lọc (trạng thái, từ khóa)</param>
+	/// <param name="cancellationToken">Token hủy</param>
+	/// <returns>Danh sách CV có phân trang</returns>
 	[HttpGet("my-cvs")]
 	[Authorize(Policy = "ViewOwnCVs")]
 	[ProducesResponseType(typeof(PaginationResponseDto<CVListDto>), StatusCodes.Status200OK)]
@@ -98,6 +111,12 @@ public class CVController : BaseController
 		});
 	}
 
+	/// <summary>
+	/// Lấy chi tiết CV theo ID
+	/// </summary>
+	/// <param name="id">ID của CV</param>
+	/// <param name="cancellationToken">Token hủy</param>
+	/// <returns>Thông tin chi tiết CV</returns>
 	[HttpGet("{id}")]
 	[Authorize(Policy = "DownloadOwnCV")]
 	[ProducesResponseType(typeof(CVDetailDto), StatusCodes.Status200OK)]
@@ -121,7 +140,11 @@ public class CVController : BaseController
 			return _mapper.Map<CVDetailDto>(cv);
 		});
 	}
-
+	/// <summary>
+	/// Tải file CV xuống máy
+	/// </summary>
+	/// <param name="id">ID của CV</param>
+	/// <returns>File PDF</returns>
 	[HttpGet("{id}/download")]
 	[Authorize(Policy = "DownloadOwnCV")]
 	[ProducesResponseType(StatusCodes.Status200OK)]
@@ -198,8 +221,11 @@ public class CVController : BaseController
 
 
 	/// <summary>
-	/// Xóa CV (soft delete)
+	/// Xóa CV (xóa mềm, có thể khôi phục)
 	/// </summary>
+	/// <param name="id">ID của CV</param>
+	/// <param name="cancellationToken">Token hủy</param>
+	/// <returns>Kết quả xóa</returns>
 	[HttpDelete("{id}")]
 	[Authorize(Policy = "DeleteOwnCV")]
 	[ProducesResponseType(StatusCodes.Status204NoContent)]

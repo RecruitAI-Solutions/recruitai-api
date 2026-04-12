@@ -27,7 +27,9 @@ public class GetMyApplicationsQueryHandler : IRequestHandler<GetMyApplicationsQu
 			Company = app.Job?.Department ?? "Unknown",
 			Location = app.Job?.Location ?? "Unknown",
 			MatchPercentage = app.Match?.MatchPercentage ?? 0,
-			Status = app.Status,
+            Status = app.Status,
+			StatusName = app.Status.ToString(),
+			StatusDisplay = app.Status.ToString(),
 			AppliedAt = app.AppliedAt,
 			ReviewedAt = app.ReviewedAt
 		}).ToList();
