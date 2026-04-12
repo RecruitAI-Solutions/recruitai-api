@@ -16,6 +16,9 @@ using RecruitAI_API.Controllers.v1;
 
 namespace RecruitAI.API.Controllers.v1
 {
+	/// <summary>
+	/// Quản lý đơn ứng tuyển
+	/// </summary>
 	[ApiController]
 	[Route("api/v1/[controller]")]
 	[Authorize]
@@ -31,8 +34,11 @@ namespace RecruitAI.API.Controllers.v1
 		}
 
 		/// <summary>
-		/// Apply for a job
+		/// Ứng tuyển công việc
 		/// </summary>
+		/// <param name="jobId">ID của công việc muốn ứng tuyển</param>
+		/// <param name="request">ID của CV sử dụng để ứng tuyển</param>
+		/// <returns>Kết quả ứng tuyển kèm phân tích AI</returns>
 		[HttpPost("jobs/{jobId}/apply")]
 		[Authorize(Policy = "ApplyJob")]
 		[ProducesResponseType(typeof(ApplyJobResponseDto), StatusCodes.Status200OK)]
@@ -63,8 +69,12 @@ namespace RecruitAI.API.Controllers.v1
 		}
 
 		/// <summary>
-		/// Get my applications (for candidates)
+		/// Lấy danh sách đơn ứng tuyển của tôi (ứng viên)
 		/// </summary>
+		/// <param name="page">Số trang</param>
+		/// <param name="pageSize">Số lượng mỗi trang</param>
+		/// <param name="status">Lọc theo trạng thái đơn</param>
+		/// <returns>Danh sách đơn ứng tuyển của ứng viên hiện tại</returns>
 		[HttpGet("me")]
 		[Authorize(Policy = "ViewApplications")]
 		[ProducesResponseType(typeof(PaginationResponseDto<MyApplicationDto>), StatusCodes.Status200OK)]
@@ -93,8 +103,16 @@ namespace RecruitAI.API.Controllers.v1
 		}
 
 		/// <summary>
-		/// Get applications for a job (for recruiters)
+		/// Lấy danh sách đơn ứng tuyển của một công việc (nhà tuyển dụng)
 		/// </summary>
+		/// <param name="jobId">ID của công việc</param>
+		/// <param name="page">Số trang</param>
+		/// <param name="pageSize">Số lượng mỗi trang</param>
+		/// <param name="status">Lọc theo trạng thái</param>
+		/// <param name="minMatch">Lọc theo điểm match tối thiểu</param>
+		/// <param name="sortBy">Sắp xếp theo trường</param>
+		/// <param name="sortOrder">Thứ tự sắp xếp</param>
+		/// <returns>Danh sách ứng viên đã ứng tuyển</returns>
 		[HttpGet("jobs/{jobId}/applications")]
 		[Authorize(Policy = "ViewApplications")]
 		[ProducesResponseType(typeof(PaginationResponseDto<JobApplicationDto>), StatusCodes.Status200OK)]
@@ -132,8 +150,11 @@ namespace RecruitAI.API.Controllers.v1
 		}
 
 		/// <summary>
-		/// Update application status (for recruiters)
+		/// Cập nhật trạng thái đơn ứng tuyển (nhà tuyển dụng)
 		/// </summary>
+		/// <param name="applicationId">ID của đơn ứng tuyển</param>
+		/// <param name="request">Trạng thái mới và ghi chú</param>
+		/// <returns>Kết quả cập nhật</returns>
 		[HttpPatch("{applicationId}/status")]
 		[Authorize(Policy = "UpdateApplicationStatus")]
 		[ProducesResponseType(typeof(UpdateApplicationStatusResponseDto), StatusCodes.Status200OK)]
@@ -164,8 +185,10 @@ namespace RecruitAI.API.Controllers.v1
 		}
 
 		/// <summary>
-		/// Get application detail by id
+		/// Lấy chi tiết đơn ứng tuyển theo ID
 		/// </summary>
+		/// <param name="id">ID của đơn ứng tuyển</param>
+		/// <returns>Chi tiết đơn ứng tuyển bao gồm thông tin CV và Job</returns>
 		[HttpGet("{id}")]
 		[Authorize(Policy = "ViewApplications")]
 		[ProducesResponseType(typeof(ApplicationDetailResponseDto), StatusCodes.Status200OK)]
