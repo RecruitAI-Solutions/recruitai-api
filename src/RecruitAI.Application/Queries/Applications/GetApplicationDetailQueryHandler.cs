@@ -38,7 +38,9 @@ namespace RecruitAI.Application.Queries.Applications
 			var response = new ApplicationDetailResponseDto
 			{
 				Id = application.Id,
-				Status = application.Status,
+            Status = application.Status,
+			StatusName = application.Status.ToString(),
+			StatusDisplay = _msg.Get($"ApplicationStatus.{application.Status}"),
 				AppliedAt = application.AppliedAt,
 				ReviewedAt = application.ReviewedAt,
 				Notes = application.Notes,

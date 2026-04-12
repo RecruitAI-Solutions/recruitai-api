@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
+using System.Reflection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RecruitAI.API.Middleware;
@@ -62,6 +64,7 @@ builder.Services.AddControllers(options =>
 });
 
 builder.Services.AddMemoryCache();
+builder.Services.AddHttpContextAccessor();
 
 // 3.2 API Explorer & Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -97,12 +100,12 @@ builder.Services.AddSwaggerGen(c =>
 			Array.Empty<string>()
 		}
 	});
+
+	var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+	var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+	c.IncludeXmlComments(xmlPath, includeControllerXmlComments: true);
 });
 
-// Đăng ký HttpContextAccessor để lấy IP
-builder.Services.AddHttpContextAccessor();
-
-// 3.3 Localization
 builder.Services.AddLocalization();
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
@@ -111,6 +114,7 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 		new CultureInfo("vi-VN"),
 		new CultureInfo("en-US")
 	};
+
 	options.DefaultRequestCulture = new RequestCulture("vi-VN");
 	options.SupportedCultures = supportedCultures;
 	options.SupportedUICultures = supportedCultures;
@@ -215,7 +219,7 @@ builder.Services.AddAuthentication(options =>
 			 ? null
 			 : builder.Configuration["Jwt:Audience"],
 		 IssuerSigningKey = new SymmetricSecurityKey(
-			 Encoding.UTF8.GetBytes(jwtKey)) 
+			 Encoding.UTF8.GetBytes(jwtKey))
 	 };
 
 	 options.Events = new JwtBearerEvents
@@ -318,11 +322,11 @@ builder.Services.AddAuthorization(options =>
 
 	options.AddPolicy("ViewPermissions", policy =>
 		policy.RequireAssertion(context =>
-			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P013") || 
+			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P013") ||
 			context.User.IsInRole("ADMIN")
 		));
 
-	options.AddPolicy("EditProfile", policy =>  
+	options.AddPolicy("EditProfile", policy =>
 		policy.RequireAssertion(context =>
 			context.User.HasClaim(c => c.Type == "permission" && c.Value == "P005") ||
 			context.User.IsInRole("ADMIN")

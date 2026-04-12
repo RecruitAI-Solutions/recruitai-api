@@ -105,10 +105,11 @@ namespace RecruitAI.Application.Services
 				default);
 
 			// 7. Trả về kết quả
-			return new AnalyzeCvResponseDto
+         return new AnalyzeCvResponseDto
 			{
 				CvId = cv.Id,
-				Status = "completed",
+              Status = (int)cv.Status,
+				StatusName = cv.Status.ToString(),
 				Skills = combinedSkills.OrderByDescending(s => s.Confidence).ToList(),
 				TotalSkills = combinedSkills.Count,
 				ProcessedAt = DateTime.UtcNow,
@@ -120,6 +121,27 @@ namespace RecruitAI.Application.Services
 					TotalSkills = aiSkills.Skills.Count
 				}
 			};
+		}
+
+		private string MapStatus(Domain.Enums.CVStatus status)
+		{
+			switch (status)
+			{
+				case CVStatus.Pending:
+					return "pending";
+				case CVStatus.Uploaded:
+					return "pending"; // treat uploaded as pending analysis
+				case CVStatus.Processing:
+					return "processing";
+				case CVStatus.Completed:
+					return "completed";
+				case CVStatus.Analyzed:
+					return "analyzed";
+				case CVStatus.Failed:
+					return "failed";
+				default:
+					return status.ToString().ToLower();
+			}
 		}
 
 		private async Task<string> GetCVText(CV cv)
@@ -338,25 +360,30 @@ namespace RecruitAI.Application.Services
 			{
 				CvId = cv.Id,
 				FileName = cv.FileName,
-				UploadedAt = cv.UploadedAt,
+         Status = (int)cv.Status,
+			StatusName = cv.Status.ToString(),
+			UploadedAt = cv.UploadedAt,
 				AnalyzedAt = cv.AnalyzedAt,
 				DownloadUrl = $"/api/v1/CV/{cv.Id}/download"
 			};
 
 			if (cv.Status == CVStatus.Pending || cv.Status == CVStatus.Uploaded)
 			{
-				result.Status = "pending";
+          result.Status = (int)cv.Status;
+			result.StatusName = MapStatus(cv.Status);
 				result.Message = "This CV has not been analyzed yet";
 			}
 			else if (cv.Status == CVStatus.Processing)
 			{
-				result.Status = "processing";
+           result.Status = (int)cv.Status;
+			result.StatusName = MapStatus(cv.Status);
 				result.Message = "CV is being analyzed. Estimated time: 5 seconds";
 			}
 			else if (cv.Status == CVStatus.Analyzed)
 			{
-				var analysisResults = await _uow.CVAnalysisResults.GetByCVIdAsync(cvId);
-				result.Status = "analyzed";
+            var analysisResults = await _uow.CVAnalysisResults.GetByCVIdAsync(cvId);
+			result.Status = (int)cv.Status;
+			result.StatusName = MapStatus(cv.Status);
 				result.Skills = analysisResults.Select(r => new SkillMatchDto
 				{
 					SkillId = r.SkillId,
@@ -368,7 +395,8 @@ namespace RecruitAI.Application.Services
 			}
 			else if (cv.Status == CVStatus.Failed)
 			{
-				result.Status = "failed";
+           result.Status = (int)cv.Status;
+			result.StatusName = MapStatus(cv.Status);
 				result.Message = cv.ErrorMessage ?? "Analysis failed";
 			}
 

@@ -5,7 +5,11 @@ namespace RecruitAI.Application.DTOs.Responses.AI
 	{
 		public Guid CvId { get; set; }
 		public string FileName { get; set; } = string.Empty;
-		public string Status { get; set; } = string.Empty;
+      // Numeric status code
+		public int Status { get; set; }
+
+		// Name of the status
+		public string StatusName { get; set; } = string.Empty;
 		public DateTime? UploadedAt { get; set; }
 		public DateTime? AnalyzedAt { get; set; }
 		public List<SkillMatchDto> Skills { get; set; } = new();

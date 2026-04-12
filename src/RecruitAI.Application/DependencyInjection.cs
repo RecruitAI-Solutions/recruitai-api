@@ -31,8 +31,14 @@ namespace RecruitAI.Application
 				cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 			});
 
-			// Register AutoMapper profiles from this assembly using the DI extension
-			services.AddAutoMapper(typeof(DependencyInjection).Assembly);
+			// Register AutoMapper manually to avoid dependency on AutoMapper.Extensions when using AutoMapper v14
+			var mapperConfig = new AutoMapper.MapperConfiguration(cfg =>
+			{
+				cfg.AddMaps(typeof(DependencyInjection).Assembly);
+			});
+			var mapper = mapperConfig.CreateMapper();
+			services.AddSingleton(mapper);
+			services.AddSingleton(mapperConfig);
 
 			services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 

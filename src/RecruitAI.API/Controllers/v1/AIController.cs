@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using RecruitAI.Application.Commands.AI;
 using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Application.DTOs.Requests.AI;
+using RecruitAI.Domain.Enums;
 using RecruitAI.Application.DTOs.Responses.AI;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
@@ -51,7 +52,7 @@ namespace RecruitAI.API.Controllers.v1
 			command.UserId = userId.Value;
 			var result = await _mediator.Send(command);
 
-			if (result.Status == "processing")
+			if (result.Status == (int)CVStatus.Processing)
 				return Accepted(result);
 
 			return Ok(result);

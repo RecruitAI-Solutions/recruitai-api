@@ -11,6 +11,9 @@ public class JobFilter
 	public EmploymentType? EmploymentType { get; set; }  
 	public ExperienceLevel? ExperienceLevel { get; set; }
 	public string? Skill { get; set; }
+     // Support multiple skills filtering
+		public List<string>? Skills { get; set; }
+		public bool MatchAllSkills { get; set; } = false;
 	public string? SortBy { get; set; }
 	public string SortOrder { get; set; } = "desc";
 	public int Page { get; set; } = 1;

@@ -192,7 +192,9 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 			RequiredSkillCount = matchResult.RequiredSkillCount,
 			MatchedSkills = matchResult.MatchedSkills,
 			MissingSkills = matchResult.MissingSkills,
-			Status = application.Status,
+            Status = application.Status,
+			StatusName = application.Status.ToString(),
+			StatusDisplay = _msg.Get($"ApplicationStatus.{application.Status}"),
 			AppliedAt = application.AppliedAt,
 			AiAnalysis = aiAnalysis
 		};

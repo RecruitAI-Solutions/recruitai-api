@@ -13,7 +13,9 @@ public class JobApplicationDto
 	public int RequiredSkillCount { get; set; }
 	public List<string> MatchedSkills { get; set; } = new();
 	public List<string> MissingSkills { get; set; } = new();
-	public JobApplicationStatus Status { get; set; }
+    public JobApplicationStatus Status { get; set; }
+	public string StatusName { get; set; } = string.Empty;
+	public string? StatusDisplay { get; set; }
 	public DateTime AppliedAt { get; set; }
 	public string CvDownloadUrl { get; set; } = string.Empty;
 }

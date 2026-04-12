@@ -6,6 +6,8 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<RootNamespace>RecruitAI_API</RootNamespace>
 		<EnableHotReload>true</EnableHotReload>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+		<NoWarn>1591</NoWarn>
 	</PropertyGroup>
 
 	<ItemGroup>
