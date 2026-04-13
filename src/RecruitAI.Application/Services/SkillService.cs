@@ -32,7 +32,6 @@ public class SkillService : ISkillService
 		// Tạo skill mới
 		var newSkill = new Skill
 		{
-			Id = await GetNextSkillId(),
 			Name = trimmedName,
 			Category = DetectCategory(trimmedName),
 			IsActive = true,
@@ -106,9 +105,9 @@ public class SkillService : ISkillService
 		return "Other";
 	}
 
-	private async Task<int> GetNextSkillId()
-	{
-		var maxId = await _uow.GetMaxSkillIdAsync();
-		return maxId + 1;
-	}
+	//private async Task<int> GetNextSkillId()
+	//{
+	//	var maxId = await _uow.GetMaxSkillIdAsync();
+	//	return maxId + 1;
+	//}
 }

@@ -26,4 +26,5 @@ public interface IJobRepository : IBaseRepository<Job>
 	Task RemoveJobSkillsAsync(Guid jobId);
 	Task<Dictionary<JobStatus, int>> CountJobsByStatusAsync(DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default);
 	Task<int[]> CountJobsByDayAsync(int days, DateTime? endDate = null, CancellationToken cancellationToken = default);
+	Task<(List<Job> Items, int Total)> GetJobsByCompanyAsync(Guid companyId, int page, int pageSize, CancellationToken cancellationToken = default);
 }
