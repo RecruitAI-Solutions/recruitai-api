@@ -1,5 +1,6 @@
 ﻿using RecruitAI.Domain.Enums;
 using RecruitAI.Application.DTOs.Common;
+using RecruitAI.Domain.Common.Skills;
 
 namespace RecruitAI.Application.DTOs.Jobs;
 
@@ -28,7 +29,7 @@ public class JobDetailDto
 
 	// Kỹ năng
 	public List<int> SkillIds { get; set; } = new();
-	public List<SkillDto> SkillDetails { get; set; } = new();
+	public List<SkillMapping> SkillDetails { get; set; } = new();
 
 	// Phúc lợi
 	public string Benefits { get; set; } = string.Empty;
@@ -45,6 +46,13 @@ public class JobDetailDto
 	public Guid RecruiterId { get; set; }
 	public string RecruiterName { get; set; } = string.Empty;
 	public string RecruiterEmail { get; set; } = string.Empty;
+
+	// Company info
+	public Guid? CompanyId { get; set; }
+	public string? CompanyName { get; set; }
+	public string? CompanyLogo { get; set; }
+	public string? CompanyWebsite { get; set; }
+	public string? CompanyAddress { get; set; }
 
 	// Thống kê
 	public int Views { get; set; }

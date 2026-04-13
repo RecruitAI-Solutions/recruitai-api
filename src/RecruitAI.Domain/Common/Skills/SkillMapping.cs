@@ -1,6 +1,6 @@
-﻿namespace RecruitAI.Application.DTOs.Common
+﻿namespace RecruitAI.Domain.Common.Skills
 {
-	public class SkillDto
+	public class SkillMapping
 	{
 		public int Id { get; set; }
 		public string Name { get; set; } = string.Empty;
