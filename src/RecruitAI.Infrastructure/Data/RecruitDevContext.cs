@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RecruitAI.Domain.Entities;
+using RecruitAI.Infrastructure.Configurations;
 using RecruitAI.Infrastructure.Data.Configurations;
 
 namespace RecruitAI.Infrastructure.Data;
@@ -22,6 +23,8 @@ public partial class RecruitDevContext : DbContext
 	public DbSet<JobApplication> JobApplications { get; set; }
 	public DbSet<JobApplicationMatch> JobApplicationMatches { get; set; }
 	public DbSet<AuditLog> AuditLogs { get; set; }
+	public DbSet<Company> Companies { get; set; }
+
 
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
@@ -38,6 +41,7 @@ public partial class RecruitDevContext : DbContext
 		modelBuilder.ApplyConfiguration(new JobApplicationConfiguration());
 		modelBuilder.ApplyConfiguration(new JobApplicationMatchConfiguration());
 		modelBuilder.ApplyConfiguration(new AuditLogConfiguration());
+		modelBuilder.ApplyConfiguration(new CompanyConfiguration());
 
 		OnModelCreatingPartial(modelBuilder);
 	}

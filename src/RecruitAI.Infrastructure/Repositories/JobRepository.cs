@@ -23,6 +23,7 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 	{
 		return await _dbSet
 			.Include(j => j.Recruiter)
+			.Include(j => j.Company)
 			.Include(j => j.JobSkills)
 				.ThenInclude(js => js.Skill)
 			.FirstOrDefaultAsync(j => j.Id == id && !j.IsDeleted, cancellationToken);
@@ -401,5 +402,23 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 		}
 
 		return result;
+	}
+	public async Task<(List<Job> Items, int Total)> GetJobsByCompanyAsync(Guid companyId, int page, int pageSize, CancellationToken cancellationToken = default)
+	{
+		var query = _dbSet
+			.Include(j => j.Recruiter)
+			.Include(j => j.JobSkills)
+				.ThenInclude(js => js.Skill)
+			.Where(j => j.CompanyId == companyId && !j.IsDeleted && j.IsActive);
+
+		var total = await query.CountAsync(cancellationToken);
+
+		var items = await query
+			.OrderByDescending(j => j.CreatedAt)
+			.Skip((page - 1) * pageSize)
+			.Take(pageSize)
+			.ToListAsync(cancellationToken);
+
+		return (items, total);
 	}
 }

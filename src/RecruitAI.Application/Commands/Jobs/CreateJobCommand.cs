@@ -39,6 +39,16 @@ public class CreateJobCommand : IRequest<JobDetailDto>
 
 	// Sẽ được gán từ claims
 	public Guid RecruiterId { get; set; }
+
+	/// <summary>
+	/// Tên công ty (tự động tạo nếu chưa có)
+	/// </summary>
+	public string? CompanyName { get; set; }
+
+	/// <summary>
+	/// Website công ty (chỉ dùng khi tạo công ty mới)
+	/// </summary>
+	public string? CompanyWebsite { get; set; }
 }
 
 public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobDetailDto>
@@ -48,7 +58,8 @@ public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobDeta
 	private readonly ILogger<CreateJobCommandHandler> _logger;
 	private readonly IAuditLogService _auditLogService;
 	private readonly IMessageService _msg;
-	private readonly ISkillService _skillService;  
+	private readonly ISkillService _skillService;
+	private readonly ICompanyService _companyService;  
 
 	public CreateJobCommandHandler(
 		IUnitOfWork uow,
@@ -56,7 +67,8 @@ public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobDeta
 		ILogger<CreateJobCommandHandler> logger,
 		IAuditLogService auditLogService,
 		IMessageService messageService,
-		ISkillService skillService)  
+		ISkillService skillService,
+		ICompanyService companyService)
 	{
 		_uow = uow;
 		_mapper = mapper;
@@ -64,6 +76,7 @@ public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobDeta
 		_auditLogService = auditLogService;
 		_msg = messageService;
 		_skillService = skillService;
+		_companyService = companyService;  // ⭐ GÁN
 	}
 
 	public async Task<JobDetailDto> Handle(CreateJobCommand request, CancellationToken cancellationToken)
@@ -72,37 +85,51 @@ public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobDeta
 		{
 			_logger.LogInformation("Creating job for recruiter {RecruiterId}", request.RecruiterId);
 
-			// XỬ LÝ SKILL: TỰ ĐỘNG TẠO SKILL MỚI TỪ TÊN
+			// ========== 1. XỬ LÝ SKILL ==========
 			var finalSkillIds = new List<int>();
 
-			// 1. Thêm các skill từ SkillIds (nếu có)
 			if (request.SkillIds != null && request.SkillIds.Any())
 			{
 				finalSkillIds.AddRange(request.SkillIds);
 			}
 
-			// 2. Xử lý các skill từ SkillNames (tự động tạo mới nếu chưa có)
 			if (request.SkillNames != null && request.SkillNames.Any())
 			{
 				foreach (var skillName in request.SkillNames)
 				{
 					if (string.IsNullOrWhiteSpace(skillName)) continue;
-
 					var trimmedName = skillName.Trim();
 					var skill = await _skillService.CreateOrGetSkillAsync(trimmedName);
 					finalSkillIds.Add(skill.Id);
-
 					_logger.LogInformation("Auto-created/found skill: {SkillName} (ID: {SkillId})", trimmedName, skill.Id);
 				}
 			}
 
+			// ========== 2. XỬ LÝ CÔNG TY ==========
+			Guid? companyId = null;
+
+			if (!string.IsNullOrWhiteSpace(request.CompanyName))
+			{
+				var company = await _companyService.CreateOrGetCompanyAsync(
+					request.CompanyName.Trim(),
+					request.CompanyWebsite,
+					request.Location,
+					request.RecruiterId,
+					cancellationToken);
+
+				companyId = company.Id;
+				_logger.LogInformation("Company processed: {CompanyName} (ID: {CompanyId})", company.Name, companyId);
+			}
+
+			// ========== 3. TẠO JOB ==========
 			var job = _mapper.Map<Job>(request);
 			job.Id = Guid.NewGuid();
 			job.CreatedAt = DateTime.UtcNow;
+			job.CompanyId = companyId;  // ⭐ GÁN COMPANY ID (có thể null)
 			job.JobSkills = new HashSet<JobSkill>();
 
 			// Thêm JobSkills từ finalSkillIds
-			foreach (var skillId in finalSkillIds.Distinct())  // Distinct để tránh trùng
+			foreach (var skillId in finalSkillIds.Distinct())
 			{
 				job.JobSkills.Add(new JobSkill
 				{
@@ -114,7 +141,7 @@ public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobDeta
 
 			await _uow.Jobs.AddAsync(job, cancellationToken);
 
-			// Ghi audit log
+			// ========== 4. GHI AUDIT LOG ==========
 			var jobData = new Dictionary<string, string>
 			{
 				[_msg.Get("AuditFieldTitle")] = job.Title,
@@ -122,8 +149,17 @@ public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobDeta
 				["SkillCount"] = finalSkillIds.Count.ToString(),
 				["SkillNames"] = string.Join(", ", request.SkillNames ?? new())
 			};
-			if (job.SalaryMin.HasValue) jobData[_msg.Get("AuditFieldSalaryMin")] = job.SalaryMin.Value.ToString("N0");
-			if (job.SalaryMax.HasValue) jobData[_msg.Get("AuditFieldSalaryMax")] = job.SalaryMax.Value.ToString("N0");
+
+			if (companyId.HasValue)
+			{
+				jobData["CompanyId"] = companyId.Value.ToString();
+				jobData["CompanyName"] = request.CompanyName ?? "";
+			}
+
+			if (job.SalaryMin.HasValue)
+				jobData[_msg.Get("AuditFieldSalaryMin")] = job.SalaryMin.Value.ToString("N0");
+			if (job.SalaryMax.HasValue)
+				jobData[_msg.Get("AuditFieldSalaryMax")] = job.SalaryMax.Value.ToString("N0");
 
 			await _auditLogService.LogAsync(
 				AuditEntityType.Job,
@@ -137,7 +173,7 @@ public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobDeta
 
 			await _uow.SaveChangesAsync(cancellationToken);
 
-			// Load lại job với skills
+			// Load lại job với skills và company
 			var savedJob = await _uow.Jobs.GetByIdAsync(job.Id, cancellationToken);
 
 			return _mapper.Map<JobDetailDto>(savedJob);

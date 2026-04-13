@@ -40,6 +40,7 @@ namespace RecruitAI.Infrastructure
 			services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
 			services.AddScoped<IJobApplicationMatchRepository, JobApplicationMatchRepository>();
 			services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+			services.AddScoped<ICompanyRepository, CompanyRepository>();
 
 
 			services.AddScoped<IWorkContext, WorkContext>();
