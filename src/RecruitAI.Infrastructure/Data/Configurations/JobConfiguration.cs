@@ -57,17 +57,33 @@ namespace RecruitAI.Infrastructure.Data.Configurations
 			entity.Property(e => e.IsDeleted)
 				.HasDefaultValue(false);
 
+			// CẤU HÌNH CHO ISFEATURED
+			entity.Property(e => e.IsFeatured)
+				.HasDefaultValue(false);
+
+			entity.Property(e => e.FeaturedOrder)
+				.IsRequired(false);
+
+			entity.HasIndex(e => e.IsFeatured)
+				.HasDatabaseName("IX_Jobs_IsFeatured");
+
 			// Quan hệ với User (Recruiter)
 			entity.HasOne(e => e.Recruiter)
 				.WithMany()
 				.HasForeignKey(e => e.RecruiterId)
 				.OnDelete(DeleteBehavior.Restrict);
 
-			// THÊM cấu hình cho JobSkills (quan hệ nhiều-nhiều)
+			// Quan hệ cho JobSkills (quan hệ nhiều-nhiều)
 			entity.HasMany(e => e.JobSkills)
 				.WithOne(js => js.Job)
 				.HasForeignKey(js => js.JobId)
 				.OnDelete(DeleteBehavior.Cascade);
+
+			// Quan hệ với Company
+			entity.HasOne(e => e.Company)
+				.WithMany(c => c.Jobs)
+				.HasForeignKey(e => e.CompanyId)
+				.OnDelete(DeleteBehavior.SetNull);
 
 			// Indexes
 			entity.HasIndex(e => e.RecruiterId).HasDatabaseName("IX_Jobs_RecruiterId");

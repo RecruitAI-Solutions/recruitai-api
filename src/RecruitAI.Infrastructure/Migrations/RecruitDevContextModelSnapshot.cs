@@ -332,10 +332,18 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.Property<DateTime>("ExpirationDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("FeaturedOrder")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsFeatured")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
@@ -395,6 +403,9 @@ namespace RecruitAI.Infrastructure.Migrations
 
                     b.HasIndex("IsDeleted")
                         .HasDatabaseName("IX_Jobs_IsDeleted");
+
+                    b.HasIndex("IsFeatured")
+                        .HasDatabaseName("IX_Jobs_IsFeatured");
 
                     b.HasIndex("Location")
                         .HasDatabaseName("IX_Jobs_Location");
