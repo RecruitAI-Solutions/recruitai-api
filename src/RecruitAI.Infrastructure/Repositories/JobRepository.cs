@@ -421,4 +421,85 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 
 		return (items, total);
 	}
+	// Lấy job đã được đánh dấu nổi bật
+	public async Task<List<Job>> GetFeaturedJobsAsync(int limit, CancellationToken cancellationToken = default)
+	{
+		return await _dbSet
+			.Include(j => j.Recruiter)
+			.Include(j => j.JobSkills)
+				.ThenInclude(js => js.Skill)
+			.Include(j => j.Company)
+			.Where(j => !j.IsDeleted && j.IsActive && j.IsFeatured && j.ExpirationDate > DateTime.UtcNow)
+			.OrderBy(j => j.FeaturedOrder ?? int.MaxValue)
+			.ThenByDescending(j => j.CreatedAt)
+			.Take(limit)
+			.ToListAsync(cancellationToken);
+	}
+
+	// Gợi ý job dựa trên kỹ năng
+	public async Task<List<Job>> GetSimilarJobsAsync(List<int> skillIds, Guid excludeJobId, int limit, CancellationToken cancellationToken = default)
+	{
+		if (skillIds == null || !skillIds.Any())
+			return new List<Job>();
+
+		return await _dbSet
+			.Include(j => j.Recruiter)
+			.Include(j => j.JobSkills)
+				.ThenInclude(js => js.Skill)
+			.Include(j => j.Company)
+			.Where(j => !j.IsDeleted && j.IsActive && j.Id != excludeJobId && j.ExpirationDate > DateTime.UtcNow)
+			.Where(j => j.JobSkills.Any(js => skillIds.Contains(js.SkillId)))
+			.Select(j => new { Job = j, MatchCount = j.JobSkills.Count(js => skillIds.Contains(js.SkillId)) })
+			.OrderByDescending(x => x.MatchCount)
+			.ThenByDescending(x => x.Job.CreatedAt)
+			.Select(x => x.Job)
+			.Take(limit)
+			.ToListAsync(cancellationToken);
+	}
+	public async Task<List<Job>> GetTopJobsByScoreAsync(int limit, CancellationToken cancellationToken = default)
+	{
+		var now = DateTime.UtcNow;
+
+		var jobs = await _dbSet
+			.Where(j => !j.IsDeleted && j.IsActive && j.ExpirationDate > now)
+			.ToListAsync(cancellationToken);
+
+		if (!jobs.Any())
+			return new List<Job>();
+
+		// Tìm max views và max applications để chuẩn hóa về thang 0-100
+		var maxViews = jobs.Max(j => j.Views);
+		var maxApplications = jobs.Max(j => j.Applications);
+
+		var scored = jobs.Select(j => new
+		{
+			Job = j,
+			// Chuẩn hóa views về 0-100 (nếu max = 0 thì điểm = 0)
+			ViewScore = maxViews > 0 ? (double)j.Views / maxViews * 100 : 0,
+			// Chuẩn hóa applications về 0-100
+			ApplicationScore = maxApplications > 0 ? (double)j.Applications / maxApplications * 100 : 0,
+			// Độ mới: 30 ngày = 0 điểm, 0 ngày = 100 điểm
+			FreshnessScore = Math.Max(0, 100 - (now - j.CreatedAt).TotalDays * (100.0 / 30))
+		});
+
+		var result = scored
+			.Select(x => new
+			{
+				x.Job,
+				TotalScore = (x.ViewScore * 0.3) + (x.ApplicationScore * 0.5) + (x.FreshnessScore * 0.2)
+			})
+			.OrderByDescending(x => x.TotalScore)
+			.Take(limit)
+			.Select(x => x.Job)
+			.ToList();
+
+		return result;
+	}
+
+	public async Task ResetAllFeaturedAsync(CancellationToken cancellationToken = default)
+	{
+		await _dbSet
+			.Where(j => j.IsFeatured)
+			.ExecuteUpdateAsync(setter => setter.SetProperty(j => j.IsFeatured, false), cancellationToken);
+	}
 }

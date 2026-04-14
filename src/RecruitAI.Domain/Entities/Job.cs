@@ -52,6 +52,9 @@ public class Job
 	public Guid? CompanyId { get; set; }
 	public virtual Company? Company { get; set; }
 
+	public bool IsFeatured { get; set; } = false;  // Công việc nổi bật
+	public int? FeaturedOrder { get; set; } // Thứ tự hiển thị
+
 	// ===== HELPER METHODS MỚI =====
 
 	/// <summary>
