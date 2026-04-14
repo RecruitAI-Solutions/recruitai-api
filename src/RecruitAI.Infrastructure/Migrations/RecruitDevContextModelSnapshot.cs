@@ -45,8 +45,10 @@ namespace RecruitAI.Infrastructure.Migrations
                         .HasMaxLength(45)
                         .HasColumnType("nvarchar(45)");
 
-                    b.Property<Guid>("EntityId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("EntityId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("EntityName")
                         .IsRequired()
@@ -233,6 +235,58 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.ToTable("CVAnalysisResult");
                 });
 
+            modelBuilder.Entity("RecruitAI.Domain.Entities.Company", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Logo")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Slug")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedBy");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasFilter("[Slug] IS NOT NULL");
+
+                    b.ToTable("Companies", (string)null);
+                });
+
             modelBuilder.Entity("RecruitAI.Domain.Entities.Job", b =>
                 {
                     b.Property<Guid>("Id")
@@ -246,6 +300,9 @@ namespace RecruitAI.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(2000)
                         .HasColumnType("nvarchar(2000)");
+
+                    b.Property<Guid?>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -275,10 +332,18 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.Property<DateTime>("ExpirationDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("FeaturedOrder")
+                        .HasColumnType("int");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsFeatured")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
@@ -322,6 +387,8 @@ namespace RecruitAI.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CompanyId");
+
                     b.HasIndex("CreatedAt")
                         .HasDatabaseName("IX_Jobs_CreatedAt");
 
@@ -336,6 +403,9 @@ namespace RecruitAI.Infrastructure.Migrations
 
                     b.HasIndex("IsDeleted")
                         .HasDatabaseName("IX_Jobs_IsDeleted");
+
+                    b.HasIndex("IsFeatured")
+                        .HasDatabaseName("IX_Jobs_IsFeatured");
 
                     b.HasIndex("Location")
                         .HasDatabaseName("IX_Jobs_Location");
@@ -779,13 +849,31 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.Navigation("Skill");
                 });
 
+            modelBuilder.Entity("RecruitAI.Domain.Entities.Company", b =>
+                {
+                    b.HasOne("RecruitAI.Domain.Entities.User", "Creator")
+                        .WithMany()
+                        .HasForeignKey("CreatedBy")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Creator");
+                });
+
             modelBuilder.Entity("RecruitAI.Domain.Entities.Job", b =>
                 {
+                    b.HasOne("RecruitAI.Domain.Entities.Company", "Company")
+                        .WithMany("Jobs")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("RecruitAI.Domain.Entities.User", "Recruiter")
                         .WithMany()
                         .HasForeignKey("RecruiterId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Company");
 
                     b.Navigation("Recruiter");
                 });
@@ -867,6 +955,11 @@ namespace RecruitAI.Infrastructure.Migrations
             modelBuilder.Entity("RecruitAI.Domain.Entities.CV", b =>
                 {
                     b.Navigation("AnalysisResults");
+                });
+
+            modelBuilder.Entity("RecruitAI.Domain.Entities.Company", b =>
+                {
+                    b.Navigation("Jobs");
                 });
 
             modelBuilder.Entity("RecruitAI.Domain.Entities.Job", b =>

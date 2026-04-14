@@ -40,6 +40,7 @@ namespace RecruitAI.Infrastructure
 			services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
 			services.AddScoped<IJobApplicationMatchRepository, JobApplicationMatchRepository>();
 			services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+			services.AddScoped<ICompanyRepository, CompanyRepository>();
 
 
 			services.AddScoped<IWorkContext, WorkContext>();
@@ -68,6 +69,7 @@ namespace RecruitAI.Infrastructure
 			//Register other infrastructure services
 			services.AddScoped<IJwtService, JwtService>();
 			services.AddScoped<IPdfService, PdfService>();
+			services.AddHostedService<FeaturedJobBackgroundService>();
 
 			//Settings
 			services.AddSingleton<IStorageSettings, StorageSettings>();

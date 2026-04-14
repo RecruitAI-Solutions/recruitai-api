@@ -1,4 +1,5 @@
 ﻿using RecruitAI.Domain.Enums;
+using RecruitAI.Domain.Common.Skills;	
 
 namespace RecruitAI.Domain.Entities;
 
@@ -48,6 +49,12 @@ public class Job
 	public int Views { get; set; }
 	public int Applications { get; set; }
 
+	public Guid? CompanyId { get; set; }
+	public virtual Company? Company { get; set; }
+
+	public bool IsFeatured { get; set; } = false;  // Công việc nổi bật
+	public int? FeaturedOrder { get; set; } // Thứ tự hiển thị
+
 	// ===== HELPER METHODS MỚI =====
 
 	/// <summary>
@@ -72,13 +79,20 @@ public class Job
 	/// <summary>
 	/// Lấy danh sách skill kèm theo IsRequired
 	/// </summary>
-	public List<(int SkillId, string SkillName, bool IsRequired)> GetSkillDetails()
+	public List<SkillMapping> GetSkillDetails()
 	{
 		return JobSkills?
 			.Where(js => js.Skill != null)
-			.Select(js => (js.SkillId, js.Skill.Name, js.IsRequired))
-			.ToList() ?? new List<(int, string, bool)>();
+			.Select(js => new SkillMapping
+			{
+				Id = js.SkillId,
+				Name = js.Skill!.Name,
+				Category = js.Skill.Category,
+				IsRequired = js.IsRequired
+			})
+			.ToList() ?? new List<SkillMapping>();
 	}
+
 
 	/// <summary>
 	/// Thêm skill vào job
