@@ -539,4 +539,46 @@
 		<data name="AuditFieldThumbnailUrl" xml:space="preserve">
 		<value>Ảnh thu nhỏ</value>
 	</data>
+	<data name="MarkAsReadSuccess" xml:space="preserve">
+	  <value>Đã đánh dấu đã đọc</value>
+	</data>
+		<data name="MarkAllAsReadSuccess" xml:space="preserve">
+	  <value>Đã đánh dấu tất cả đã đọc</value>
+	</data>
+	<!-- Notification - Apply Job -->
+	<data name="Notification.NewApplication.Title" xml:space="preserve">
+	  <value>Có ứng viên mới</value>
+	</data>
+		<data name="Notification.NewApplication.Content" xml:space="preserve">
+	  <value>Ứng viên đã ứng tuyển vào vị trí {0} với CV "{1}"</value>
+	</data>
+		<data name="Notification.ApplicationSubmitted.Title" xml:space="preserve">
+	  <value>Đã ứng tuyển thành công</value>
+	</data>
+		<data name="Notification.ApplicationSubmitted.Content" xml:space="preserve">
+	  <value>Bạn đã ứng tuyển thành công vào vị trí {0}</value>
+	</data>
+
+	<!-- Notification - Update Status -->
+	<data name="Notification.ApplicationStatusChanged.Title" xml:space="preserve">
+		<value>Cập nhật đơn ứng tuyển</value>
+	</data>
+		<data name="Notification.ApplicationStatusChanged.Content" xml:space="preserve">
+	  <value>Đơn ứng tuyển của bạn cho vị trí {0} {1}</value>
+	</data>
+	<data name="ApplicationStatus.Accepted" xml:space="preserve">
+	  <value>đã được chấp nhận</value>
+	</data>
+		<data name="ApplicationStatus.Rejected" xml:space="preserve">
+	  <value>bị từ chối</value>
+	</data>
+		<data name="ApplicationStatus.Reviewed" xml:space="preserve">
+	  <value>đã được xem xét</value>
+	</data>
+		<data name="ApplicationStatus.Pending" xml:space="preserve">
+	  <value>đang chờ xử lý</value>
+	</data>
+		<data name="ApplicationStatus.Updated" xml:space="preserve">
+	  <value>đã được cập nhật</value>
+	</data>
 </root>

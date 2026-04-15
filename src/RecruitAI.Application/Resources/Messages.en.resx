@@ -538,4 +538,46 @@
 		<data name="AuditFieldThumbnailUrl" xml:space="preserve">
 		<value>Thumbnail URL</value>
 	</data>
+	<data name="MarkAsReadSuccess" xml:space="preserve">
+	  <value>Marked as read</value>
+	</data>
+		<data name="MarkAllAsReadSuccess" xml:space="preserve">
+	  <value>Marked all as read</value>
+	</data>
+	<!-- Notification - Apply Job -->
+	<data name="Notification.NewApplication.Title" xml:space="preserve">
+	  <value>New Application</value>
+	</data>
+		<data name="Notification.NewApplication.Content" xml:space="preserve">
+	  <value>A candidate has applied for {0} with CV "{1}"</value>
+	</data>
+		<data name="Notification.ApplicationSubmitted.Title" xml:space="preserve">
+	  <value>Application Submitted</value>
+	</data>
+		<data name="Notification.ApplicationSubmitted.Content" xml:space="preserve">
+	  <value>You have successfully applied for {0}</value>
+	</data>
+
+	<!-- Notification - Update Status -->
+	<data name="Notification.ApplicationStatusChanged.Title" xml:space="preserve">
+	  <value>Application Status Updated</value>
+	</data>
+		<data name="Notification.ApplicationStatusChanged.Content" xml:space="preserve">
+	  <value>Your application for {0} has been {1}</value>
+	</data>
+	<data name="ApplicationStatus.Accepted" xml:space="preserve">
+	  <value>accepted</value>
+	</data>
+		<data name="ApplicationStatus.Rejected" xml:space="preserve">
+	  <value>rejected</value>
+	</data>
+		<data name="ApplicationStatus.Reviewed" xml:space="preserve">
+	  <value>reviewed</value>
+	</data>
+		<data name="ApplicationStatus.Pending" xml:space="preserve">
+	  <value>pending</value>
+	</data>
+		<data name="ApplicationStatus.Updated" xml:space="preserve">
+	  <value>updated</value>
+	</data>
 </root>

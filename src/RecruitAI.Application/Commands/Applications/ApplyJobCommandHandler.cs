@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using RecruitAI.Application.Commands.Notifications;
 using RecruitAI.Application.DTOs.AI;
 using RecruitAI.Application.DTOs.Responses.Applications;
 using RecruitAI.Application.Helpers;
@@ -23,6 +24,7 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 	private readonly IAuditLogService _auditLogService;
 	private readonly IAIRecommendationService _aiRecommendationService;
 	private readonly IConfiguration _configuration;
+	private readonly IMediator _mediator;
 
 	public ApplyJobCommandHandler(
 		IUnitOfWork unitOfWork,
@@ -31,7 +33,8 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 		IMessageService msg,
 		IAuditLogService auditLogService,
 		IAIRecommendationService aiRecommendationService,
-		IConfiguration configuration)
+		IConfiguration configuration,
+		IMediator mediator)
 	{
 		_unitOfWork = unitOfWork;
 		_matchingService = matchingService;
@@ -40,6 +43,7 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 		_auditLogService = auditLogService;
 		_aiRecommendationService = aiRecommendationService;
 		_configuration = configuration;
+		_mediator = mediator;
 	}
 
 	public async Task<ApplyJobResponseDto> Handle(ApplyJobCommand request, CancellationToken cancellationToken)
@@ -74,7 +78,7 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 		var matchResult = await _matchingService.CalculateAndSaveMatchAsync(
 			request.CvId, request.JobId, request.UserId, cancellationToken);
 
-		// 5. Create job application
+		// 5a. Create job application
 		var application = new JobApplication
 		{
 			Id = Guid.NewGuid(),
@@ -86,6 +90,30 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 
 		await _unitOfWork.JobApplications.AddAsync(application, cancellationToken);
 		await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+		// 5b. Tạo thông báo cho nhà tuyển dụng (recruiter)
+		var recruiterNotification = new CreateNotificationCommand
+		{
+			UserId = job.RecruiterId,
+			Title = _msg.Get("Notification.NewApplication.Title"),
+			Content = string.Format(_msg.Get("Notification.NewApplication.Content"), job.Title, cv.FileName),
+			Type = "application_update",
+			Data = JsonSerializer.Serialize(new { ApplicationId = application.Id, JobId = job.Id, CvId = cv.Id })
+		};
+
+		await _mediator.Send(recruiterNotification, cancellationToken);
+
+		// 5c. Tạo thông báo xác nhận cho ứng viên
+		var candidateNotification = new CreateNotificationCommand
+		{
+			UserId = request.UserId,
+			Title = _msg.Get("Notification.ApplicationSubmitted.Title"),
+			Content = string.Format(_msg.Get("Notification.ApplicationSubmitted.Content"), job.Title),
+			Type = "application_update",
+			Data = JsonSerializer.Serialize(new { ApplicationId = application.Id, JobId = job.Id })
+		};
+
+		await _mediator.Send(candidateNotification, cancellationToken);
 
 		// 6. Update match with application id
 		var match = await _unitOfWork.JobApplicationMatches
@@ -192,7 +220,7 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 			RequiredSkillCount = matchResult.RequiredSkillCount,
 			MatchedSkills = matchResult.MatchedSkills,
 			MissingSkills = matchResult.MissingSkills,
-            Status = application.Status,
+			Status = application.Status,
 			StatusName = application.Status.ToString(),
 			StatusDisplay = _msg.Get($"ApplicationStatus.{application.Status}"),
 			AppliedAt = application.AppliedAt,

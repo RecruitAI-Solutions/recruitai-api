@@ -16,6 +16,7 @@ namespace RecruitAI.Application.Interfaces
 		IJobApplicationRepository JobApplications {  get; }
 		IJobApplicationMatchRepository JobApplicationMatches {  get; }
 		ICompanyRepository Companies { get; }
+		INotificationRepository Notifications { get; }
 
 		Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 		Task BeginTransactionAsync(CancellationToken cancellationToken = default);

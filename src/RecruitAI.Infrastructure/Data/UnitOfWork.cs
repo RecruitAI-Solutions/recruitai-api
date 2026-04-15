@@ -28,7 +28,7 @@ namespace RecruitAI.Infrastructure.Data
 		private IJobApplicationRepository _jobApplicationRepository;
 		private IJobApplicationMatchRepository _jobApplicationMatchRepository;
 		private ICompanyRepository _companyRepository;
-
+		private INotificationRepository? _notificationRepository;
 
 		public UnitOfWork(RecruitDevContext context,
 			ILogger<UnitOfWork> logger)
@@ -65,6 +65,9 @@ namespace RecruitAI.Infrastructure.Data
 			_jobApplicationMatchRepository ??= new JobApplicationMatchRepository(_context);
 		public ICompanyRepository Companies =>
 			_companyRepository ??= new CompanyRepository(_context);
+		public INotificationRepository Notifications =>
+			_notificationRepository ??= new NotificationRepository(_context);
+
 
 
 		public bool HasActiveTransaction => _currentTransaction != null;
