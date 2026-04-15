@@ -539,4 +539,21 @@
 		<data name="AuditFieldThumbnailUrl" xml:space="preserve">
 		<value>Ảnh thu nhỏ</value>
 	</data>
+	<!-- ===== SAVED JOBS BUSINESS ===== -->
+	<data name="BusinessSaveJobAlreadyExists" xml:space="preserve">
+	  <value>Công việc đã được lưu trước đó</value>
+	</data>
+		<data name="BusinessJobNotFoundOrExpired" xml:space="preserve">
+	  <value>Không tìm thấy công việc hoặc công việc đã hết hạn</value>
+	</data>
+		<data name="BusinessSavedJobNotFound" xml:space="preserve">
+	  <value>Không tìm thấy công việc đã lưu</value>
+	</data>
+	<!-- ===== SAVED JOBS ===== -->
+	<data name="SaveJobSuccess" xml:space="preserve">
+	  <value>Đã lưu công việc thành công</value>
+	</data>
+		<data name="UnsaveJobSuccess" xml:space="preserve">
+	  <value>Đã bỏ lưu công việc thành công</value>
+	</data>
 </root>

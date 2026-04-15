@@ -538,4 +538,20 @@
 		<data name="AuditFieldThumbnailUrl" xml:space="preserve">
 		<value>Thumbnail URL</value>
 	</data>
+	<!-- ===== SAVED JOBS BUSINESS ===== -->
+	<data name="BusinessSaveJobAlreadyExists" xml:space="preserve">
+	  <value>Job already saved</value>
+	</data>
+		<data name="BusinessJobNotFoundOrExpired" xml:space="preserve">
+	  <value>Job not found or expired</value>
+	</data>
+		<data name="BusinessSavedJobNotFound" xml:space="preserve">
+	  <value>Saved job not found</value>
+	</data>
+	<data name="SaveJobSuccess" xml:space="preserve">
+	  <value>Job saved successfully</value>
+	</data>
+		<data name="UnsaveJobSuccess" xml:space="preserve">
+	  <value>Job unsaved successfully</value>
+	</data>
 </root>
