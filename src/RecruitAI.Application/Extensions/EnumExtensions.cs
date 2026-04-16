@@ -16,4 +16,17 @@ public static class EnumExtensions
 			_ => msg.Get("ApplicationStatus.Updated")
 		};
 	}
+	public static string GetDisplayName(this UserStatus status, IMessageService msg)
+	{
+		return status switch
+		{
+			UserStatus.Active => msg.Get("UserStatus.Active"),
+			UserStatus.Inactive => msg.Get("UserStatus.Inactive"),
+			UserStatus.Locked => msg.Get("UserStatus.Locked"),
+			UserStatus.PendingVerification => msg.Get("UserStatus.PendingVerification"),
+			UserStatus.Deleted => msg.Get("UserStatus.Deleted"),
+			UserStatus.Banned => msg.Get("UserStatus.Banned"),
+			_ => msg.Get("UserStatus.Updated")
+		};
+	}
 }

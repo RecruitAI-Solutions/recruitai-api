@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using RecruitAI.Application.Commands.Notifications;
 using RecruitAI.Application.DTOs.Responses.Auths;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
@@ -31,7 +32,8 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 	private readonly ILogger<UploadCVCommandHandler> _logger;
 	private readonly IMessageService _msg;
 	private readonly IPdfService _pdfService;
-	private readonly IAuditLogService _auditLogService;  
+	private readonly IAuditLogService _auditLogService;
+	private readonly IMediator _mediator;
 
 	public UploadCVCommandHandler(
 		IUnitOfWork uow,
@@ -39,7 +41,8 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 		ILogger<UploadCVCommandHandler> logger,
 		IMessageService messageService,
 		IPdfService pdfService,
-		IAuditLogService auditLogService)  
+		IAuditLogService auditLogService,
+		IMediator mediator)  
 	{
 		_uow = uow;
 		_env = env;
@@ -47,6 +50,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 		_msg = messageService;
 		_pdfService = pdfService;
 		_auditLogService = auditLogService;
+		_mediator = mediator;
 	}
 
 	public async Task<UploadCVResponseDto> Handle(UploadCVCommand request, CancellationToken cancellationToken)
@@ -190,6 +194,18 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 
 				await _uow.SaveChangesAsync(cancellationToken);
 			}
+			// TẠO THÔNG BÁO CHO ỨNG VIÊN
+			var notification = new CreateNotificationCommand
+			{
+				UserId = request.UserId,
+				Title = _msg.Get("Notification.CVUploaded.Title"),
+				Content = string.Format(_msg.Get("Notification.CVUploaded.Content"), request.FileName),
+				Type = "cv_upload",
+				Data = JsonSerializer.Serialize(new { CvId = cv.Id, FileName = request.FileName, Status = cv.Status.ToString() })
+			};
+			await _mediator.Send(notification, cancellationToken);
+
+			_logger.LogInformation("Notification sent to user {UserId} for CV upload", request.UserId);
 
 			return new UploadCVResponseDto
 			{
@@ -198,7 +214,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 				FilePath = relativePath,
 				FileSize = request.FileSize,
 				UploadedAt = cv.UploadedAt,
-           Status = (int)cv.Status,
+		   Status = (int)cv.Status,
 			StatusName = cv.Status.ToString()
 			};
 		}

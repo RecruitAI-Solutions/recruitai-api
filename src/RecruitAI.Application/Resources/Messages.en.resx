@@ -580,4 +580,37 @@
 		<data name="ApplicationStatus.Updated" xml:space="preserve">
 	  <value>updated</value>
 	</data>
+	<data name="UserStatus.Active" xml:space="preserve">
+	  <value>activated</value>
+	</data>
+		<data name="UserStatus.Inactive" xml:space="preserve">
+	  <value>inactive</value>
+	</data>
+		<data name="UserStatus.Locked" xml:space="preserve">
+	  <value>locked</value>
+	</data>
+		<data name="UserStatus.PendingVerification" xml:space="preserve">
+	  <value>pending verification</value>
+	</data>
+		<data name="UserStatus.Deleted" xml:space="preserve">
+	  <value>deleted</value>
+	</data>
+		<data name="UserStatus.Banned" xml:space="preserve">
+	  <value>banned</value>
+	</data>
+		<data name="UserStatus.Updated" xml:space="preserve">
+	  <value>updated</value>
+	</data>
+	<data name="Notification.CVAnalyzed.Title" xml:space="preserve">
+	  <value>CV Analysis Completed</value>
+	</data>
+		<data name="Notification.CVAnalyzed.Content" xml:space="preserve">
+	  <value>CV "{0}" has been analyzed. Found {1} skills.</value>
+	</data>
+	<data name="Notification.JobCreated.Title" xml:space="preserve">
+	  <value>New Job Created</value>
+	</data>
+	<data name="Notification.JobCreated.Content" xml:space="preserve">
+	  <value>Job "{0}" has been created successfully</value>
+	</data>
 </root>
