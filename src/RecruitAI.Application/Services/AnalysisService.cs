@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using RecruitAI.Application.Commands.Notifications;
 using RecruitAI.Application.DTOs.Requests.AI;
 using RecruitAI.Application.DTOs.Responses.AI;
 using RecruitAI.Application.Helpers;
@@ -22,6 +24,7 @@ namespace RecruitAI.Application.Services
 		private readonly IAuditLogService _auditLogService;
 		private readonly IAIExtractionService _aiExtractionService;
 		private readonly IConfiguration _configuration;
+		private readonly IMediator _mediator;
 
 		public AnalysisService(
 			IUnitOfWork uow,
@@ -30,7 +33,8 @@ namespace RecruitAI.Application.Services
 			IPdfService pdfService,
 			IAuditLogService auditLogService,
 			IAIExtractionService aiExtractionService,
-			IConfiguration configuration)
+			IConfiguration configuration,
+			IMediator mediator)
 		{
 			_uow = uow;
 			_logger = logger;
@@ -39,6 +43,7 @@ namespace RecruitAI.Application.Services
 			_auditLogService = auditLogService;
 			_aiExtractionService = aiExtractionService;
 			_configuration = configuration;
+			_mediator = mediator;
 		}
 
 		public async Task<AnalyzeCvResponseDto> AnalyzeCVAsync(AnalyzeCvRequestDto request, Guid userId)
@@ -104,11 +109,21 @@ namespace RecruitAI.Application.Services
 				null,
 				default);
 
+			var notification = new CreateNotificationCommand
+			{
+				UserId = cv.UserId,
+				Title = _msg.Get("Notification.CVAnalyzed.Title"),
+				Content = string.Format(_msg.Get("Notification.CVAnalyzed.Content"), cv.FileName, combinedSkills.Count),
+				Type = "cv_processed",
+				Data = JsonSerializer.Serialize(new { CvId = cv.Id, TotalSkills = combinedSkills.Count })
+			};
+			await _mediator.Send(notification, default);
+
 			// 7. Trả về kết quả
-         return new AnalyzeCvResponseDto
+			return new AnalyzeCvResponseDto
 			{
 				CvId = cv.Id,
-              Status = (int)cv.Status,
+			  Status = (int)cv.Status,
 				StatusName = cv.Status.ToString(),
 				Skills = combinedSkills.OrderByDescending(s => s.Confidence).ToList(),
 				TotalSkills = combinedSkills.Count,
@@ -360,7 +375,7 @@ namespace RecruitAI.Application.Services
 			{
 				CvId = cv.Id,
 				FileName = cv.FileName,
-         Status = (int)cv.Status,
+		 Status = (int)cv.Status,
 			StatusName = cv.Status.ToString(),
 			UploadedAt = cv.UploadedAt,
 				AnalyzedAt = cv.AnalyzedAt,
@@ -369,19 +384,19 @@ namespace RecruitAI.Application.Services
 
 			if (cv.Status == CVStatus.Pending || cv.Status == CVStatus.Uploaded)
 			{
-          result.Status = (int)cv.Status;
+		  result.Status = (int)cv.Status;
 			result.StatusName = MapStatus(cv.Status);
 				result.Message = "This CV has not been analyzed yet";
 			}
 			else if (cv.Status == CVStatus.Processing)
 			{
-           result.Status = (int)cv.Status;
+		   result.Status = (int)cv.Status;
 			result.StatusName = MapStatus(cv.Status);
 				result.Message = "CV is being analyzed. Estimated time: 5 seconds";
 			}
 			else if (cv.Status == CVStatus.Analyzed)
 			{
-            var analysisResults = await _uow.CVAnalysisResults.GetByCVIdAsync(cvId);
+			var analysisResults = await _uow.CVAnalysisResults.GetByCVIdAsync(cvId);
 			result.Status = (int)cv.Status;
 			result.StatusName = MapStatus(cv.Status);
 				result.Skills = analysisResults.Select(r => new SkillMatchDto
@@ -395,7 +410,7 @@ namespace RecruitAI.Application.Services
 			}
 			else if (cv.Status == CVStatus.Failed)
 			{
-           result.Status = (int)cv.Status;
+		   result.Status = (int)cv.Status;
 			result.StatusName = MapStatus(cv.Status);
 				result.Message = cv.ErrorMessage ?? "Analysis failed";
 			}

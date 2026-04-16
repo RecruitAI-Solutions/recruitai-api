@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using RecruitAI.Application.Commands.Notifications;
 using RecruitAI.Application.DTOs.Jobs;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
@@ -59,7 +60,8 @@ public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobDeta
 	private readonly IAuditLogService _auditLogService;
 	private readonly IMessageService _msg;
 	private readonly ISkillService _skillService;
-	private readonly ICompanyService _companyService;  
+	private readonly ICompanyService _companyService;
+	private readonly IMediator _mediator;
 
 	public CreateJobCommandHandler(
 		IUnitOfWork uow,
@@ -68,7 +70,8 @@ public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobDeta
 		IAuditLogService auditLogService,
 		IMessageService messageService,
 		ISkillService skillService,
-		ICompanyService companyService)
+		ICompanyService companyService,
+		IMediator mediator)
 	{
 		_uow = uow;
 		_mapper = mapper;
@@ -76,7 +79,8 @@ public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobDeta
 		_auditLogService = auditLogService;
 		_msg = messageService;
 		_skillService = skillService;
-		_companyService = companyService;  // ⭐ GÁN
+		_companyService = companyService; 
+		_mediator = mediator;
 	}
 
 	public async Task<JobDetailDto> Handle(CreateJobCommand request, CancellationToken cancellationToken)
@@ -172,6 +176,18 @@ public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, JobDeta
 				cancellationToken);
 
 			await _uow.SaveChangesAsync(cancellationToken);
+
+			var notification = new CreateNotificationCommand
+			{
+				UserId = request.RecruiterId,
+				Title = _msg.Get("Notification.JobCreated.Title"),
+				Content = string.Format(_msg.Get("Notification.JobCreated.Content"), job.Title),
+				Type = "job_update",
+				Data = JsonSerializer.Serialize(new { JobId = job.Id, JobTitle = job.Title })
+			};
+			await _mediator.Send(notification, cancellationToken);
+
+			_logger.LogInformation("Notification sent to recruiter {RecruiterId} for job {JobId}", request.RecruiterId, job.Id);
 
 			// Load lại job với skills và company
 			var savedJob = await _uow.Jobs.GetByIdAsync(job.Id, cancellationToken);

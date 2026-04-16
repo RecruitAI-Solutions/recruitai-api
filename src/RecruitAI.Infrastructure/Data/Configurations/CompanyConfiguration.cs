@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using RecruitAI.Domain.Entities;
 
-namespace RecruitAI.Infrastructure.Configurations
+namespace RecruitAI.Infrastructure.Data.Configurations
 {
 	public class CompanyConfiguration : IEntityTypeConfiguration<Company>
 	{

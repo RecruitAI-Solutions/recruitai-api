@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
+using RecruitAI.Application.Commands.Notifications;
 using RecruitAI.Application.DTOs.Responses.Admin;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
@@ -7,6 +8,8 @@ using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using RecruitAI.Infrastructure.Services;
+using RecruitAI.Application.Extensions;
+using System.Text.Json;
 
 namespace RecruitAI.Application.Commands.Admin
 {
@@ -16,17 +19,23 @@ namespace RecruitAI.Application.Commands.Admin
 		private readonly ILogger<UpdateUserRoleCommandHandler> _logger;
 		private readonly IRolePermissionService _rolePermissionService;
 		private readonly IAuditLogService _auditLogService;
+		private readonly IMessageService _msg;
+		private readonly IMediator _mediator;
 
 		public UpdateUserRoleCommandHandler(
 			IUnitOfWork unitOfWork,
 			ILogger<UpdateUserRoleCommandHandler> logger,
 			IRolePermissionService rolePermissionService,
-			IAuditLogService auditLogService)
+			IAuditLogService auditLogService,
+			IMessageService msg,
+			IMediator mediator)
 		{
 			_unitOfWork = unitOfWork;
 			_logger = logger;
 			_rolePermissionService = rolePermissionService;
 			_auditLogService = auditLogService;
+			_msg = msg;
+			_mediator = mediator;
 		}
 
 		public async Task<AdminUserRoleUpdateResponseDto> Handle(UpdateUserRoleCommand request, CancellationToken cancellationToken)
@@ -62,6 +71,19 @@ namespace RecruitAI.Application.Commands.Admin
 				cancellationToken);
 
 			await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+			_logger.LogInformation("User {UserId} role changed from {OldRole} to {NewRole}",
+				request.UserId, oldRole, user.Role);
+
+			var notification = new CreateNotificationCommand
+			{
+				UserId = user.Id,
+				Title = _msg.Get("Notification.RoleChanged.Title"),
+				Content = string.Format(_msg.Get("Notification.RoleChanged.Content"), request.Role.GetDisplayName(_msg)),
+				Type = "account_update",
+				Data = JsonSerializer.Serialize(new { OldRole = oldRole.ToString(), NewRole = request.Role.ToString() })
+			};
+			await _mediator.Send(notification, cancellationToken);
 
 			_logger.LogInformation("User {UserId} role changed from {OldRole} to {NewRole}",
 				request.UserId, oldRole, user.Role);

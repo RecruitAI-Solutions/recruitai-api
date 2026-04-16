@@ -29,6 +29,7 @@ namespace RecruitAI.Infrastructure.Data.SeedData
 			jobs.Add(new Job
 			{
 				Id = Guid.Parse("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA"),
+				CompanyId = Guid.Parse("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA"), // Tech Solutions
 				Title = ".NET Backend Developer",
 				Description = "We are looking for a skilled .NET Backend Developer to join our engineering team. You will be responsible for building RESTful APIs, optimizing database performance, and implementing authentication systems.",
 				Requirements = "Strong experience with C#, ASP.NET Core, Entity Framework, SQL Server. Knowledge of Redis and microservices is a plus.",
@@ -54,6 +55,7 @@ namespace RecruitAI.Infrastructure.Data.SeedData
 			jobs.Add(new Job
 			{
 				Id = Guid.Parse("BBBBBBBB-BBBB-BBBB-BBBB-BBBBBBBBBBBB"),
+				CompanyId = Guid.Parse("AAAAAAAA-AAAA-AAAA-AAAA-AAAAAAAAAAAA"), // Tech Solutions
 				Title = "Frontend React Developer",
 				Description = "Join our frontend team to build responsive and high-performance user interfaces using ReactJS and modern web technologies.",
 				Requirements = "Proficient in ReactJS, JavaScript, TypeScript, HTML5, CSS3. Experience with Tailwind CSS and state management (Redux).",
@@ -79,6 +81,7 @@ namespace RecruitAI.Infrastructure.Data.SeedData
 			jobs.Add(new Job
 			{
 				Id = Guid.Parse("CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC"),
+				CompanyId = Guid.Parse("CCCCCCCC-CCCC-CCCC-CCCC-CCCCCCCCCCCC"), // AI Startup
 				Title = "AI/ML Engineer",
 				Description = "Develop and deploy machine learning models for candidate screening, NLP applications, and data-driven solutions.",
 				Requirements = "Strong Python skills, experience with TensorFlow, Scikit-learn, Pandas. Knowledge of NLP and model deployment.",

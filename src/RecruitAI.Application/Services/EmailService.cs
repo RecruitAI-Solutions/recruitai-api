@@ -145,5 +145,219 @@ namespace RecruitAI.Infrastructure.Services
 
 			await SendHtmlEmailAsync(to, subject, htmlBody, cancellationToken);
 		}
+
+		public async Task SendJobApplicationEmailAsync(string to, string userName, string jobTitle,
+			string companyName, string jobLocation, string salaryRange,
+			DateTime appliedDate, string trackingLink, CancellationToken cancellationToken = default)
+		{
+			var language = GetUserLanguage();
+			var template = await _templateService.LoadTemplateAsync("job-application", language, cancellationToken);
+
+			var placeholders = new Dictionary<string, string>
+			{
+				["UserName"] = userName,
+				["JobTitle"] = jobTitle,
+				["CompanyName"] = companyName,
+				["JobLocation"] = jobLocation,
+				["SalaryRange"] = salaryRange,
+				["AppliedDate"] = appliedDate.ToString("dd/MM/yyyy HH:mm"),
+				["TrackingLink"] = trackingLink,
+				["Year"] = DateTime.UtcNow.Year.ToString()
+			};
+
+			var htmlBody = _templateService.ReplacePlaceholders(template, placeholders);
+			var subject = language == "vi"
+				? $"Xác nhận ứng tuyển: {jobTitle} - RecruitAI"
+				: $"Job Application Confirmation: {jobTitle} - RecruitAI";
+
+			await SendHtmlEmailAsync(to, subject, htmlBody, cancellationToken);
+		}
+
+		public async Task SendInterviewInvitationEmailAsync(string to, string userName, string jobTitle,
+			string companyName, DateTime interviewDate, string interviewTime,
+			string interviewLocation, string interviewerName, int duration,
+			string interviewFormat, string confirmLink, string declineLink,
+			CancellationToken cancellationToken = default)
+		{
+			var language = GetUserLanguage();
+			var template = await _templateService.LoadTemplateAsync("interview-invitation", language, cancellationToken);
+
+			var placeholders = new Dictionary<string, string>
+			{
+				["UserName"] = userName,
+				["JobTitle"] = jobTitle,
+				["CompanyName"] = companyName,
+				["InterviewDate"] = interviewDate.ToString("dd/MM/yyyy"),
+				["InterviewTime"] = interviewTime,
+				["InterviewLocation"] = interviewLocation,
+				["InterviewerName"] = interviewerName,
+				["Duration"] = duration.ToString(),
+				["InterviewFormat"] = interviewFormat,
+				["ConfirmLink"] = confirmLink,
+				["DeclineLink"] = declineLink,
+				["Year"] = DateTime.UtcNow.Year.ToString()
+			};
+
+			var htmlBody = _templateService.ReplacePlaceholders(template, placeholders);
+			var subject = language == "vi"
+				? $"Thư mời phỏng vấn: {jobTitle} - RecruitAI"
+				: $"Interview Invitation: {jobTitle} - RecruitAI";
+
+			await SendHtmlEmailAsync(to, subject, htmlBody, cancellationToken);
+		}
+
+		public async Task SendReminderEmailAsync(string to, string userName, string reminderSubject,
+			string reminderMessage, DateTime reminderTime, CancellationToken cancellationToken = default)
+		{
+			var language = GetUserLanguage();
+			var template = await _templateService.LoadTemplateAsync("reminder", language, cancellationToken);
+
+			var placeholders = new Dictionary<string, string>
+			{
+				["UserName"] = userName,
+				["ReminderSubject"] = reminderSubject,
+				["ReminderMessage"] = reminderMessage,
+				["ReminderTime"] = reminderTime.ToString("dd/MM/yyyy HH:mm"),
+				["Year"] = DateTime.UtcNow.Year.ToString()
+			};
+
+			var htmlBody = _templateService.ReplacePlaceholders(template, placeholders);
+			var subject = language == "vi"
+				? $"Lời nhắc: {reminderSubject} - RecruitAI"
+				: $"Reminder: {reminderSubject} - RecruitAI";
+
+			await SendHtmlEmailAsync(to, subject, htmlBody, cancellationToken);
+		}
+
+		public async Task SendSystemAnnouncementEmailAsync(string to, string userName,
+			string announcementTitle, string announcementContent, CancellationToken cancellationToken = default)
+		{
+			var language = GetUserLanguage();
+			var template = await _templateService.LoadTemplateAsync("system-announcement", language, cancellationToken);
+
+			var placeholders = new Dictionary<string, string>
+			{
+				["UserName"] = userName,
+				["AnnouncementTitle"] = announcementTitle,
+				["AnnouncementContent"] = announcementContent,
+				["Year"] = DateTime.UtcNow.Year.ToString()
+			};
+
+			var htmlBody = _templateService.ReplacePlaceholders(template, placeholders);
+			var subject = language == "vi"
+				? $"Thông báo: {announcementTitle} - RecruitAI"
+				: $"Announcement: {announcementTitle} - RecruitAI";
+
+			await SendHtmlEmailAsync(to, subject, htmlBody, cancellationToken);
+		}
+
+		// ========== APPLICATION STATUS EMAILS ==========
+
+		public async Task SendApplicationStatusUpdateEmailAsync(
+			string to, string userName, string jobTitle, string companyName,
+			string status, string? notes, string trackingLink,
+			CancellationToken cancellationToken = default)
+		{
+			var language = GetUserLanguage();
+			var template = await _templateService.LoadTemplateAsync("application-status-update", language, cancellationToken);
+
+			var placeholders = new Dictionary<string, string>
+			{
+				["UserName"] = userName,
+				["JobTitle"] = jobTitle,
+				["CompanyName"] = companyName,
+				["Status"] = status,
+				["Notes"] = notes ?? string.Empty,
+				["TrackingLink"] = trackingLink,
+				["Year"] = DateTime.UtcNow.Year.ToString()
+			};
+
+			var htmlBody = _templateService.ReplacePlaceholders(template, placeholders);
+			var subject = language == "vi"
+				? $"Cập nhật trạng thái ứng tuyển: {jobTitle} - RecruitAI"
+				: $"Application Status Update: {jobTitle} - RecruitAI";
+
+			await SendHtmlEmailAsync(to, subject, htmlBody, cancellationToken);
+		}
+
+		public async Task SendApplicationReviewedEmailAsync(
+			string to, string userName, string jobTitle, string companyName,
+			string status, string? notes, string trackingLink,
+			CancellationToken cancellationToken = default)
+		{
+			var language = GetUserLanguage();
+			var template = await _templateService.LoadTemplateAsync("application-reviewed", language, cancellationToken);
+
+			var placeholders = new Dictionary<string, string>
+			{
+				["UserName"] = userName,
+				["JobTitle"] = jobTitle,
+				["CompanyName"] = companyName,
+				["Status"] = status,
+				["Notes"] = notes ?? string.Empty,
+				["TrackingLink"] = trackingLink,
+				["Year"] = DateTime.UtcNow.Year.ToString()
+			};
+
+			var htmlBody = _templateService.ReplacePlaceholders(template, placeholders);
+			var subject = language == "vi"
+				? $"Hồ sơ của bạn đã được xem xét: {jobTitle} - RecruitAI"
+				: $"Your application has been reviewed: {jobTitle} - RecruitAI";
+
+			await SendHtmlEmailAsync(to, subject, htmlBody, cancellationToken);
+		}
+
+		public async Task SendApplicationAcceptedEmailAsync(
+			string to, string userName, string jobTitle, string companyName,
+			string status, string? nextSteps, string trackingLink,
+			CancellationToken cancellationToken = default)
+		{
+			var language = GetUserLanguage();
+			var template = await _templateService.LoadTemplateAsync("application-accepted", language, cancellationToken);
+
+			var placeholders = new Dictionary<string, string>
+			{
+				["UserName"] = userName,
+				["JobTitle"] = jobTitle,
+				["CompanyName"] = companyName,
+				["Status"] = status,
+				["NextSteps"] = nextSteps ?? string.Empty,
+				["TrackingLink"] = trackingLink,
+				["Year"] = DateTime.UtcNow.Year.ToString()
+			};
+
+			var htmlBody = _templateService.ReplacePlaceholders(template, placeholders);
+			var subject = language == "vi"
+				? $"Chúc mừng! Bạn đã được chấp nhận: {jobTitle} - RecruitAI"
+				: $"Congratulations! You have been accepted: {jobTitle} - RecruitAI";
+
+			await SendHtmlEmailAsync(to, subject, htmlBody, cancellationToken);
+		}
+
+		public async Task SendApplicationRejectedEmailAsync(
+			string to, string userName, string jobTitle, string companyName,
+			string reason, string trackingLink,
+			CancellationToken cancellationToken = default)
+		{
+			var language = GetUserLanguage();
+			var template = await _templateService.LoadTemplateAsync("application-rejected", language, cancellationToken);
+
+			var placeholders = new Dictionary<string, string>
+			{
+				["UserName"] = userName,
+				["JobTitle"] = jobTitle,
+				["CompanyName"] = companyName,
+				["Reason"] = reason,
+				["TrackingLink"] = trackingLink,
+				["Year"] = DateTime.UtcNow.Year.ToString()
+			};
+
+			var htmlBody = _templateService.ReplacePlaceholders(template, placeholders);
+			var subject = language == "vi"
+				? $"Cập nhật đơn ứng tuyển: {jobTitle} - RecruitAI"
+				: $"Application Update: {jobTitle} - RecruitAI";
+
+			await SendHtmlEmailAsync(to, subject, htmlBody, cancellationToken);
+		}
 	}
 }

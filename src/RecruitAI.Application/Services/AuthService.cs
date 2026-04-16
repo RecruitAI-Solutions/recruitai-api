@@ -1,5 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using RecruitAI.Application.Commands.Notifications;
 using RecruitAI.Application.DTOs.Auths;
 using RecruitAI.Application.DTOs.Requests.Auths;
 using RecruitAI.Application.DTOs.Responses.Auths;
@@ -27,6 +29,7 @@ namespace RecruitAI.Application.Services
 		private readonly IEmailService _emailService;
 		private readonly IRolePermissionService _rolePermissionService;
 		private readonly IAuditLogService _auditLogService;
+		private readonly IMediator _mediator;
 
 		public AuthService(
 			IUnitOfWork uow,
@@ -39,7 +42,8 @@ namespace RecruitAI.Application.Services
 			IWorkContext workContext,
 			IEmailService emailService,
 			IRolePermissionService rolePermissionService,
-			IAuditLogService auditLogService)
+			IAuditLogService auditLogService,
+			IMediator mediator)
 		{
 			_uow = uow;
 			_jwtService = jwtService;
@@ -52,6 +56,7 @@ namespace RecruitAI.Application.Services
 			_emailService = emailService;
 			_rolePermissionService = rolePermissionService;
 			_auditLogService = auditLogService;
+			_mediator = mediator;
 		}
 
 		public async Task<AuthResponseDto> Register(RegisterRequestDto request, string ipAddress, CancellationToken cancellationToken = default)
@@ -140,6 +145,16 @@ namespace RecruitAI.Application.Services
 					cancellationToken);
 
 				await _uow.CommitTransactionAsync(cancellationToken);
+
+				var welcomeNotification = new CreateNotificationCommand
+				{
+					UserId = user.Id,
+					Title = _msg.Get("Notification.Welcome.Title"),
+					Content = string.Format(_msg.Get("Notification.Welcome.Content"), user.FullName),
+					Type = "account_update",
+					Data = JsonSerializer.Serialize(new { Email = user.Email, Role = user.Role.ToString() })
+				};
+				await _mediator.Send(welcomeNotification, cancellationToken);
 
 				var token = await _jwtService.GenerateToken(user);
 				var expiryMinutes = _configuration.GetValue<int>("Jwt:AccessTokenExpiryMinutes", 15);
@@ -512,7 +527,17 @@ namespace RecruitAI.Application.Services
 
 				await _uow.RefreshTokens.RevokeAllUserTokensAsync(userId, _workContext.GetCurrentIpAddress() ?? "unknown", cancellationToken: cancellationToken);
 
-				await _uow.CommitTransactionAsync(cancellationToken);				
+				await _uow.CommitTransactionAsync(cancellationToken);
+
+				var passwordChangedNotification = new CreateNotificationCommand
+				{
+					UserId = userId,
+					Title = _msg.Get("Notification.PasswordChanged.Title"),
+					Content = _msg.Get("Notification.PasswordChanged.Content"),
+					Type = "account_update",
+					Data = JsonSerializer.Serialize(new { ChangedAt = DateTime.UtcNow })
+				};
+				await _mediator.Send(passwordChangedNotification, cancellationToken);
 
 				_logger.LogInformation("Password changed successfully for user: {UserId}", userId);
 
@@ -709,6 +734,16 @@ namespace RecruitAI.Application.Services
 				await _uow.RefreshTokens.RevokeAllUserTokensAsync(user.Id, ipAddress, cancellationToken: cancellationToken);
 
 				await _uow.CommitTransactionAsync(cancellationToken);
+
+				var passwordResetNotification = new CreateNotificationCommand
+				{
+					UserId = user.Id,
+					Title = _msg.Get("Notification.PasswordReset.Title"),
+					Content = _msg.Get("Notification.PasswordReset.Content"),
+					Type = "account_update",
+					Data = JsonSerializer.Serialize(new { ResetAt = DateTime.UtcNow })
+				};
+				await _mediator.Send(passwordResetNotification, cancellationToken);
 
 				_logger.LogInformation("Password reset successful for user: {UserId}", user.Id);
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Domain.Entities;
+using RecruitAI.Domain.Enums;
 using RecruitAI.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
@@ -45,6 +46,16 @@ namespace RecruitAI.Infrastructure.Data.SeedData
 					await context.Users.AddRangeAsync(users);
 					await context.SaveChangesAsync();
 					logger.LogInformation("Seeded {Count} users", users.Count);
+				}
+
+				if (!context.Companies.Any())
+				{
+					logger.LogInformation("Seeding Companies...");
+					var recruiters = context.Users.Where(u => u.Role == UserRole.RECRUITER).ToList();
+					var companies = CompanySeedData.GetCompanies(recruiters);
+					await context.Companies.AddRangeAsync(companies);
+					await context.SaveChangesAsync();
+					logger.LogInformation("Seeded {Count} companies", companies.Count);
 				}
 
 				// 3. Seed AuthProviders
