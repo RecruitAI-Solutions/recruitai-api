@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Application Reviewed</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background-color: #ffc107;
+            color: #333;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #ffc107;
+            color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Your Application Has Been Reviewed</h2>
+        </div>
+        <div class="content">
+            <p>Dear <strong>{{UserName}}</strong>,</p>
+            <p>Good news! Your application for <strong>{{JobTitle}}</strong> at <strong>{{CompanyName}}</strong> has been reviewed.</p>
+
+            <p>Our recruitment team is currently evaluating your profile. We will notify you as soon as there is an update.</p>
+
+            {{#if Notes}}
+            <p><strong>Message from recruiter:</strong> {{Notes}}</p>
+            {{/if}}
+
+            <p style="text-align: center;">
+                <a href="{{TrackingLink}}" class="button">Track Application</a>
+            </p>
+            <p>Best regards,<br>RecruitAI Team</p>
+        </div>
+        <div class="footer">
+            <p>&copy; {{Year}} RecruitAI. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

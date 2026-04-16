@@ -698,4 +698,25 @@
 		<data name="Notification.HighMatch.Content" xml:space="preserve">
 	  <value>You are {1}% match for position "{0}". Apply now!</value>
 	</data>
+	<data name="Notification.CVUploaded.Title" xml:space="preserve">
+	  <value>CV Uploaded</value>
+	</data>
+		<data name="Notification.CVUploaded.Content" xml:space="preserve">
+	  <value>CV "{0}" has been uploaded successfully</value>
+	</data>
+
+		<data name="Notification.JobSaved.Title" xml:space="preserve">
+	  <value>Job Saved</value>
+	</data>
+		<data name="Notification.JobSaved.Content" xml:space="preserve">
+	  <value>Job "{0}" has been saved successfully</value>
+	</data>
+
+		<data name="Notification.AccountStatusChanged.Title" xml:space="preserve">
+	  <value>Account Status Changed</value>
+	</data>
+		<data name="Notification.AccountStatusChanged.Content" xml:space="preserve">
+	  <value>Your account status has been changed to {0}</value>
+	</data>
+
 </root>

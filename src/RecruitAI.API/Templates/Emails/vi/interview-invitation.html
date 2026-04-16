@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thư mời phỏng vấn</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background-color: #28a745;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .interview-detail {
+            background-color: #eef2f7;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-decoration: none;
+        }
+
+        .button-confirm {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .button-decline {
+            background-color: #dc3545;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Thư mời phỏng vấn</h2>
+        </div>
+        <div class="content">
+            <p>Xin chào <strong>{{UserName}}</strong>,</p>
+            <p>Chúc mừng! Hồ sơ của bạn cho vị trí <strong>{{JobTitle}}</strong> tại <strong>{{CompanyName}}</strong> đã được chọn vào vòng phỏng vấn.</p>
+
+            <div class="interview-detail">
+                <h3>Chi tiết buổi phỏng vấn:</h3>
+                <p><strong>Thời gian:</strong> {{InterviewDate}} lúc {{InterviewTime}}</p>
+                <p><strong>Địa điểm:</strong> {{InterviewLocation}}</p>
+                <p><strong>Người phỏng vấn:</strong> {{InterviewerName}}</p>
+                <p><strong>Thời lượng:</strong> {{Duration}} phút</p>
+                <p><strong>Hình thức:</strong> {{InterviewFormat}}</p>
+            </div>
+
+            <p><strong>Vui lòng chuẩn bị:</strong></p>
+            <ul>
+                <li>CV cập nhật mới nhất (bản in hoặc bản mềm)</li>
+                <li>Portfolio / sản phẩm mẫu (nếu có)</li>
+                <li>Giấy tờ tùy thân</li>
+            </ul>
+
+            <p>Vui lòng xác nhận tham dự:</p>
+            <p style="text-align: center;">
+                <a href="{{ConfirmLink}}" class="button button-confirm">Xác nhận tham dự</a>
+                <a href="{{DeclineLink}}" class="button button-decline">Từ chối</a>
+            </p>
+            <p>Hoặc trả lời email này để sắp xếp lại lịch.</p>
+            <p>Trân trọng,<br>Đội ngũ RecruitAI</p>
+        </div>
+        <div class="footer">
+            <p>&copy; {{Year}} RecruitAI. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </div>
+</body>
+</html>

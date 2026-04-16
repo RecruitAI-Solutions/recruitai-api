@@ -1,0 +1,78 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Hồ sơ đã được xem xét</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background-color: #ffc107;
+            color: #333;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #ffc107;
+            color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Hồ sơ của bạn đã được xem xét</h2>
+        </div>
+        <div class="content">
+            <p>Xin chào <strong>{{UserName}}</strong>,</p>
+            <p>Tin vui! Hồ sơ của bạn cho vị trí <strong>{{JobTitle}}</strong> tại <strong>{{CompanyName}}</strong> đã được xem xét.</p>
+
+            <p>Đội ngũ tuyển dụng đang đánh giá hồ sơ của bạn. Chúng tôi sẽ thông báo ngay khi có cập nhật.</p>
+
+            {{#if Notes}}
+            <p><strong>Tin nhắn từ nhà tuyển dụng:</strong> {{Notes}}</p>
+            {{/if}}
+
+            <p style="text-align: center;">
+                <a href="{{TrackingLink}}" class="button">Theo dõi đơn ứng tuyển</a>
+            </p>
+            <p>Trân trọng,<br>Đội ngũ RecruitAI</p>
+        </div>
+        <div class="footer">
+            <p>&copy; {{Year}} RecruitAI. Tất cả quyền được bảo lưu.</p>
+        </div>
+    </div>
+</body>
+</html>

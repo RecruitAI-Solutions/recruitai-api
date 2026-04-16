@@ -700,4 +700,24 @@
 		<data name="Notification.HighMatch.Content" xml:space="preserve">
 	  <value>Bạn có {1}% phù hợp với vị trí "{0}". Hãy nhanh tay ứng tuyển!</value>
 	</data>
+	<data name="Notification.CVUploaded.Title" xml:space="preserve">
+	  <value>CV đã được tải lên</value>
+	</data>
+		<data name="Notification.CVUploaded.Content" xml:space="preserve">
+	  <value>CV "{0}" đã được tải lên thành công</value>
+	</data>
+
+		<data name="Notification.JobSaved.Title" xml:space="preserve">
+	  <value>Công việc đã được lưu</value>
+	</data>
+		<data name="Notification.JobSaved.Content" xml:space="preserve">
+	  <value>Công việc "{0}" đã được lưu thành công</value>
+	</data>
+
+		<data name="Notification.AccountStatusChanged.Title" xml:space="preserve">
+	  <value>Trạng thái tài khoản đã thay đổi</value>
+	</data>
+		<data name="Notification.AccountStatusChanged.Content" xml:space="preserve">
+	  <value>Trạng thái tài khoản của bạn đã được thay đổi thành {0}</value>
+	</data>
 </root>
