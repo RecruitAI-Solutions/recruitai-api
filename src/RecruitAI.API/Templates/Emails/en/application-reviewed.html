@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Application Reviewed</title>
+    <title>Hồ sơ đã được xem xét</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -53,25 +53,23 @@
 <body>
     <div class="container">
         <div class="header">
-            <h2>Your Application Has Been Reviewed</h2>
+            <h2>Hồ sơ của bạn đã được xem xét</h2>
         </div>
         <div class="content">
-            <p>Dear <strong>{{UserName}}</strong>,</p>
-            <p>Good news! Your application for <strong>{{JobTitle}}</strong> at <strong>{{CompanyName}}</strong> has been reviewed.</p>
+            <p>Xin chào <strong>{{UserName}}</strong>,</p>
+            <p>Tin vui! Hồ sơ của bạn cho vị trí <strong>{{JobTitle}}</strong> tại <strong>{{CompanyName}}</strong> đã được xem xét.</p>
 
-            <p>Our recruitment team is currently evaluating your profile. We will notify you as soon as there is an update.</p>
+            <p>Đội ngũ tuyển dụng đang đánh giá hồ sơ của bạn. Chúng tôi sẽ thông báo ngay khi có cập nhật.</p>
 
-            {{#if Notes}}
-            <p><strong>Message from recruiter:</strong> {{Notes}}</p>
-            {{/if}}
+            <p><strong>Tin nhắn từ nhà tuyển dụng:</strong> {{Notes}}</p>
 
             <p style="text-align: center;">
-                <a href="{{TrackingLink}}" class="button">Track Application</a>
+                <a href="{{TrackingLink}}" class="button">Theo dõi đơn ứng tuyển</a>
             </p>
-            <p>Best regards,<br>RecruitAI Team</p>
+            <p>Trân trọng,<br>Đội ngũ RecruitAI</p>
         </div>
         <div class="footer">
-            <p>&copy; {{Year}} RecruitAI. All rights reserved.</p>
+            <p>&copy; {{Year}} RecruitAI. Tất cả quyền được bảo lưu.</p>
         </div>
     </div>
 </body>
