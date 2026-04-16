@@ -538,6 +538,22 @@
 		<data name="AuditFieldThumbnailUrl" xml:space="preserve">
 		<value>Thumbnail URL</value>
 	</data>
+	<!-- ===== SAVED JOBS BUSINESS ===== -->
+	<data name="BusinessSaveJobAlreadyExists" xml:space="preserve">
+	  <value>Job already saved</value>
+	</data>
+		<data name="BusinessJobNotFoundOrExpired" xml:space="preserve">
+	  <value>Job not found or expired</value>
+	</data>
+		<data name="BusinessSavedJobNotFound" xml:space="preserve">
+	  <value>Saved job not found</value>
+	</data>
+	<data name="SaveJobSuccess" xml:space="preserve">
+	  <value>Job saved successfully</value>
+	</data>
+	<data name="UnsaveJobSuccess" xml:space="preserve">
+	  <value>Job unsaved successfully</value>
+	</data>
 	<data name="MarkAsReadSuccess" xml:space="preserve">
 	  <value>Marked as read</value>
 	</data>
@@ -612,5 +628,74 @@
 	</data>
 	<data name="Notification.JobCreated.Content" xml:space="preserve">
 	  <value>Job "{0}" has been created successfully</value>
+	</data>
+	<data name="UserRole.CANDIDATE" xml:space="preserve">
+	  <value>candidate</value>
+	</data>
+		<data name="UserRole.RECRUITER" xml:space="preserve">
+	  <value>recruiter</value>
+	</data>
+		<data name="UserRole.ADMIN" xml:space="preserve">
+	  <value>administrator</value>
+	</data>
+		<data name="UserRole.Updated" xml:space="preserve">
+	  <value>updated</value>
+	</data>
+	<data name="Notification.RoleChanged.Title" xml:space="preserve">
+	  <value>Role Changed</value>
+	</data>
+		<data name="Notification.RoleChanged.Content" xml:space="preserve">
+	  <value>Your role has been changed to {0}</value>
+	</data>
+	<data name="Notification.JobUpdated.Title" xml:space="preserve">
+	  <value>Job Updated</value>
+	</data>
+		<data name="Notification.JobUpdated.Content" xml:space="preserve">
+	  <value>Job "{0}" has been updated successfully</value>
+	</data>
+	<data name="Notification.JobDeleted.Title" xml:space="preserve">
+	  <value>Job Deleted</value>
+	</data>
+		<data name="Notification.JobDeleted.Content" xml:space="preserve">
+	  <value>Job "{0}" has been deleted successfully</value>
+	</data>
+	<data name="Notification.CVDeleted.Title" xml:space="preserve">
+	  <value>CV Deleted</value>
+	</data>
+		<data name="Notification.CVDeleted.Content" xml:space="preserve">
+	  <value>CV "{0}" has been deleted successfully</value>
+	</data>
+	<data name="Notification.ProfileUpdated.Title" xml:space="preserve">
+	  <value>Profile Updated</value>
+	</data>
+		<data name="Notification.ProfileUpdated.Content" xml:space="preserve">
+	  <value>Your profile has been updated successfully</value>
+	</data>
+	<!-- Auth Service -->
+	<data name="Notification.Welcome.Title" xml:space="preserve">
+	  <value>Welcome to RecruitAI</value>
+	</data>
+		<data name="Notification.Welcome.Content" xml:space="preserve">
+	  <value>Welcome {0}, your account has been successfully registered!</value>
+	</data>
+		<data name="Notification.PasswordChanged.Title" xml:space="preserve">
+	  <value>Password Changed</value>
+	</data>
+		<data name="Notification.PasswordChanged.Content" xml:space="preserve">
+	  <value>Your password has been changed successfully</value>
+	</data>
+		<data name="Notification.PasswordReset.Title" xml:space="preserve">
+	  <value>Password Reset</value>
+	</data>
+		<data name="Notification.PasswordReset.Content" xml:space="preserve">
+	  <value>Your password has been reset successfully</value>
+	</data>
+
+	<!-- Matching Service -->
+	<data name="Notification.HighMatch.Title" xml:space="preserve">
+	  <value>Great Job Opportunity!</value>
+	</data>
+		<data name="Notification.HighMatch.Content" xml:space="preserve">
+	  <value>You are {1}% match for position "{0}". Apply now!</value>
 	</data>
 </root>

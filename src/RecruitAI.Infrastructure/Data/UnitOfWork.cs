@@ -28,6 +28,7 @@ namespace RecruitAI.Infrastructure.Data
 		private IJobApplicationRepository _jobApplicationRepository;
 		private IJobApplicationMatchRepository _jobApplicationMatchRepository;
 		private ICompanyRepository _companyRepository;
+		private ISavedJobRepository? _savedJobRepository;
 		private INotificationRepository? _notificationRepository;
 
 		public UnitOfWork(RecruitDevContext context,
@@ -65,6 +66,8 @@ namespace RecruitAI.Infrastructure.Data
 			_jobApplicationMatchRepository ??= new JobApplicationMatchRepository(_context);
 		public ICompanyRepository Companies =>
 			_companyRepository ??= new CompanyRepository(_context);
+		public ISavedJobRepository SavedJobs =>
+			_savedJobRepository ??= new SavedJobRepository(_context);
 		public INotificationRepository Notifications =>
 			_notificationRepository ??= new NotificationRepository(_context);
 
