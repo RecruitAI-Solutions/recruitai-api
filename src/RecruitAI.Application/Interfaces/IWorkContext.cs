@@ -16,6 +16,11 @@ namespace RecruitAI.Application.Interfaces
 		string? GetCurrentUserEmail();
 
 		/// <summary>
+		/// Lấy FullName của user hiện tại
+		/// </summary>
+		string? GetCurrentUserFullName();
+
+		/// <summary>
 		/// Lấy Role của user hiện tại
 		/// </summary>
 		UserRole? GetCurrentUserRole();
