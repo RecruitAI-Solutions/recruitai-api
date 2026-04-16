@@ -1,10 +1,12 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
+using RecruitAI.Application.Commands.Notifications;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
+using System.Text.Json;
 
 namespace RecruitAI.Application.Commands.Jobs;
 
@@ -18,16 +20,22 @@ public class DeleteJobCommandHandler : IRequestHandler<DeleteJobCommand>
 {
 	private readonly IUnitOfWork _uow;
 	private readonly ILogger<DeleteJobCommandHandler> _logger;
-	private readonly IAuditLogService _auditLogService;  
+	private readonly IAuditLogService _auditLogService;
+	private readonly IMediator _mediator;  
+	private readonly IMessageService _msg;
 
 	public DeleteJobCommandHandler(
 		IUnitOfWork uow,
 		ILogger<DeleteJobCommandHandler> logger,
-		IAuditLogService auditLogService) 
+		IAuditLogService auditLogService,
+		IMediator mediator,
+		IMessageService msg) 
 	{
 		_uow = uow;
 		_logger = logger;
 		_auditLogService = auditLogService;
+		_mediator = mediator;
+		_msg = msg;
 	}
 
 	public async Task Handle(DeleteJobCommand request, CancellationToken cancellationToken)
@@ -68,6 +76,18 @@ public class DeleteJobCommandHandler : IRequestHandler<DeleteJobCommand>
 			// Soft delete
 			job.MarkAsDeleted();
 			await _uow.SaveChangesAsync(cancellationToken);
+
+			var notification = new CreateNotificationCommand
+			{
+				UserId = request.RecruiterId,
+				Title = _msg.Get("Notification.JobDeleted.Title"),
+				Content = string.Format(_msg.Get("Notification.JobDeleted.Content"), job.Title),
+				Type = "job_update",
+				Data = JsonSerializer.Serialize(new { JobId = job.Id, JobTitle = job.Title })
+			};
+			await _mediator.Send(notification, cancellationToken);
+
+			_logger.LogInformation("Notification sent to recruiter {RecruiterId} for job deletion", request.RecruiterId);
 
 			_logger.LogInformation("Job {JobId} deleted successfully", request.Id);
 		}

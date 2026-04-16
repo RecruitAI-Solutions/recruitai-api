@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using MediatR;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
+using RecruitAI.Application.Commands.Notifications;
 using RecruitAI.Application.DTOs.Jobs;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
@@ -45,18 +47,24 @@ public class UpdateJobCommandHandler : IRequestHandler<UpdateJobCommand, JobDeta
 	private readonly IUnitOfWork _uow;
 	private readonly IMapper _mapper;
 	private readonly ILogger<UpdateJobCommandHandler> _logger;
-	private readonly IAuditLogService _auditLogService;  
+	private readonly IAuditLogService _auditLogService;
+	private readonly IMediator _mediator; 
+	private readonly IMessageService _msg;
 
 	public UpdateJobCommandHandler(
 		IUnitOfWork uow,
 		IMapper mapper,
 		ILogger<UpdateJobCommandHandler> logger,
-		IAuditLogService auditLogService)  
+		IAuditLogService auditLogService,
+		IMediator mediator,
+		IMessageService msg)  
 	{
 		_uow = uow;
 		_mapper = mapper;
 		_logger = logger;
 		_auditLogService = auditLogService;
+		_mediator = mediator;
+		_msg = msg;
 	}
 
 	public async Task<JobDetailDto> Handle(UpdateJobCommand request, CancellationToken cancellationToken)
@@ -120,6 +128,18 @@ public class UpdateJobCommandHandler : IRequestHandler<UpdateJobCommand, JobDeta
 				cancellationToken);
 
 			await _uow.SaveChangesAsync(cancellationToken);
+
+			var notification = new CreateNotificationCommand
+			{
+				UserId = request.RecruiterId,
+				Title = _msg.Get("Notification.JobUpdated.Title"),
+				Content = string.Format(_msg.Get("Notification.JobUpdated.Content"), existingJob.Title),
+				Type = "job_update",
+				Data = JsonSerializer.Serialize(new { JobId = existingJob.Id, JobTitle = existingJob.Title })
+			};
+			await _mediator.Send(notification, cancellationToken);
+
+			_logger.LogInformation("Notification sent to recruiter {RecruiterId} for job update", request.RecruiterId);
 
 			// Load lại job để lấy skills mới
 			var updatedJob = await _uow.Jobs.GetByIdAsync(request.Id, cancellationToken);

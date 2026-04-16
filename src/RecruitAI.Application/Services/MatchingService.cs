@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using MediatR;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using RecruitAI.Application.Commands.Notifications;
 using RecruitAI.Application.DTOs.AI;
 using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Application.DTOs.Responses.AI;
@@ -21,6 +23,8 @@ namespace RecruitAI.Application.Services
 		private readonly IConfiguration _configuration;
 		private readonly ILogger<MatchingService> _logger;
 		private readonly IMemoryCache _cache;
+		private readonly IMediator _mediator;
+		private readonly IMessageService _msg;
 
 		private const string AI_MATCH_CACHE_KEY = "ai_match_";
 		private const string MATCH_RESULT_CACHE_KEY = "match_result_";  
@@ -31,7 +35,9 @@ namespace RecruitAI.Application.Services
 			IAIMatchingService aiMatchingService,
 			IConfiguration configuration,
 			ILogger<MatchingService> logger,
-			IMemoryCache cache)
+			IMemoryCache cache,
+			IMediator mediator,
+			IMessageService msg)
 		{
 			_unitOfWork = unitOfWork;
 			_auditLogService = auditLogService;
@@ -39,6 +45,8 @@ namespace RecruitAI.Application.Services
 			_configuration = configuration;
 			_logger = logger;
 			_cache = cache;
+			_mediator = mediator;
+			_msg = msg;
 		}
 
 		public async Task<MatchCvJobResponseDto> CalculateAndSaveMatchAsync(
@@ -208,6 +216,19 @@ namespace RecruitAI.Application.Services
 
 						_logger.LogInformation("AI match result: {Percentage}% for CV {CvId} (UsedAI={UsedAI}, FromCache={FromCache})",
 							finalMatchPercentage, cvId, usedAI, usedAICache);
+					}
+
+					if (finalMatchPercentage >= 70 && isOwner) // Chỉ gửi cho chủ sở hữu CV
+					{
+						var highMatchNotification = new CreateNotificationCommand
+						{
+							UserId = currentUserId,
+							Title = _msg.Get("Notification.HighMatch.Title"),
+							Content = string.Format(_msg.Get("Notification.HighMatch.Content"), job.Title, finalMatchPercentage),
+							Type = "job_match",
+							Data = JsonSerializer.Serialize(new { JobId = jobId, JobTitle = job.Title, MatchPercentage = finalMatchPercentage })
+						};
+						await _mediator.Send(highMatchNotification, cancellationToken);
 					}
 				}
 				catch (Exception ex)

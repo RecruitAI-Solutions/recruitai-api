@@ -29,4 +29,15 @@ public static class EnumExtensions
 			_ => msg.Get("UserStatus.Updated")
 		};
 	}
+
+	public static string GetDisplayName(this UserRole role, IMessageService msg)
+	{
+		return role switch
+		{
+			UserRole.CANDIDATE => msg.Get("UserRole.CANDIDATE"),
+			UserRole.RECRUITER => msg.Get("UserRole.RECRUITER"),
+			UserRole.ADMIN => msg.Get("UserRole.ADMIN"),
+			_ => msg.Get("UserRole.Updated")
+		};
+	}
 }
