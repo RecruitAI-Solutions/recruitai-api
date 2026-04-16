@@ -1,22 +1,20 @@
 ﻿using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using RecruitAI.Application.Behaviors;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Services;
-using RecruitAI.Domain.Interfaces.Services;
-using RecruitAI.Domain.Services;
-using RecruitAI.Infrastructure.Services;
-using System.Reflection;
-using RecruitAI.Application.Behaviors;
+using RecruitAI.Application.Validators.AI;
 using RecruitAI.Application.Validators.Auths;
 using RecruitAI.Application.Validators.CVs;
-using RecruitAI.Application.Validators.AI;
 using RecruitAI.Application.Validators.Emails;
 using RecruitAI.Application.Validators.Jobs;
+using RecruitAI.Domain.Interfaces.Services;
+using RecruitAI.Domain.Services;
 using RecruitAI.Infrastructure.BackgroundServices;
+using RecruitAI.Infrastructure.Services;
 using RecruitAI.Infrastructure.Services.AI;
-using AutoMapper;
 
 namespace RecruitAI.Application
 {
