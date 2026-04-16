@@ -553,5 +553,79 @@
 	</data>
 		<data name="UnsaveJobSuccess" xml:space="preserve">
 	  <value>Job unsaved successfully</value>
+	<data name="MarkAsReadSuccess" xml:space="preserve">
+	  <value>Marked as read</value>
+	</data>
+		<data name="MarkAllAsReadSuccess" xml:space="preserve">
+	  <value>Marked all as read</value>
+	</data>
+	<!-- Notification - Apply Job -->
+	<data name="Notification.NewApplication.Title" xml:space="preserve">
+	  <value>New Application</value>
+	</data>
+		<data name="Notification.NewApplication.Content" xml:space="preserve">
+	  <value>A candidate has applied for {0} with CV "{1}"</value>
+	</data>
+		<data name="Notification.ApplicationSubmitted.Title" xml:space="preserve">
+	  <value>Application Submitted</value>
+	</data>
+		<data name="Notification.ApplicationSubmitted.Content" xml:space="preserve">
+	  <value>You have successfully applied for {0}</value>
+	</data>
+
+	<!-- Notification - Update Status -->
+	<data name="Notification.ApplicationStatusChanged.Title" xml:space="preserve">
+	  <value>Application Status Updated</value>
+	</data>
+		<data name="Notification.ApplicationStatusChanged.Content" xml:space="preserve">
+	  <value>Your application for {0} has been {1}</value>
+	</data>
+	<data name="ApplicationStatus.Accepted" xml:space="preserve">
+	  <value>accepted</value>
+	</data>
+		<data name="ApplicationStatus.Rejected" xml:space="preserve">
+	  <value>rejected</value>
+	</data>
+		<data name="ApplicationStatus.Reviewed" xml:space="preserve">
+	  <value>reviewed</value>
+	</data>
+		<data name="ApplicationStatus.Pending" xml:space="preserve">
+	  <value>pending</value>
+	</data>
+		<data name="ApplicationStatus.Updated" xml:space="preserve">
+	  <value>updated</value>
+	</data>
+	<data name="UserStatus.Active" xml:space="preserve">
+	  <value>activated</value>
+	</data>
+		<data name="UserStatus.Inactive" xml:space="preserve">
+	  <value>inactive</value>
+	</data>
+		<data name="UserStatus.Locked" xml:space="preserve">
+	  <value>locked</value>
+	</data>
+		<data name="UserStatus.PendingVerification" xml:space="preserve">
+	  <value>pending verification</value>
+	</data>
+		<data name="UserStatus.Deleted" xml:space="preserve">
+	  <value>deleted</value>
+	</data>
+		<data name="UserStatus.Banned" xml:space="preserve">
+	  <value>banned</value>
+	</data>
+		<data name="UserStatus.Updated" xml:space="preserve">
+	  <value>updated</value>
+	</data>
+	<data name="Notification.CVAnalyzed.Title" xml:space="preserve">
+	  <value>CV Analysis Completed</value>
+	</data>
+		<data name="Notification.CVAnalyzed.Content" xml:space="preserve">
+	  <value>CV "{0}" has been analyzed. Found {1} skills.</value>
+	</data>
+	<data name="Notification.JobCreated.Title" xml:space="preserve">
+	  <value>New Job Created</value>
+	</data>
+	<data name="Notification.JobCreated.Content" xml:space="preserve">
+	  <value>Job "{0}" has been created successfully</value>
 	</data>
 </root>

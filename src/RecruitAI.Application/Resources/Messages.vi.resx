@@ -554,5 +554,79 @@
 	</data>
 		<data name="UnsaveJobSuccess" xml:space="preserve">
 	  <value>Đã bỏ lưu công việc thành công</value>
+	<data name="MarkAsReadSuccess" xml:space="preserve">
+		<value>Đã đánh dấu đã đọc</value>
+	</data>
+		<data name="MarkAllAsReadSuccess" xml:space="preserve">
+	  <value>Đã đánh dấu tất cả đã đọc</value>
+	</data>
+	<!-- Notification - Apply Job -->
+	<data name="Notification.NewApplication.Title" xml:space="preserve">
+	  <value>Có ứng viên mới</value>
+	</data>
+		<data name="Notification.NewApplication.Content" xml:space="preserve">
+	  <value>Ứng viên đã ứng tuyển vào vị trí {0} với CV "{1}"</value>
+	</data>
+		<data name="Notification.ApplicationSubmitted.Title" xml:space="preserve">
+	  <value>Đã ứng tuyển thành công</value>
+	</data>
+		<data name="Notification.ApplicationSubmitted.Content" xml:space="preserve">
+	  <value>Bạn đã ứng tuyển thành công vào vị trí {0}</value>
+	</data>
+
+	<!-- Notification - Update Status -->
+	<data name="Notification.ApplicationStatusChanged.Title" xml:space="preserve">
+	  <value>Cập nhật đơn ứng tuyển</value>
+	</data>
+		<data name="Notification.ApplicationStatusChanged.Content" xml:space="preserve">
+	  <value>Đơn ứng tuyển của bạn cho vị trí {0} {1}</value>
+	</data>
+	<data name="ApplicationStatus.Accepted" xml:space="preserve">
+	  <value>đã được chấp nhận</value>
+	</data>
+		<data name="ApplicationStatus.Rejected" xml:space="preserve">
+	  <value>bị từ chối</value>
+	</data>
+		<data name="ApplicationStatus.Reviewed" xml:space="preserve">
+	  <value>đã được xem xét</value>
+	</data>
+		<data name="ApplicationStatus.Pending" xml:space="preserve">
+	  <value>đang chờ xử lý</value>
+	</data>
+		<data name="ApplicationStatus.Updated" xml:space="preserve">
+	  <value>đã được cập nhật</value>
+	</data>
+	<data name="UserStatus.Active" xml:space="preserve">
+	  <value>đã được kích hoạt</value>
+	</data>
+		<data name="UserStatus.Inactive" xml:space="preserve">
+	  <value>chưa được kích hoạt</value>
+	</data>
+		<data name="UserStatus.Locked" xml:space="preserve">
+	  <value>đã bị khóa</value>
+	</data>
+		<data name="UserStatus.PendingVerification" xml:space="preserve">
+	  <value>đang chờ xác thực</value>
+	</data>
+		<data name="UserStatus.Deleted" xml:space="preserve">
+	  <value>đã bị xóa</value>
+	</data>
+		<data name="UserStatus.Banned" xml:space="preserve">
+	  <value>đã bị cấm</value>
+	</data>
+		<data name="UserStatus.Updated" xml:space="preserve">
+	  <value>đã được cập nhật</value>
+	</data>
+	<data name="Notification.CVAnalyzed.Title" xml:space="preserve">
+	  <value>Phân tích CV hoàn tất</value>
+	</data>
+		<data name="Notification.CVAnalyzed.Content" xml:space="preserve">
+	  <value>CV "{0}" đã được phân tích xong. Phát hiện {1} kỹ năng.</value>
+	</data>
+	<data name="Notification.JobCreated.Title" xml:space="preserve">
+	  <value>Công việc mới được tạo</value>
+	</data>
+	<data name="Notification.JobCreated.Content" xml:space="preserve">
+	  <value>Công việc "{0}" đã được tạo thành công</value>
 	</data>
 </root>
