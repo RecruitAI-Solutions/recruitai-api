@@ -1,11 +1,12 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Infrastructure.Data;
 using RecruitAI.Infrastructure.Helpers;
+using System.Security.Claims;
 
 namespace RecruitAI.Infrastructure.Services
 {
@@ -13,17 +14,21 @@ namespace RecruitAI.Infrastructure.Services
 	{
 		private readonly IHttpContextAccessor _httpContextAccessor;
 		private readonly RecruitDevContext _context;
+		private readonly IMemoryCache _cache;
 		private User? _cachedUser;
 		private Guid? _cachedUserId;
 		private string? _cachedUserEmail;
+		private string? _cachedUserFullName;
 		private UserRole? _cachedUserRole;
 
 		public WorkContext(
 			IHttpContextAccessor httpContextAccessor,
-			RecruitDevContext context)
+			RecruitDevContext context,
+			IMemoryCache cache)
 		{
 			_httpContextAccessor = httpContextAccessor;
 			_context = context;
+			_cache = cache;
 		}
 
 		/// <inheritdoc />
@@ -76,6 +81,39 @@ namespace RecruitAI.Infrastructure.Services
 		}
 
 		/// <inheritdoc />
+		public string? GetCurrentUserFullName()
+		{
+			if (!string.IsNullOrEmpty(_cachedUserFullName))
+				return _cachedUserFullName;
+
+			var user = _httpContextAccessor.HttpContext?.User;
+
+			if (user == null || !user.Identity?.IsAuthenticated == true)
+				return null;
+
+			// Ưu tiên lấy từ claim FullName trước
+			var fullNameClaim = user.FindFirst("FullName")?.Value
+							 ?? user.FindFirst(ClaimTypes.GivenName)?.Value
+							 ?? user.FindFirst(ClaimTypes.Name)?.Value;
+
+			if (!string.IsNullOrEmpty(fullNameClaim))
+			{
+				_cachedUserFullName = fullNameClaim;
+				return fullNameClaim;
+			}
+
+			// Fallback: lấy từ database cache
+			var userId = GetCurrentUserId();
+			if (userId.HasValue && _cache.TryGetValue($"user_{userId}", out User? cachedUser) && cachedUser != null)
+			{
+				_cachedUserFullName = cachedUser.FullName;
+				return cachedUser.FullName;
+			}
+
+			return null;
+		}
+
+		/// <inheritdoc />
 		public UserRole? GetCurrentUserRole()
 		{
 			if (_cachedUserRole.HasValue)
@@ -110,10 +148,25 @@ namespace RecruitAI.Infrastructure.Services
 			if (userId == null)
 				return null;
 
+			// Thử lấy từ memory cache trước
+			var cacheKey = $"user_{userId}";
+			if (_cache.TryGetValue(cacheKey, out User? cachedUser) && cachedUser != null)
+			{
+				_cachedUser = cachedUser;
+				return cachedUser;
+			}
+
+			// Lấy từ database
 			_cachedUser = await _context.Users
 				.Include(u => u.AuthProviders)
 				.Include(u => u.RefreshTokens.Where(rt => !rt.IsRevoked))
 				.FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+
+			// Lưu vào cache (5 phút)
+			if (_cachedUser != null)
+			{
+				_cache.Set(cacheKey, _cachedUser, TimeSpan.FromMinutes(5));
+			}
 
 			return _cachedUser;
 		}
@@ -139,10 +192,18 @@ namespace RecruitAI.Infrastructure.Services
 		/// <inheritdoc />
 		public void ClearCache()
 		{
+			var userId = _cachedUserId;
 			_cachedUser = null;
 			_cachedUserId = null;
 			_cachedUserEmail = null;
+			_cachedUserFullName = null;
 			_cachedUserRole = null;
+
+			// Xóa cache entry nếu có
+			if (userId.HasValue)
+			{
+				_cache.Remove($"user_{userId.Value}");
+			}
 		}
 	}
 }

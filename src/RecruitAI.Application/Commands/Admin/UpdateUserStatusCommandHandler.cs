@@ -1,11 +1,14 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
+using RecruitAI.Application.Commands.Notifications;
 using RecruitAI.Application.DTOs.Responses.Admin;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
+using System.Text.Json;
+using RecruitAI.Application.Extensions;
 
 namespace RecruitAI.Application.Commands.Admin
 {
@@ -14,15 +17,21 @@ namespace RecruitAI.Application.Commands.Admin
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ILogger<UpdateUserStatusCommandHandler> _logger;
 		private readonly IAuditLogService _auditLogService;
+		private readonly IMediator _mediator;
+		private readonly IMessageService _msg;
 
 		public UpdateUserStatusCommandHandler(
 			IUnitOfWork unitOfWork,
 			ILogger<UpdateUserStatusCommandHandler> logger,
-			IAuditLogService auditLogService)
+			IAuditLogService auditLogService,
+			IMediator mediator,
+			IMessageService msg)
 		{
 			_unitOfWork = unitOfWork;
 			_logger = logger;
 			_auditLogService = auditLogService;
+			_mediator = mediator;
+			_msg = msg;
 		}
 
 		public async Task<AdminUserStatusUpdateResponseDto> Handle(UpdateUserStatusCommand request, CancellationToken cancellationToken)
@@ -40,6 +49,16 @@ namespace RecruitAI.Application.Commands.Admin
 			user.UpdatedAt = DateTime.UtcNow;
 
 			await _unitOfWork.Users.UpdateAsync(user, cancellationToken);
+
+			var notification = new CreateNotificationCommand
+			{
+				UserId = user.Id,
+				Title = _msg.Get("Notification.AccountStatusChanged.Title"),
+				Content = string.Format(_msg.Get("Notification.AccountStatusChanged.Content"), request.Status.GetDisplayName(_msg)),
+				Type = "account_update",
+				Data = JsonSerializer.Serialize(new { NewStatus = request.Status.ToString(), Reason = request.Reason })
+			};
+			await _mediator.Send(notification, cancellationToken);
 
 			await _auditLogService.LogAsync(
 				AuditEntityType.User,

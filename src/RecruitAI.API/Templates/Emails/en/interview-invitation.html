@@ -1,0 +1,108 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interview Invitation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background-color: #28a745;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .content {
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .interview-detail {
+            background-color: #eef2f7;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-decoration: none;
+        }
+
+        .button-confirm {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .button-decline {
+            background-color: #dc3545;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>Interview Invitation</h2>
+        </div>
+        <div class="content">
+            <p>Dear <strong>{{UserName}}</strong>,</p>
+            <p>Congratulations! Your application for <strong>{{JobTitle}}</strong> at <strong>{{CompanyName}}</strong> has been shortlisted.</p>
+
+            <div class="interview-detail">
+                <h3>Interview Details:</h3>
+                <p><strong>Date & Time:</strong> {{InterviewDate}} at {{InterviewTime}}</p>
+                <p><strong>Location / Venue:</strong> {{InterviewLocation}}</p>
+                <p><strong>Interviewer:</strong> {{InterviewerName}}</p>
+                <p><strong>Duration:</strong> {{Duration}} minutes</p>
+                <p><strong>Format:</strong> {{InterviewFormat}}</p>
+            </div>
+
+            <p><strong>Please prepare:</strong></p>
+            <ul>
+                <li>Updated CV (printed or digital)</li>
+                <li>Portfolio / work samples (if applicable)</li>
+                <li>Government-issued ID</li>
+            </ul>
+
+            <p>Please confirm your attendance:</p>
+            <p style="text-align: center;">
+                <a href="{{ConfirmLink}}" class="button button-confirm">Confirm Attendance</a>
+                <a href="{{DeclineLink}}" class="button button-decline">Decline</a>
+            </p>
+            <p>Or reply to this email to reschedule.</p>
+            <p>Best regards,<br>RecruitAI Team</p>
+        </div>
+        <div class="footer">
+            <p>&copy; {{Year}} RecruitAI. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
