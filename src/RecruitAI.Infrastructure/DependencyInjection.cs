@@ -69,6 +69,7 @@ namespace RecruitAI.Infrastructure
 			//Register other infrastructure services
 			services.AddScoped<IJwtService, JwtService>();
 			services.AddScoped<IPdfService, PdfService>();
+			services.AddScoped<IAppUrlService, AppUrlService>();
 			services.AddHostedService<FeaturedJobBackgroundService>();
 
 			//Settings

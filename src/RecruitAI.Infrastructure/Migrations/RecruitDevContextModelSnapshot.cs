@@ -553,6 +553,58 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.ToTable("JobSkills");
                 });
 
+            modelBuilder.Entity("RecruitAI.Domain.Entities.Notification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
+
+                    b.Property<string>("Data")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<bool>("IsRead")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt")
+                        .HasDatabaseName("IX_Notifications_CreatedAt");
+
+                    b.HasIndex("IsRead")
+                        .HasDatabaseName("IX_Notifications_IsRead");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_Notifications_UserId");
+
+                    b.ToTable("Notifications", (string)null);
+                });
+
             modelBuilder.Entity("RecruitAI.Domain.Entities.PasswordResetToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -956,6 +1008,17 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.Navigation("Job");
 
                     b.Navigation("Skill");
+                });
+
+            modelBuilder.Entity("RecruitAI.Domain.Entities.Notification", b =>
+                {
+                    b.HasOne("RecruitAI.Domain.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("RecruitAI.Domain.Entities.PasswordResetToken", b =>

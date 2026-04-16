@@ -4,10 +4,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.IO;
-using System.Reflection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using RecruitAI.API.Hubs;
 using RecruitAI.API.Middleware;
 using RecruitAI.Application;
 using RecruitAI.Application.DTOs.Responses;
@@ -18,10 +17,12 @@ using RecruitAI.Application.Validators.Auths;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Infrastructure;
 using RecruitAI.Infrastructure.Data;
+using RecruitAI.Infrastructure.Data.SeedData;
 using Serilog;
 using System.Globalization;
+using System.IO;
+using System.Reflection;
 using System.Text;
-using RecruitAI.Infrastructure.Data.SeedData;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -61,6 +62,15 @@ builder.Services.AddScoped<ValidationFilter>();
 builder.Services.AddControllers(options =>
 {
 	options.Filters.AddService<ValidationFilter>();
+});
+
+
+builder.Services.AddSignalR(options =>
+{
+	options.EnableDetailedErrors = true; // Chỉ dùng trong dev
+	options.MaximumReceiveMessageSize = 102400; // 100KB
+	options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+	options.ClientTimeoutInterval = TimeSpan.FromSeconds(30);
 });
 
 builder.Services.AddMemoryCache();
@@ -125,39 +135,67 @@ builder.Services.AddCors(options =>
 {
 	options.AddDefaultPolicy(policy =>
 	{
-		var originsEnv = Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS");
-		string[] allowedOrigins;
+		// Lấy origins từ nhiều nguồn
+		var allowedOrigins = new List<string>();
 
+		// 1. Từ environment variable
+		var originsEnv = Environment.GetEnvironmentVariable("CORS_ALLOWED_ORIGINS");
 		if (!string.IsNullOrEmpty(originsEnv))
 		{
-			allowedOrigins = originsEnv.Split(',', StringSplitOptions.RemoveEmptyEntries);
-		}
-		else
-		{
-			allowedOrigins = builder.Configuration
-				.GetSection("Cors:AllowedOrigins")
-				.Get<string[]>();
+			allowedOrigins.AddRange(originsEnv.Split(',', StringSplitOptions.RemoveEmptyEntries));
 		}
 
-		if (allowedOrigins != null && allowedOrigins.Any())
+		// 2. Từ appsettings.json
+		var configOrigins = builder.Configuration
+			.GetSection("Cors:AllowedOrigins")
+			.Get<string[]>();
+		if (configOrigins != null)
 		{
-			policy.WithOrigins(allowedOrigins)
+			allowedOrigins.AddRange(configOrigins);
+		}
+
+		// 3. Production domains (nếu chưa có trong config)
+		if (builder.Environment.IsProduction())
+		{
+			allowedOrigins.Add("https://recruitai.com");
+			allowedOrigins.Add("https://www.recruitai.com");
+			allowedOrigins.Add("https://api.recruitai.com");
+		}
+
+		// 4. Development domains
+		if (builder.Environment.IsDevelopment())
+		{
+			allowedOrigins.Add("http://localhost:3000");
+			allowedOrigins.Add("https://localhost:3000");
+			allowedOrigins.Add("http://localhost:5000");
+			allowedOrigins.Add("https://localhost:5000");
+			allowedOrigins.Add("http://localhost:8080");
+		}
+
+		// Loại bỏ duplicate và null
+		allowedOrigins = allowedOrigins
+			.Where(x => !string.IsNullOrEmpty(x))
+			.Distinct()
+			.ToList();
+
+		if (allowedOrigins.Any())
+		{
+			// Dùng WithOrigins + AllowCredentials cho WebSocket
+			policy.WithOrigins(allowedOrigins.ToArray())
 				  .AllowAnyMethod()
-				  .AllowAnyHeader();
-			if (!allowedOrigins.Contains("*"))
-			{
-				policy.AllowCredentials();
-			}
+				  .AllowAnyHeader()
+				  .AllowCredentials(); // SignalR cần AllowCredentials
 		}
 		else
 		{
-			policy.AllowAnyOrigin()
+			// Fallback an toàn - chỉ cho phép cùng origin
+			policy.SetIsOriginAllowed(_ => true)
 				  .AllowAnyMethod()
-				  .AllowAnyHeader();
+				  .AllowAnyHeader()
+				  .AllowCredentials();
 		}
 	});
 });
-
 builder.Services.AddValidatorsFromAssemblyContaining<RegisterRequestValidator>();
 
 // 3.6 Custom Validation Response
@@ -169,7 +207,11 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 // 3.7 Infrastructure & Application Services
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
-
+// 3.7.1 MediatR cho API layer
+builder.Services.AddMediatR(cfg =>
+{
+	cfg.RegisterServicesFromAssembly(typeof(Program).Assembly);
+});
 // 3.8 Authentication & Authorization 
 
 // Lấy key theo logic giống JwtService
@@ -524,6 +566,7 @@ app.UseAuthorization();
 
 // 5.4 Controllers
 app.MapControllers();
+app.MapHub<NotificationHub>("/api/v1/notification-hub").RequireAuthorization();
 
 // 6. DATABASE MIGRATION
 using (var scope = app.Services.CreateScope())

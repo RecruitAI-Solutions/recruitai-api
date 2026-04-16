@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Application Update</title>
+    <title>Congratulations! Application Accepted</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,7 +17,7 @@
         }
 
         .header {
-            background-color: #6c757d;
+            background-color: #28a745;
             color: white;
             padding: 20px;
             text-align: center;
@@ -32,18 +32,18 @@
             border-radius: 0 0 5px 5px;
         }
 
-        .reason-box {
-            background-color: #f8d7da;
+        .next-steps {
+            background-color: #d4edda;
             padding: 15px;
             border-radius: 5px;
             margin: 15px 0;
-            border-left: 4px solid #dc3545;
+            border-left: 4px solid #28a745;
         }
 
         .button {
             display: inline-block;
             padding: 12px 24px;
-            background-color: #6c757d;
+            background-color: #28a745;
             color: white;
             text-decoration: none;
             border-radius: 5px;
@@ -61,25 +61,21 @@
 <body>
     <div class="container">
         <div class="header">
-            <h2>Application Update</h2>
+            <h2>Congratulations! You've Been Accepted!</h2>
         </div>
         <div class="content">
             <p>Dear <strong>{{UserName}}</strong>,</p>
-            <p>Thank you for your interest in <strong>{{JobTitle}}</strong> at <strong>{{CompanyName}}</strong>.</p>
+            <p>We are pleased to inform you that your application for <strong>{{JobTitle}}</strong> at <strong>{{CompanyName}}</strong> has been <strong>ACCEPTED</strong>!</p>
 
-            <div class="reason-box">
-                <p>After careful consideration, we regret to inform you that your application has not been selected to proceed.</p>
-                {{#if Reason}}
-                <p><strong>Reason:</strong> {{Reason}}</p>
-                {{/if}}
+            <div class="next-steps">
+                <h3>Next Steps:</h3>
+                <p>{{NextSteps}}</p>
             </div>
 
-            <p>We encourage you to explore other opportunities on our platform.</p>
-
             <p style="text-align: center;">
-                <a href="{{TrackingLink}}" class="button">Browse More Jobs</a>
+                <a href="{{TrackingLink}}" class="button">View Offer Details</a>
             </p>
-            <p>We wish you the best in your job search!</p>
+            <p>Once again, congratulations on this achievement!</p>
             <p>Best regards,<br>RecruitAI Team</p>
         </div>
         <div class="footer">
