@@ -7,6 +7,7 @@ using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Interfaces;
 using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Infrastructure.Data;
+using RecruitAI.Domain.Common.Reports;
 
 namespace RecruitAI.Infrastructure.Repositories;
 
@@ -501,5 +502,24 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 		await _dbSet
 			.Where(j => j.IsFeatured)
 			.ExecuteUpdateAsync(setter => setter.SetProperty(j => j.IsFeatured, false), cancellationToken);
+	}
+	public IQueryable<Job> GetQueryable()
+	{
+		return _dbSet.AsQueryable();
+	}
+	public async Task<List<MonthlyJobStat>> GetJobsByMonthAsync(int year, CancellationToken cancellationToken = default)
+	{
+		var startDate = new DateTime(year, 1, 1);
+		var endDate = new DateTime(year, 12, 31, 23, 59, 59);
+
+		return await _context.Jobs
+			.Where(j => j.CreatedAt >= startDate && j.CreatedAt <= endDate && !j.IsDeleted)
+			.GroupBy(j => j.CreatedAt.Month)
+			.Select(g => new MonthlyJobStat  // ⭐ Domain class
+			{
+				Month = g.Key,
+				Total = g.Count()
+			})
+			.ToListAsync(cancellationToken);
 	}
 }

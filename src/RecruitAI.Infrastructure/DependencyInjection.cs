@@ -71,7 +71,7 @@ namespace RecruitAI.Infrastructure
 			services.AddScoped<IPdfService, PdfService>();
 			services.AddScoped<IAppUrlService, AppUrlService>();
 			services.AddHostedService<FeaturedJobBackgroundService>();
-
+			services.AddScoped<IExportService,ExportService>();
 			//Settings
 			services.AddSingleton<IStorageSettings, StorageSettings>();
 

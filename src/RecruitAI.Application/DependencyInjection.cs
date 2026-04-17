@@ -44,7 +44,6 @@ namespace RecruitAI.Application
 			services.AddScoped<ITestService, TestService>();
 			services.AddScoped<ITestDomainService, TestDomainService>();
 			services.AddScoped<IAuthService, AuthService>();
-			services.AddScoped<IMessageService, MessageService>();
 			services.AddScoped<IValidationService, ValidationService>();
 			services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 			services.AddScoped<IEmailService, EmailService>();
@@ -58,6 +57,7 @@ namespace RecruitAI.Application
 			services.AddScoped<ISkillService, SkillService>();
 			services.AddScoped<IAIRecommendationService, DeepSeekRecommendationService>();
 			services.AddScoped<ICompanyService, CompanyService>();
+			services.AddScoped<IMessageService, MessageService>();
 
 			//Validators
 			services.AddScoped<RegisterRequestValidator>();

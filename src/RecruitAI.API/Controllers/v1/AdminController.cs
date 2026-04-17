@@ -25,16 +25,19 @@ namespace RecruitAI.API.Controllers.v1
 	public class AdminController : BaseController
 	{
 		private readonly IAvatarCleanupService _avatarCleanupService;
+		private readonly IExportService _exportService;
 
 		public AdminController(
 			IMediator mediator,
 			ILogger<AdminController> logger,
 			IMessageService messageService,
 			IWorkContext workContext,
-			IAvatarCleanupService avatarCleanupService)
+			IAvatarCleanupService avatarCleanupService,
+			IExportService exportService)
 			: base(mediator, logger, messageService, workContext)
 		{
 			_avatarCleanupService = avatarCleanupService;
+			_exportService = exportService;
 		}
 
 		/// <summary>
@@ -375,6 +378,162 @@ namespace RecruitAI.API.Controllers.v1
 			{
 				await _avatarCleanupService.CleanupOrphanedAvatarsAsync(force);
 			}, "Avatar cleanup completed");
+		}
+		// ==================== EXPORT APIS ====================
+
+		/// <summary>
+		/// Xuất danh sách người dùng (Excel/CSV)
+		/// </summary>
+		/// <param name="format">Định dạng: excel hoặc csv (mặc định: excel)</param>
+		/// <param name="role">Lọc theo vai trò (CANDIDATE, RECRUITER, ADMIN)</param>
+		/// <param name="status">Lọc theo trạng thái</param>
+		/// <param name="fromDate">Từ ngày</param>
+		/// <param name="toDate">Đến ngày</param>
+		/// <param name="keyword">Tìm kiếm theo email hoặc tên</param>
+		[HttpGet("export/users")]
+		[Authorize(Policy = "ViewAnalytics")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		public async Task<IActionResult> ExportUsers(
+			[FromQuery] string? format = "excel",
+			[FromQuery] string? role = null,
+			[FromQuery] int? status = null,
+			[FromQuery] DateTime? fromDate = null,
+			[FromQuery] DateTime? toDate = null,
+			[FromQuery] string? keyword = null)
+		{
+			var filter = new ExportFilterDto
+			{
+				Format = format,
+				Role = role,
+				Status = status,
+				FromDate = fromDate,
+				ToDate = toDate,
+				Keyword = keyword
+			};
+
+			var data = await _exportService.ExportUsersAsync(filter);
+			var contentType = _exportService.GetContentType(format);
+			var extension = _exportService.GetFileExtension(format);
+			var fileName = $"users_{DateTime.Now:yyyyMMdd_HHmmss}.{extension}";
+
+			return File(data, contentType, fileName);
+		}
+
+		/// <summary>
+		/// Xuất danh sách công việc (Excel/CSV)
+		/// </summary>
+		/// <param name="format">Định dạng: excel hoặc csv (mặc định: excel)</param>
+		/// <param name="status">Lọc theo trạng thái</param>
+		/// <param name="fromDate">Từ ngày</param>
+		/// <param name="toDate">Đến ngày</param>
+		/// <param name="keyword">Tìm kiếm theo tiêu đề</param>
+		[HttpGet("export/jobs")]
+		[Authorize(Policy = "ViewAnalytics")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		public async Task<IActionResult> ExportJobs(
+			[FromQuery] string? format = "excel",
+			[FromQuery] int? status = null,
+			[FromQuery] DateTime? fromDate = null,
+			[FromQuery] DateTime? toDate = null,
+			[FromQuery] string? keyword = null)
+		{
+			var filter = new ExportFilterDto
+			{
+				Format = format,
+				Status = status,
+				FromDate = fromDate,
+				ToDate = toDate,
+				Keyword = keyword
+			};
+
+			var data = await _exportService.ExportJobsAsync(filter);
+			var contentType = _exportService.GetContentType(format);
+			var extension = _exportService.GetFileExtension(format);
+			var fileName = $"jobs_{DateTime.Now:yyyyMMdd_HHmmss}.{extension}";
+
+			return File(data, contentType, fileName);
+		}
+
+		/// <summary>
+		/// Xuất danh sách đơn ứng tuyển (Excel/CSV)
+		/// </summary>
+		/// <param name="format">Định dạng: excel hoặc csv (mặc định: excel)</param>
+		/// <param name="status">Lọc theo trạng thái</param>
+		/// <param name="fromDate">Từ ngày</param>
+		/// <param name="toDate">Đến ngày</param>
+		/// <param name="minMatch">Lọc theo điểm match tối thiểu</param>
+		[HttpGet("export/applications")]
+		[Authorize(Policy = "ViewAnalytics")]
+		[ProducesResponseType(StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		public async Task<IActionResult> ExportApplications(
+			[FromQuery] string? format = "excel",
+			[FromQuery] int? status = null,
+			[FromQuery] DateTime? fromDate = null,
+			[FromQuery] DateTime? toDate = null,
+			[FromQuery] int? minMatch = null)
+		{
+			var filter = new ExportFilterDto
+			{
+				Format = format,
+				Status = status,
+				FromDate = fromDate,
+				ToDate = toDate,
+				MinMatch = minMatch
+			};
+
+			var data = await _exportService.ExportApplicationsAsync(filter);
+			var contentType = _exportService.GetContentType(format);
+			var extension = _exportService.GetFileExtension(format);
+			var fileName = $"applications_{DateTime.Now:yyyyMMdd_HHmmss}.{extension}";
+
+			return File(data, contentType, fileName);
+		}
+
+		// ==================== REPORT APIS ====================
+
+		/// <summary>
+		/// Báo cáo số lượng công việc theo tháng
+		/// </summary>
+		/// <param name="year">Năm (mặc định: năm hiện tại)</param>
+		[HttpGet("reports/jobs-by-month")]
+		[Authorize(Policy = "ViewAnalytics")]
+		[ProducesResponseType(typeof(MonthlyReportDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		public async Task<ActionResult<MonthlyReportDto>> GetJobsByMonthReport([FromQuery] int? year)
+		{
+			return await ExecuteAsync<MonthlyReportDto>(async () =>
+			{
+				var query = new GetJobsByMonthReportQuery { Year = year };
+				return await _mediator.Send(query);
+			});
+		}
+
+		/// <summary>
+		/// Báo cáo số lượng đơn ứng tuyển theo tháng
+		/// </summary>
+		/// <param name="year">Năm (mặc định: năm hiện tại)</param>
+		/// <param name="status">Lọc theo trạng thái</param>
+		[HttpGet("reports/applications-by-month")]
+		[Authorize(Policy = "ViewAnalytics")]
+		[ProducesResponseType(typeof(MonthlyApplicationReportDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		public async Task<ActionResult<MonthlyApplicationReportDto>> GetApplicationsByMonthReport(
+			[FromQuery] int? year,
+			[FromQuery] JobApplicationStatus? status = null)
+		{
+			return await ExecuteAsync<MonthlyApplicationReportDto>(async () =>
+			{
+				var query = new GetApplicationsByMonthReportQuery { Year = year, Status = status };
+				return await _mediator.Send(query);
+			});
 		}
 	}
 }
