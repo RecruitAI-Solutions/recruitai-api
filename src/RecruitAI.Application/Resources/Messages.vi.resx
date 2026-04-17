@@ -719,5 +719,241 @@
 		<data name="Notification.AccountStatusChanged.Content" xml:space="preserve">
 	  <value>Trạng thái tài khoản của bạn đã được thay đổi thành {0}</value>
 	</data>
+	<!-- ==================== EXPORT - USERS ==================== -->
+	<data name="Export.Users.Title" xml:space="preserve">
+		<value>Danh sách người dùng</value>
+	  </data>
+		<data name="Export.User.Id" xml:space="preserve">
+		<value>ID</value>
+	  </data>
+		<data name="Export.User.Email" xml:space="preserve">
+		<value>Email</value>
+	  </data>
+		<data name="Export.User.FullName" xml:space="preserve">
+		<value>Họ tên</value>
+	  </data>
+		<data name="Export.User.Role" xml:space="preserve">
+		<value>Vai trò</value>
+	  </data>
+		<data name="Export.User.Status" xml:space="preserve">
+		<value>Trạng thái</value>
+	  </data>
+		<data name="Export.User.EmailVerified" xml:space="preserve">
+		<value>Xác thực email</value>
+	  </data>
+		<data name="Export.User.PhoneNumber" xml:space="preserve">
+		<value>Số điện thoại</value>
+	  </data>
+		<data name="Export.User.Gender" xml:space="preserve">
+		<value>Giới tính</value>
+	  </data>
+		<data name="Export.User.DateOfBirth" xml:space="preserve">
+		<value>Ngày sinh</value>
+	  </data>
+		<data name="Export.User.CreatedAt" xml:space="preserve">
+		<value>Ngày tạo</value>
+	  </data>
+		<data name="Export.User.LastLoginAt" xml:space="preserve">
+		<value>Lần đăng nhập cuối</value>
+	  </data>
 
+		<!-- ==================== EXPORT - JOBS ==================== -->
+		<data name="Export.Jobs.Title" xml:space="preserve">
+		<value>Danh sách công việc</value>
+	  </data>
+		<data name="Export.Job.Id" xml:space="preserve">
+		<value>ID</value>
+	  </data>
+		<data name="Export.Job.Title" xml:space="preserve">
+		<value>Tiêu đề</value>
+	  </data>
+		<data name="Export.Job.Company" xml:space="preserve">
+		<value>Công ty</value>
+	  </data>
+		<data name="Export.Job.Recruiter" xml:space="preserve">
+		<value>Nhà tuyển dụng</value>
+	  </data>
+		<data name="Export.Job.Location" xml:space="preserve">
+		<value>Địa điểm</value>
+	  </data>
+		<data name="Export.Job.SalaryMin" xml:space="preserve">
+		<value>Lương tối thiểu</value>
+	  </data>
+		<data name="Export.Job.SalaryMax" xml:space="preserve">
+		<value>Lương tối đa</value>
+	  </data>
+		<data name="Export.Job.EmploymentType" xml:space="preserve">
+		<value>Loại hình</value>
+	  </data>
+		<data name="Export.Job.ExperienceLevel" xml:space="preserve">
+		<value>Cấp độ kinh nghiệm</value>
+	  </data>
+		<data name="Export.Job.Status" xml:space="preserve">
+		<value>Trạng thái</value>
+	  </data>
+		<data name="Export.Job.Views" xml:space="preserve">
+		<value>Lượt xem</value>
+	  </data>
+		<data name="Export.Job.Applications" xml:space="preserve">
+		<value>Số ứng tuyển</value>
+	  </data>
+		<data name="Export.Job.CreatedAt" xml:space="preserve">
+		<value>Ngày tạo</value>
+	  </data>
+		<data name="Export.Job.ExpirationDate" xml:space="preserve">
+		<value>Ngày hết hạn</value>
+	  </data>
+
+		<!-- ==================== EXPORT - APPLICATIONS ==================== -->
+		<data name="Export.Applications.Title" xml:space="preserve">
+		<value>Danh sách đơn ứng tuyển</value>
+	  </data>
+		<data name="Export.Application.Id" xml:space="preserve">
+		<value>ID</value>
+	  </data>
+		<data name="Export.Application.Job" xml:space="preserve">
+		<value>Công việc</value>
+	  </data>
+		<data name="Export.Application.Candidate" xml:space="preserve">
+		<value>Ứng viên</value>
+	  </data>
+		<data name="Export.Application.Email" xml:space="preserve">
+		<value>Email</value>
+	  </data>
+		<data name="Export.Application.CV" xml:space="preserve">
+		<value>CV</value>
+	  </data>
+		<data name="Export.Application.Status" xml:space="preserve">
+		<value>Trạng thái</value>
+	  </data>
+		<data name="Export.Application.MatchPercentage" xml:space="preserve">
+		<value>Điểm phù hợp</value>
+	  </data>
+		<data name="Export.Application.AppliedAt" xml:space="preserve">
+		<value>Ngày ứng tuyển</value>
+	  </data>
+		<data name="Export.Application.ReviewedAt" xml:space="preserve">
+		<value>Ngày xem xét</value>
+	  </data>
+
+		<!-- ==================== USER ROLE ==================== -->
+		<data name="UserRole.Admin" xml:space="preserve">
+		<value>Quản trị viên</value>
+	  </data>
+		<data name="UserRole.Recruiter" xml:space="preserve">
+		<value>Nhà tuyển dụng</value>
+	  </data>
+		<data name="UserRole.Candidate" xml:space="preserve">
+		<value>Ứng viên</value>
+	  </data>
+
+		<!-- ==================== USER STATUS ==================== -->
+		<data name="UserStatus.Active" xml:space="preserve">
+		<value>Hoạt động</value>
+	  </data>
+		<data name="UserStatus.Inactive" xml:space="preserve">
+		<value>Không hoạt động</value>
+	  </data>
+		<data name="UserStatus.Locked" xml:space="preserve">
+		<value>Bị khóa</value>
+	  </data>
+		<data name="UserStatus.PendingVerification" xml:space="preserve">
+		<value>Chờ xác thực</value>
+	  </data>
+		<data name="UserStatus.Deleted" xml:space="preserve">
+		<value>Đã xóa</value>
+	  </data>
+		<data name="UserStatus.Banned" xml:space="preserve">
+		<value>Bị cấm</value>
+	  </data>
+
+		<!-- ==================== GENDER ==================== -->
+		<data name="Gender.Male" xml:space="preserve">
+		<value>Nam</value>
+	  </data>
+		<data name="Gender.Female" xml:space="preserve">
+		<value>Nữ</value>
+	  </data>
+		<data name="Gender.Other" xml:space="preserve">
+		<value>Khác</value>
+	  </data>
+
+		<!-- ==================== COMMON ==================== -->
+		<data name="Common.Yes" xml:space="preserve">
+		<value>Có</value>
+	  </data>
+		<data name="Common.No" xml:space="preserve">
+		<value>Không</value>
+	  </data>
+
+		<!-- ==================== EMPLOYMENT TYPE ==================== -->
+		<data name="EmploymentType.FullTime" xml:space="preserve">
+		<value>Toàn thời gian</value>
+	  </data>
+		<data name="EmploymentType.PartTime" xml:space="preserve">
+		<value>Bán thời gian</value>
+	  </data>
+		<data name="EmploymentType.Remote" xml:space="preserve">
+		<value>Làm từ xa</value>
+	  </data>
+		<data name="EmploymentType.Hybrid" xml:space="preserve">
+		<value>Kết hợp (Hybrid)</value>
+	  </data>
+		<data name="EmploymentType.Contract" xml:space="preserve">
+		<value>Hợp đồng</value>
+	  </data>
+		<data name="EmploymentType.Internship" xml:space="preserve">
+		<value>Thực tập</value>
+	  </data>
+
+		<!-- ==================== EXPERIENCE LEVEL ==================== -->
+		<data name="ExperienceLevel.Entry" xml:space="preserve">
+		<value>Mới vào nghề</value>
+	  </data>
+		<data name="ExperienceLevel.Junior" xml:space="preserve">
+		<value>Junior</value>
+	  </data>
+		<data name="ExperienceLevel.Intermediate" xml:space="preserve">
+		<value>Trung cấp</value>
+	  </data>
+		<data name="ExperienceLevel.Senior" xml:space="preserve">
+		<value>Senior</value>
+	  </data>
+		<data name="ExperienceLevel.Lead" xml:space="preserve">
+		<value>Trưởng nhóm</value>
+	  </data>
+		<data name="ExperienceLevel.Manager" xml:space="preserve">
+		<value>Quản lý</value>
+	  </data>
+
+		<!-- ==================== JOB STATUS ==================== -->
+		<data name="JobStatus.Draft" xml:space="preserve">
+		<value>Bản nháp</value>
+	  </data>
+		<data name="JobStatus.Published" xml:space="preserve">
+		<value>Đã đăng</value>
+	  </data>
+		<data name="JobStatus.Closed" xml:space="preserve">
+		<value>Đã đóng</value>
+	  </data>
+		<data name="JobStatus.Expired" xml:space="preserve">
+		<value>Hết hạn</value>
+	  </data>
+		<data name="JobStatus.Pending" xml:space="preserve">
+		<value>Chờ duyệt</value>
+	  </data>
+
+		<!-- ==================== APPLICATION STATUS ==================== -->
+		<data name="ApplicationStatus.Pending" xml:space="preserve">
+		<value>Chờ xử lý</value>
+	  </data>
+		<data name="ApplicationStatus.Reviewed" xml:space="preserve">
+		<value>Đã xem xét</value>
+	  </data>
+		<data name="ApplicationStatus.Accepted" xml:space="preserve">
+		<value>Đã chấp nhận</value>
+	  </data>
+		<data name="ApplicationStatus.Rejected" xml:space="preserve">
+		<value>Từ chối</value>
+	  </data>
 </root>
