@@ -1,4 +1,5 @@
 ﻿using RecruitAI.Domain.Common.Paginations;
+using RecruitAI.Domain.Common.Reports;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 
@@ -17,4 +18,6 @@ public interface IJobApplicationRepository : IBaseRepository<JobApplication>
 	Task<Dictionary<JobApplicationStatus, int>> CountApplicationsByStatusAsync(DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default);
 	Task<int[]> CountApplicationsByDayAsync(int days, DateTime? endDate = null, CancellationToken cancellationToken = default);
 	Task<int> CountByJobIdAsync(Guid jobId, CancellationToken cancellationToken = default);
+	IQueryable<JobApplication> GetQueryable();
+	Task<List<MonthlyApplicationStat>> GetApplicationsByMonthAsync(int year, JobApplicationStatus? status = null, CancellationToken cancellationToken = default);
 }

@@ -2,6 +2,7 @@
 using RecruitAI.Domain.Common.Paginations;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
+using RecruitAI.Domain.Common.Reports;
 
 namespace RecruitAI.Domain.Interfaces.Repositories;
 
@@ -31,4 +32,6 @@ public interface IJobRepository : IBaseRepository<Job>
 	Task<List<Job>> GetSimilarJobsAsync(List<int> skillIds, Guid excludeJobId, int limit, CancellationToken cancellationToken = default);
 	Task<List<Job>> GetTopJobsByScoreAsync(int limit, CancellationToken cancellationToken = default);
 	Task ResetAllFeaturedAsync(CancellationToken cancellationToken = default);
+	IQueryable<Job> GetQueryable();
+	Task<List<MonthlyJobStat>> GetJobsByMonthAsync(int year, CancellationToken cancellationToken = default);
 }

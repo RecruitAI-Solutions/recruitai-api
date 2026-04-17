@@ -4,6 +4,7 @@ using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Infrastructure.Data;
+using RecruitAI.Domain.Common.Reports;
 
 namespace RecruitAI.Infrastructure.Repositories;
 
@@ -175,4 +176,33 @@ public class JobApplicationRepository : BaseRepository<JobApplication>, IJobAppl
 			.Where(a => a.JobId == jobId)
 			.CountAsync(cancellationToken);
 	}
+	public IQueryable<JobApplication> GetQueryable()
+	{
+		return _dbSet.AsQueryable();
+	}
+	public async Task<List<MonthlyApplicationStat>> GetApplicationsByMonthAsync(int year, JobApplicationStatus? status = null, CancellationToken cancellationToken = default)
+	{
+		var startDate = new DateTime(year, 1, 1);
+		var endDate = new DateTime(year, 12, 31, 23, 59, 59);
+
+		var query = _context.JobApplications
+			.Where(a => a.AppliedAt >= startDate && a.AppliedAt <= endDate);
+
+		if (status.HasValue)
+			query = query.Where(a => a.Status == status.Value);
+
+		return await query
+			.GroupBy(a => a.AppliedAt.Month)
+			.Select(g => new MonthlyApplicationStat
+			{
+				Month = g.Key,
+				Total = g.Count(),
+				Pending = g.Count(a => a.Status == JobApplicationStatus.Pending),
+				Reviewed = g.Count(a => a.Status == JobApplicationStatus.Reviewed),
+				Accepted = g.Count(a => a.Status == JobApplicationStatus.Accepted),
+				Rejected = g.Count(a => a.Status == JobApplicationStatus.Rejected)
+			})
+			.ToListAsync(cancellationToken);
+	}
+
 }
