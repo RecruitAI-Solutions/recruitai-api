@@ -23,6 +23,7 @@ using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -574,48 +575,59 @@ using (var scope = app.Services.CreateScope())
 	var db = scope.ServiceProvider.GetRequiredService<RecruitDevContext>();
 	var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
+	logger.LogInformation("========== [DB INIT START] ==========");
+
 	try
 	{
-		logger.LogInformation(ProgramMessages.Log("DatabaseCheck"));
-		logger.LogInformation(ProgramMessages.Log("DatabaseEnsuring"));
-		//await db.Database.EnsureCreatedAsync();
+		logger.LogInformation("[STEP 1] Checking database connection...");
 
-		logger.LogInformation(ProgramMessages.Log("DatabaseConnected"));
 		var canConnect = await db.Database.CanConnectAsync();
-		logger.LogInformation(ProgramMessages.Log("DatabaseConnected"), canConnect);
+		logger.LogInformation("[INFO] CanConnect: {CanConnect}", canConnect);
 
-		if (canConnect)
+		logger.LogInformation("[STEP 2] Applying migrations...");
+
+		var allMigrations = db.Database.GetMigrations();
+		var pendingMigrations = await db.Database.GetPendingMigrationsAsync();
+
+		logger.LogInformation("[INFO] Total migrations: {Count}", allMigrations.Count());
+		logger.LogInformation("[INFO] Pending migrations: {Count}", pendingMigrations.Count());
+
+		if (pendingMigrations.Any())
 		{
-			logger.LogInformation(ProgramMessages.Log("MigrationStarted"));
-			var pendingMigrations = await db.Database.GetPendingMigrationsAsync();
-			var pendingList = pendingMigrations.ToList();
-
-			if (pendingList.Any())
-			{
-				logger.LogInformation(ProgramMessages.Log("MigrationPending"), pendingList.Count);
-				await db.Database.MigrateAsync();
-				logger.LogInformation(ProgramMessages.Log("MigrationSuccess"));
-			}
-			else
-			{
-				logger.LogInformation(ProgramMessages.Log("NoPendingMigration"));
-			}
-
-			logger.LogInformation("Calling DatabaseSeeder.SeedAsync...");
-			await RecruitAI.Infrastructure.Data.SeedData.DatabaseSeeder.SeedAsync(db, logger);
-			logger.LogInformation("DatabaseSeeder.SeedAsync completed");
-
-			var tables = await db.Database.SqlQuery<string>($@"
-				SELECT TABLE_NAME 
-				FROM INFORMATION_SCHEMA.TABLES 
-				WHERE TABLE_TYPE = 'BASE TABLE'").ToListAsync();
-
-			logger.LogInformation(ProgramMessages.Log("TablesFound"), tables.Count);
+			logger.LogInformation("[ACTION] Running MigrateAsync...");
 		}
+		else
+		{
+			logger.LogInformation("[SKIP] No pending migrations");
+		}
+
+		await db.Database.MigrateAsync();
+
+		logger.LogInformation("[SUCCESS] Migration completed");
+
+		logger.LogInformation("[STEP 3] Seeding data...");
+		await RecruitAI.Infrastructure.Data.SeedData.DatabaseSeeder.SeedAsync(db, logger);
+		logger.LogInformation("[SUCCESS] Seeding completed");
+
+		logger.LogInformation("[STEP 4] Verifying tables...");
+
+		var tables = await db.Database.SqlQuery<string>($@"
+		SELECT TABLE_NAME 
+		FROM INFORMATION_SCHEMA.TABLES 
+		WHERE TABLE_TYPE = 'BASE TABLE'").ToListAsync();
+
+		logger.LogInformation("[INFO] Total tables: {Count}", tables.Count);
+
+		foreach (var table in tables)
+		{
+			logger.LogInformation("[TABLE] {TableName}", table);
+		}
+
+		logger.LogInformation("========== [DB INIT SUCCESS] ==========");
 	}
 	catch (Exception ex)
 	{
-		logger.LogError(ex, ProgramMessages.Log("DbError"));
+		logger.LogError(ex, "========== [DB INIT FAILED] ==========");
 	}
 }
 
