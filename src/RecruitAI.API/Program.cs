@@ -578,7 +578,7 @@ using (var scope = app.Services.CreateScope())
 	{
 		logger.LogInformation(ProgramMessages.Log("DatabaseCheck"));
 		logger.LogInformation(ProgramMessages.Log("DatabaseEnsuring"));
-		await db.Database.EnsureCreatedAsync();
+		//await db.Database.EnsureCreatedAsync();
 
 		logger.LogInformation(ProgramMessages.Log("DatabaseConnected"));
 		var canConnect = await db.Database.CanConnectAsync();
