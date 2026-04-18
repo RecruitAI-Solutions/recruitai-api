@@ -48,9 +48,6 @@ RUN dotnet publish RecruitAI.API/RecruitAI.API.csproj -c Release -o /app/publish
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS production
 WORKDIR /app
 
-# Tạo user non-root (cho Alpine)
-RUN addgroup -S appuser && adduser -S appuser -G appuser
-
 # Expose port
 EXPOSE 8080
 EXPOSE 8081
@@ -59,10 +56,7 @@ EXPOSE 8081
 COPY --from=build /app/publish .
 
 # Tạo thư mục cho uploads
-RUN mkdir -p /app/uploads/cvs /app/uploads/avatars && chown -R appuser:appuser /app
-
-# Chuyển sang user non-root
-USER appuser
+RUN mkdir -p /app/uploads/cvs /app/uploads/avatars
 
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
