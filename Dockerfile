@@ -45,10 +45,10 @@ COPY src/ .
 RUN dotnet publish RecruitAI.API/RecruitAI.API.csproj -c Release -o /app/publish
 
 # === STAGE 3: Runtime cho production ===
-FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS production
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-jammy AS production
 WORKDIR /app
 
-# Tạo user non-root để chạy (bảo mật)
+# Tạo user non-root (cho Ubuntu)
 RUN adduser --disabled-password --gecos '' appuser
 
 # Expose port
