@@ -1,0 +1,50 @@
+# File: .github/workflows/cd.yml
+# Mục đích: Tự động deploy lên VPS khi push lên production
+
+name: CD - Deploy to VPS
+
+on:
+  push:
+    branches: [production]
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore RecruitAI.API.slnx
+
+      - name: Build and Publish
+        run: dotnet publish src/RecruitAI.API/RecruitAI.API.csproj -c Release -o ./publish
+
+      - name: Deploy to VPS via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "./publish/*, ./.env.production"
+          target: "/var/www/recruitai"
+          strip_components: 1
+
+      - name: Restart application on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /var/www/recruitai
+            cp .env.production .env
+            sudo systemctl restart recruitai
+            echo "Deployed successfully!"
