@@ -544,14 +544,18 @@ var uploadRootPath = app.Configuration["FileStorage:UploadRootPath"];
 
 // 5. MIDDLEWARE PIPELINE
 // 5.1 Development-specific middleware
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
 	app.UseSwagger();
 	app.UseSwaggerUI(options =>
 	{
 		options.SwaggerEndpoint("/swagger/v1/swagger.json", "Recruit AI API V1");
 	});
-	app.UseDeveloperExceptionPage();
+
+	if (app.Environment.IsDevelopment())
+	{
+		app.UseDeveloperExceptionPage();
+	}
 }
 else
 {
