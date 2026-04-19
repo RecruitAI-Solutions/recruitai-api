@@ -27,10 +27,10 @@ jobs:
       # ========== COPY EMAIL TEMPLATES ==========
       - name: Copy Email Templates to publish folder
         run: |
-          mkdir -p ./publish/Templates/Email/en
-          mkdir -p ./publish/Templates/Email/vi
-          cp -r ./Templates/Email/en/*.html ./publish/Templates/Email/en/ 2>/dev/null || true
-          cp -r ./Templates/Email/vi/*.html ./publish/Templates/Email/vi/ 2>/dev/null || true
+          mkdir -p ./publish/Templates/Emails/en
+          mkdir -p ./publish/Templates/Emails/vi
+          cp -r ./Templates/Emails/en/*.html ./publish/Templates/Emails/en/ 2>/dev/null || true
+          cp -r ./Templates/Emails/vi/*.html ./publish/Templates/Emails/vi/ 2>/dev/null || true
           echo "[INFO] Email templates copied"
 
       # ========== DEPLOY TO VPS ==========
