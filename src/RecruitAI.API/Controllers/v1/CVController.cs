@@ -23,6 +23,7 @@ public class CVController : BaseController
 {
 	private readonly IWebHostEnvironment _env;
 	private readonly IMapper _mapper;
+	private readonly IConfiguration _configuration;	
 
 	public CVController(
 		IMediator mediator,
@@ -30,11 +31,13 @@ public class CVController : BaseController
 		IMessageService messageService,
 		IWebHostEnvironment env,
 		IMapper mapper,
-		IWorkContext workContext)
+		IWorkContext workContext,
+		IConfiguration configuration)
 		: base(mediator, logger, messageService, workContext)
 	{
 		_env = env;
 		_mapper = mapper;
+		_configuration = configuration;
 	}
 
 	/// <summary>
@@ -186,7 +189,8 @@ public class CVController : BaseController
 				return NotFound(response);
 			}
 
-			var filePath = Path.Combine(_env.WebRootPath, cv.FilePath);
+			var filePath = GetPhysicalFilePath(cv.FilePath);
+
 			if (!System.IO.File.Exists(filePath))
 			{
 				var response = new ErrorResponseDto
@@ -219,6 +223,21 @@ public class CVController : BaseController
 		}
 	}
 
+	private string GetPhysicalFilePath(string relativePath)
+	{
+		var useSeparatePath = _configuration.GetValue<bool>("FileStorage:UseSeparateUploadPath", false);
+
+		if (useSeparatePath)
+		{
+			var uploadRoot = _configuration["FileStorage:UploadRootPath"];
+			if (string.IsNullOrEmpty(uploadRoot)) return null;
+			return Path.Combine(uploadRoot, relativePath);
+		}
+		else
+		{
+			return Path.Combine(_env.WebRootPath, relativePath);
+		}
+	}
 
 	/// <summary>
 	/// Xóa CV (xóa mềm, có thể khôi phục)
