@@ -23,7 +23,12 @@ jobs:
 
       - name: Build and Publish
         run: dotnet publish src/RecruitAI.API/RecruitAI.API.csproj -c Release -o ./publish
-
+        
+      - name: Copy appsettings.Production.json to publish folder
+        run: |
+          cp src/RecruitAI.API/appsettings.Production.json ./publish/
+          echo "[INFO] Copied appsettings.Production.json to publish"
+        
       # ========== COPY EMAIL TEMPLATES ==========
       - name: Copy Email Templates to publish folder
         run: |
