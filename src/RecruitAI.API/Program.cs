@@ -672,6 +672,9 @@ else
 	}
 }
 
+// Health check endpoint
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
+
 // 7. START APPLICATION
 try
 {
