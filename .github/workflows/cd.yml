@@ -73,9 +73,16 @@ jobs:
               touch /var/www/recruitai_new/wwwroot/images/default.png
             fi
 
-            echo "[STEP 4] Copying appsettings.Production.json..."
+            echo "[STEP 4] Validating and copying appsettings.Production.json..."
             if [ -f /var/www/recruitai/appsettings.Production.json ]; then
-              cp /var/www/recruitai/appsettings.Production.json /var/www/recruitai_new/appsettings.Production.json
+              # Validate JSON trước khi copy
+              if python3 -m json.tool /var/www/recruitai/appsettings.Production.json > /dev/null 2>&1; then
+                cp /var/www/recruitai/appsettings.Production.json /var/www/recruitai_new/appsettings.Production.json
+                echo "[INFO] appsettings.Production.json copied (valid)"
+              else
+                echo "[ERROR] appsettings.Production.json is invalid, using default"
+                # Không copy, để file mặc định từ publish
+              fi
             fi
 
             echo "[STEP 5] Setting up environment file..."
