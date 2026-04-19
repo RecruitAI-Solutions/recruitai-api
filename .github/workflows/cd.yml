@@ -27,11 +27,11 @@ jobs:
       # ========== COPY EMAIL TEMPLATES ==========
       - name: Copy Email Templates to publish folder
         run: |
-          mkdir -p ./publish/Templates/Emails/en
-          mkdir -p ./publish/Templates/Emails/vi
-          cp -r ./Templates/Emails/en/*.html ./publish/Templates/Emails/en/ 2>/dev/null
-          cp -r ./Templates/Emails/vi/*.html ./publish/Templates/Emails/vi/ 2>/dev/null
-          echo "[INFO] Email templates copied"
+           mkdir -p ./publish/Templates/Emails/en
+           mkdir -p ./publish/Templates/Emails/vi
+           cp -r ./src/RecruitAI.API/Templates/Emails/en/*.html ./publish/Templates/Emails/en/
+           cp -r ./src/RecruitAI.API/Templates/Emails/vi/*.html ./publish/Templates/Emails/vi/
+           echo "[INFO] Email templates copied"
 
       # ========== DEPLOY TO VPS ==========
       - name: Deploy to VPS via SCP
@@ -88,7 +88,7 @@ jobs:
             export ASPNETCORE_ENVIRONMENT=Production
 
             echo "[STEP 7] Swapping deployment (atomic)..."
-            sudo rm -rf /var/www/recruitai_old 2>/dev/null || true
+            sudo rm -rf /var/www/recruitai_old 2>/dev/null
             sudo mv /var/www/recruitai /var/www/recruitai_old 2>/dev/null
             sudo mv /var/www/recruitai_new /var/www/recruitai
 
