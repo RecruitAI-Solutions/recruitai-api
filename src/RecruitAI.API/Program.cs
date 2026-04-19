@@ -157,12 +157,12 @@ builder.Services.AddCors(options =>
 		}
 
 		// 3. Production domains (nếu chưa có trong config)
-		if (builder.Environment.IsProduction())
-		{
-			allowedOrigins.Add("https://recruitai.com");
-			allowedOrigins.Add("https://www.recruitai.com");
-			allowedOrigins.Add("https://api.recruitai.com");
-		}
+		//if (builder.Environment.IsProduction())
+		//{
+		//	allowedOrigins.Add("https://recruitai.com");
+		//	allowedOrigins.Add("https://www.recruitai.com");
+		//	allowedOrigins.Add("https://api.recruitai.com");
+		//}
 
 		// 4. Development domains
 		if (builder.Environment.IsDevelopment())
