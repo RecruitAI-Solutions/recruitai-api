@@ -1,5 +1,7 @@
 ﻿// RecruitAI.Application/Commands/CVs/DeleteCVCommand.cs
 using MediatR;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.Commands.Notifications;
 using RecruitAI.Application.Helpers;
@@ -20,19 +22,25 @@ public class DeleteCVCommand : IRequest
 public class DeleteCVCommandHandler : IRequestHandler<DeleteCVCommand>
 {
 	private readonly IUnitOfWork _uow;
+	private readonly IConfiguration _configuration;
+	private readonly IWebHostEnvironment _env;
 	private readonly ILogger<DeleteCVCommandHandler> _logger;
 	private readonly IAuditLogService _auditLogService;
-	private readonly IMediator _mediator; 
+	private readonly IMediator _mediator;
 	private readonly IMessageService _msg;
 
 	public DeleteCVCommandHandler(
 		IUnitOfWork uow,
+		IConfiguration configuration,
+		IWebHostEnvironment env,
 		ILogger<DeleteCVCommandHandler> logger,
 		IAuditLogService auditLogService,
-		IMediator mediator, 
-		IMessageService msg) 
+		IMediator mediator,
+		IMessageService msg)
 	{
 		_uow = uow;
+		_configuration = configuration;
+		_env = env;
 		_logger = logger;
 		_auditLogService = auditLogService;
 		_mediator = mediator;
@@ -75,11 +83,16 @@ public class DeleteCVCommandHandler : IRequestHandler<DeleteCVCommand>
 			await _uow.CVs.UpdateAsync(cv);
 			await _uow.SaveChangesAsync(cancellationToken);
 
-			// Xóa file vật lý (tùy chọn)
-			var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", cv.FilePath);
-			if (File.Exists(filePath))
+			// Xóa file vật lý dựa trên môi trường
+			var filePath = GetPhysicalFilePath(cv.FilePath);
+			if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
 			{
 				File.Delete(filePath);
+				_logger.LogInformation("Deleted physical file: {FilePath}", filePath);
+			}
+			else
+			{
+				_logger.LogWarning("Physical file not found or invalid path: {FilePath}", filePath);
 			}
 
 			var notification = new CreateNotificationCommand
@@ -100,6 +113,42 @@ public class DeleteCVCommandHandler : IRequestHandler<DeleteCVCommand>
 		{
 			_logger.LogError(ex, "Error deleting CV {CvId}", request.Id);
 			throw;
+		}
+	}
+
+	private string GetPhysicalFilePath(string relativePath)
+	{
+		if (string.IsNullOrEmpty(relativePath))
+		{
+			_logger.LogWarning("Relative path is null or empty");
+			return null;
+		}
+
+		var useSeparatePath = _configuration.GetValue<bool>("FileStorage:UseSeparateUploadPath", false);
+
+		if (useSeparatePath)
+		{
+			// PRODUCTION: Dùng thư mục riêng
+			var uploadRoot = _configuration["FileStorage:UploadRootPath"];
+
+			if (string.IsNullOrEmpty(uploadRoot))
+			{
+				_logger.LogWarning("Upload root path not configured for Production");
+				return null;
+			}
+
+			return Path.Combine(uploadRoot, relativePath);
+		}
+		else
+		{
+			// DEVELOPMENT: Dùng wwwroot
+			if (string.IsNullOrEmpty(_env.WebRootPath))
+			{
+				_logger.LogWarning("Web root path not configured for Development");
+				return null;
+			}
+
+			return Path.Combine(_env.WebRootPath, relativePath);
 		}
 	}
 }
