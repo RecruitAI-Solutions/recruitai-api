@@ -27,11 +27,11 @@ jobs:
       # ========== COPY EMAIL TEMPLATES ==========
       - name: Copy Email Templates to publish folder
         run: |
-           mkdir -p ./publish/Templates/Emails/en
-           mkdir -p ./publish/Templates/Emails/vi
-           cp -r ./src/RecruitAI.API/Templates/Emails/en/*.html ./publish/Templates/Emails/en/
-           cp -r ./src/RecruitAI.API/Templates/Emails/vi/*.html ./publish/Templates/Emails/vi/
-           echo "[INFO] Email templates copied"
+          mkdir -p ./publish/Templates/Emails/en
+          mkdir -p ./publish/Templates/Emails/vi
+          cp -r ./src/RecruitAI.API/Templates/Emails/en/*.html ./publish/Templates/Emails/en/
+          cp -r ./src/RecruitAI.API/Templates/Emails/vi/*.html ./publish/Templates/Emails/vi/
+          echo "[INFO] Email templates copied"
 
       # ========== DEPLOY TO VPS ==========
       - name: Deploy to VPS via SCP
@@ -66,7 +66,7 @@ jobs:
             if [ -f /var/www/recruitai_backup/default.png ]; then
               cp /var/www/recruitai_backup/default.png /var/www/recruitai_new/wwwroot/images/default.png
             elif [ -f /var/www/recruitai/wwwroot/images/default.png ]; then
-              cp /var/www/recruitai/wwwroot/images/default.png /var/www/recruitai_backup/default.png 2>/dev/null
+              cp /var/www/recruitai/wwwroot/images/default.png /var/www/recruitai_backup/default.png 2>/dev/null || true
               cp /var/www/recruitai/wwwroot/images/default.png /var/www/recruitai_new/wwwroot/images/default.png
             else
               echo "[WARN] No default.png found, creating placeholder..."
@@ -83,20 +83,21 @@ jobs:
               cp /var/www/recruitai/.env /var/www/recruitai_new/.env
             fi
 
-            echo "[STEP 6] Running database migrations (if any)..."
-            cd /var/www/recruitai_new
-            export ASPNETCORE_ENVIRONMENT=Production
+            echo "[STEP 6] Stopping service before swap..."
+            sudo systemctl stop recruitai.service || true
 
             echo "[STEP 7] Swapping deployment (atomic)..."
-            sudo rm -rf /var/www/recruitai_old 2>/dev/null
-            sudo mv /var/www/recruitai /var/www/recruitai_old 2>/dev/null
+            sudo rm -rf /var/www/recruitai_old 2>/dev/null || true
+            sudo mv /var/www/recruitai /var/www/recruitai_old 2>/dev/null || true
             sudo mv /var/www/recruitai_new /var/www/recruitai
 
-            echo "[STEP 8] Restarting service..."
-            sudo systemctl daemon-reload
-            sudo systemctl restart recruitai.service
+            echo "[STEP 8] Fixing permissions..."
+            sudo chown -R ${{ secrets.VPS_USER }}:${{ secrets.VPS_USER }} /var/www/recruitai
 
-            echo "[STEP 9] Cleaning up old deployment (keep for rollback)..."
+            echo "[STEP 9] Starting service..."
+            sudo systemctl start recruitai.service
+
+            echo "[STEP 10] Cleaning up old deployment (keep for rollback)..."
             # Xoa ban cu sau 3 ngay (co the chay cron rieng)
             # sudo rm -rf /var/www/recruitai_old &
 
@@ -110,7 +111,7 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
-            sleep 5
+            sleep 10
             if curl -f -s -o /dev/null http://localhost:5000/health; then
               echo "[SUCCESS] Health check passed!"
             else
