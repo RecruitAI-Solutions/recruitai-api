@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.Commands.Notifications;
 using RecruitAI.Application.DTOs.Responses.Auths;
@@ -34,6 +35,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 	private readonly IPdfService _pdfService;
 	private readonly IAuditLogService _auditLogService;
 	private readonly IMediator _mediator;
+	private readonly IConfiguration _configuration;
 
 	public UploadCVCommandHandler(
 		IUnitOfWork uow,
@@ -42,7 +44,8 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 		IMessageService messageService,
 		IPdfService pdfService,
 		IAuditLogService auditLogService,
-		IMediator mediator)  
+		IMediator mediator,
+		IConfiguration configuration)
 	{
 		_uow = uow;
 		_env = env;
@@ -51,6 +54,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 		_pdfService = pdfService;
 		_auditLogService = auditLogService;
 		_mediator = mediator;
+		_configuration = configuration;
 	}
 
 	public async Task<UploadCVResponseDto> Handle(UploadCVCommand request, CancellationToken cancellationToken)
@@ -82,23 +86,11 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 			var cvId = Guid.NewGuid();
 
 			// Tạo đường dẫn lưu file
-			var uploadPath = GetUploadPath(request.UserId);
-
-			// KIỂM TRA WebRootPath
-			if (string.IsNullOrEmpty(_env.WebRootPath))
-			{
-				throw new BusinessException(
-					ErrorCode.ConfigurationError,
-					"Web root path not configured");
-			}
+			var (uploadPath, relativeFolderPath) = GetUploadPathAndRelativePath(request.UserId);
 
 			var fileName = $"{cvId}_{Guid.NewGuid()}.pdf";
 			var filePath = Path.Combine(uploadPath, fileName);
-			var relativePath = Path.Combine("uploads", "cvs",
-				DateTime.UtcNow.ToString("yyyy"),
-				DateTime.UtcNow.ToString("MM"),
-				request.UserId.ToString(),
-				fileName).Replace("\\", "/");
+			var finalRelativePath = Path.Combine(relativeFolderPath, fileName).Replace("\\", "/");
 
 			// Tạo thư mục nếu chưa tồn tại
 			Directory.CreateDirectory(uploadPath);
@@ -108,7 +100,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 			{
 				using (var fileStream = new FileStream(filePath, FileMode.Create))
 				{
-					await request.FileStream.CopyToAsync(fileStream);
+					await request.FileStream.CopyToAsync(fileStream, cancellationToken);
 				}
 			}
 			catch (Exception ex)
@@ -126,7 +118,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 				UserId = request.UserId,
 				FileName = request.FileName,
 				StoredFileName = fileName,
-				FilePath = relativePath,
+				FilePath = finalRelativePath,
 				FileSize = request.FileSize,
 				ContentType = request.ContentType,
 				Status = CVStatus.Processing,
@@ -136,6 +128,7 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 			try
 			{
 				await _uow.CVs.AddAsync(cv);
+				await _uow.SaveChangesAsync(cancellationToken);
 
 				// Ghi audit log sau khi lưu thành công
 				var cvData = new Dictionary<string, string>
@@ -153,8 +146,6 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 					JsonSerializer.Serialize(cvData),
 					null,
 					cancellationToken);
-
-				await _uow.SaveChangesAsync(cancellationToken);				
 			}
 			catch (Exception ex)
 			{
@@ -171,12 +162,12 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 					_msg.Business("DatabaseError"));
 			}
 
+			// Xử lý trích xuất text từ PDF (chạy ngầm, không throw exception)
 			try
 			{
 				var extractedText = await _pdfService.ExtractTextAsync(filePath);
 				cv.ExtractedText = extractedText;
 				cv.Status = CVStatus.Completed;
-
 				cv.ProcessedAt = DateTime.UtcNow;
 				cv.ErrorMessage = null;
 
@@ -189,11 +180,11 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 				_logger.LogError(ex, "Failed to extract text from PDF");
 				cv.Status = CVStatus.Failed;
 				cv.ErrorMessage = ex.Message;
-
 				cv.ProcessedAt = DateTime.UtcNow;
 
 				await _uow.SaveChangesAsync(cancellationToken);
 			}
+
 			// TẠO THÔNG BÁO CHO ỨNG VIÊN
 			var notification = new CreateNotificationCommand
 			{
@@ -211,16 +202,15 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 			{
 				CvId = cvId,
 				FileName = request.FileName,
-				FilePath = relativePath,
+				FilePath = finalRelativePath,
 				FileSize = request.FileSize,
 				UploadedAt = cv.UploadedAt,
-		   Status = (int)cv.Status,
-			StatusName = cv.Status.ToString()
+				Status = (int)cv.Status,
+				StatusName = cv.Status.ToString()
 			};
 		}
 		catch (BusinessException)
 		{
-			// Ném lại BusinessException để Controller xử lý
 			throw;
 		}
 		catch (Exception ex)
@@ -232,24 +222,68 @@ public class UploadCVCommandHandler : IRequestHandler<UploadCVCommand, UploadCVR
 		}
 	}
 
-	private string GetUploadPath(Guid userId)
+	private (string UploadPath, string RelativePath) GetUploadPathAndRelativePath(Guid userId)
 	{
+		var useSeparatePath = _configuration.GetValue<bool>("FileStorage:UseSeparateUploadPath", false);
 		var now = DateTime.UtcNow;
 
-		if (string.IsNullOrEmpty(_env.WebRootPath))
+		if (useSeparatePath)
 		{
-			throw new BusinessException(
-				ErrorCode.ConfigurationError,
-				"Web root path not configured");
-		}
+			// PRODUCTION: Dùng thư mục riêng biệt
+			var uploadRoot = _configuration["FileStorage:UploadRootPath"];
 
-		return Path.Combine(
-			_env.WebRootPath,
-			"uploads",
-			"cvs",
-			now.ToString("yyyy"),
-			now.ToString("MM"),
-			userId.ToString()
-		);
+			if (string.IsNullOrEmpty(uploadRoot))
+			{
+				throw new BusinessException(
+					ErrorCode.ConfigurationError,
+					"Upload root path not configured for Production");
+			}
+
+			var uploadPath = Path.Combine(
+				uploadRoot,
+				"cvs",
+				now.ToString("yyyy"),
+				now.ToString("MM"),
+				userId.ToString()
+			);
+
+			var relativePath = Path.Combine(
+				"cvs",
+				now.ToString("yyyy"),
+				now.ToString("MM"),
+				userId.ToString()
+			);
+
+			return (uploadPath, relativePath);
+		}
+		else
+		{
+			// DEVELOPMENT: Dùng wwwroot như cũ
+			if (string.IsNullOrEmpty(_env.WebRootPath))
+			{
+				throw new BusinessException(
+					ErrorCode.ConfigurationError,
+					"Web root path not configured");
+			}
+
+			var uploadPath = Path.Combine(
+				_env.WebRootPath,
+				"uploads",
+				"cvs",
+				now.ToString("yyyy"),
+				now.ToString("MM"),
+				userId.ToString()
+			);
+
+			var relativePath = Path.Combine(
+				"uploads",
+				"cvs",
+				now.ToString("yyyy"),
+				now.ToString("MM"),
+				userId.ToString()
+			);
+
+			return (uploadPath, relativePath);
+		}
 	}
 }
