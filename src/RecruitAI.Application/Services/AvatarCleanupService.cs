@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
@@ -11,23 +12,26 @@ namespace RecruitAI.Infrastructure.Services
 		private readonly IWebHostEnvironment _environment;
 		private readonly ILogger<AvatarCleanupService> _logger;
 		private readonly IStorageSettings _storageSettings;
+		private readonly IConfiguration _configuration;
 
 		public AvatarCleanupService(
 			IUnitOfWork unitOfWork,
 			IWebHostEnvironment environment,
 			ILogger<AvatarCleanupService> logger,
-			IStorageSettings storageSettings)
+			IStorageSettings storageSettings,
+			IConfiguration configuration)
 		{
 			_unitOfWork = unitOfWork;
 			_environment = environment;
 			_logger = logger;
 			_storageSettings = storageSettings;
+			_configuration = configuration;
 		}
 
 		public async Task CleanupOrphanedAvatarsAsync(bool force = false, CancellationToken cancellationToken = default)
 		{
-			var avatarDirectory = Path.Combine(_environment.WebRootPath, _storageSettings.AvatarPath);
-			if (!Directory.Exists(avatarDirectory))
+			var avatarDirectory = GetAvatarDirectoryPath();
+			if (string.IsNullOrEmpty(avatarDirectory) || !Directory.Exists(avatarDirectory))
 				return;
 
 			// Lấy danh sách avatar đang được dùng từ database qua UnitOfWork
@@ -53,7 +57,7 @@ namespace RecruitAI.Infrastructure.Services
 				{
 					var name = Path.GetFileNameWithoutExtension(f.Name);
 					if (name.EndsWith("_thumb"))
-						name = name.Substring(0, name.Length - 6); // Bỏ "_thumb"
+						name = name.Substring(0, name.Length - 6);
 					return name;
 				});
 
@@ -66,7 +70,6 @@ namespace RecruitAI.Infrastructure.Services
 
 					if (shouldDelete)
 					{
-						// Xóa tất cả file trong nhóm (cả gốc và thumbnail)
 						foreach (var file in group)
 						{
 							try
@@ -95,6 +98,33 @@ namespace RecruitAI.Infrastructure.Services
 						_logger.LogError(ex, "Failed to delete directory: {Directory}", dirInfo.FullName);
 					}
 				}
+			}
+		}
+
+		private string GetAvatarDirectoryPath()
+		{
+			var useSeparatePath = _configuration.GetValue<bool>("FileStorage:UseSeparateUploadPath", false);
+
+			if (useSeparatePath)
+			{
+				// PRODUCTION: Dùng thư mục riêng
+				var uploadRoot = _configuration["FileStorage:UploadRootPath"];
+				if (string.IsNullOrEmpty(uploadRoot))
+				{
+					_logger.LogWarning("Upload root path not configured for Production");
+					return null;
+				}
+				return Path.Combine(uploadRoot, _storageSettings.AvatarPath);
+			}
+			else
+			{
+				// DEVELOPMENT: Dùng wwwroot
+				if (string.IsNullOrEmpty(_environment.WebRootPath))
+				{
+					_logger.LogWarning("Web root path not configured");
+					return null;
+				}
+				return Path.Combine(_environment.WebRootPath, _storageSettings.AvatarPath);
 			}
 		}
 	}
