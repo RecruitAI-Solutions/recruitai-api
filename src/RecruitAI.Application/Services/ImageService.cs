@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
@@ -13,17 +14,55 @@ namespace RecruitAI.Infrastructure.Services
 	public class ImageService : IImageService
 	{
 		private readonly IWebHostEnvironment _environment;
+		private readonly IConfiguration _configuration;
 		private readonly ILogger<ImageService> _logger;
 		private readonly IStorageSettings _storageSettings;
 
 		public ImageService(
 			IWebHostEnvironment environment,
+			IConfiguration configuration,
 			ILogger<ImageService> logger,
 			IStorageSettings storageSettings)
 		{
 			_environment = environment;
+			_configuration = configuration;
 			_logger = logger;
 			_storageSettings = storageSettings;
+		}
+
+		private string GetPhysicalRootPath()
+		{
+			var useSeparatePath = _configuration.GetValue<bool>("FileStorage:UseSeparateUploadPath", false);
+
+			if (useSeparatePath)
+			{
+				// PRODUCTION: Dùng thư mục riêng
+				var uploadRoot = _configuration["FileStorage:UploadRootPath"];
+				if (string.IsNullOrEmpty(uploadRoot))
+				{
+					throw new BusinessException(
+						ErrorCode.ConfigurationError,
+						"Upload root path not configured for Production");
+				}
+				return uploadRoot;
+			}
+			else
+			{
+				// DEVELOPMENT: Dùng wwwroot
+				if (string.IsNullOrEmpty(_environment.WebRootPath))
+				{
+					throw new BusinessException(
+						ErrorCode.ConfigurationError,
+						"Web root path not configured");
+				}
+				return _environment.WebRootPath;
+			}
+		}
+
+		private string GetFullPath(string subDirectory)
+		{
+			var rootPath = GetPhysicalRootPath();
+			return Path.Combine(rootPath, subDirectory);
 		}
 
 		public async Task<(string fileName, string thumbnailFileName)> SaveImageAsync(
@@ -39,14 +78,13 @@ namespace RecruitAI.Infrastructure.Services
 			if (!_storageSettings.AllowedExtensions.Contains(fileExtension))
 				throw new BusinessException(ErrorCode.InvalidFileType, "Invalid file format");
 
-			var uploadsFolder = Path.Combine(_environment.WebRootPath, subDirectory);
+			// Lấy đường dẫn vật lý (hỗ trợ Dev/Prod)
+			var uploadsFolder = GetFullPath(subDirectory);
+
 			if (!Directory.Exists(uploadsFolder))
 			{
 				Directory.CreateDirectory(uploadsFolder);
 			}
-
-			// ✅ Xóa dòng khai báo fileExtension trùng này
-			// var fileExtension = Path.GetExtension(file.FileName).ToLower();
 
 			var uniqueFileName = $"{Guid.NewGuid()}{fileExtension}";
 			var thumbnailFileName = $"{Path.GetFileNameWithoutExtension(uniqueFileName)}_thumb{fileExtension}";
@@ -77,12 +115,25 @@ namespace RecruitAI.Infrastructure.Services
 		{
 			try
 			{
-				var fullPath = Path.Combine(_environment.WebRootPath, filePath);
+				var fullPath = GetFullPath(filePath);
 				if (File.Exists(fullPath))
 				{
 					File.Delete(fullPath);
+					_logger.LogInformation("Deleted image: {FilePath}", fullPath);
 				}
-				return await Task.FromResult(true);
+
+				// Xóa thumbnail nếu có
+				var directory = Path.GetDirectoryName(fullPath);
+				var fileName = Path.GetFileName(fullPath);
+				var thumbPath = Path.Combine(directory, $"{Path.GetFileNameWithoutExtension(fileName)}_thumb{Path.GetExtension(fileName)}");
+
+				if (File.Exists(thumbPath))
+				{
+					File.Delete(thumbPath);
+					_logger.LogInformation("Deleted thumbnail: {ThumbPath}", thumbPath);
+				}
+
+				return true;
 			}
 			catch (Exception ex)
 			{
@@ -95,12 +146,13 @@ namespace RecruitAI.Infrastructure.Services
 		{
 			try
 			{
-				var fullPath = Path.Combine(_environment.WebRootPath, directoryPath);
+				var fullPath = GetFullPath(directoryPath);
 				if (Directory.Exists(fullPath))
 				{
 					Directory.Delete(fullPath, true);
+					_logger.LogInformation("Deleted directory: {DirectoryPath}", fullPath);
 				}
-				return await Task.FromResult(true);
+				return true;
 			}
 			catch (Exception ex)
 			{
