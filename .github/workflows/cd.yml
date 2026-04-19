@@ -89,7 +89,7 @@ jobs:
 
             echo "[STEP 7] Swapping deployment (atomic)..."
             sudo rm -rf /var/www/recruitai_old 2>/dev/null || true
-            sudo mv /var/www/recruitai /var/www/recruitai_old 2>/dev/null || true
+            sudo mv /var/www/recruitai /var/www/recruitai_old 2>/dev/null
             sudo mv /var/www/recruitai_new /var/www/recruitai
 
             echo "[STEP 8] Restarting service..."
