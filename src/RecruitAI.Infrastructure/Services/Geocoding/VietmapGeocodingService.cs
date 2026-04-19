@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Polly;
+using Polly.Caching;
 using Polly.CircuitBreaker;
 using Polly.Extensions.Http;
 using Polly.Retry;
@@ -34,7 +35,7 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 			_apiKey = configuration["Vietmap:ApiKey"] ?? throw new InvalidOperationException("Vietmap API Key not configured");
 			_logger = logger;
 			_cache = cache;
-			_baseUrl = configuration["Vietmap:BaseUrl"] ?? "https://maps.vietmap.vn/api/autocomplete/v4";
+			//_baseUrl = configuration["Vietmap:BaseUrl"] ?? "https://maps.vietmap.vn/api/autocomplete/v4";
 
 			// Retry policy (3 lần, exponential backoff)
 			_retryPolicy = HttpPolicyExtensions
@@ -82,11 +83,8 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 
 				// 2. Gọi Vietmap API (không truyền limit vì API không hỗ trợ)
 				var queryString = BuildQueryString(text, lat, lng, displayType);
-				var fullUrl = $"{_baseUrl}?apikey={_apiKey}{queryString}";
-
-				_logger.LogInformation("Calling Vietmap API: {FullUrl}", fullUrl);
-
-				var response = await CallVietmapApiAsync(fullUrl, cancellationToken);
+				var relativeUrl = $"?apikey={_apiKey}{queryString}";
+				var response = await CallVietmapApiAsync(relativeUrl, cancellationToken);
 
 				if (string.IsNullOrEmpty(response))
 					return new List<AddressDto>();
@@ -141,8 +139,8 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 				var cached = await _cache.GetAsync<AddressDto>(cacheKey, cancellationToken);
 				if (cached != null) return cached;
 
-				var fullUrl = $"{_baseUrl}/place/{refId}?apikey={_apiKey}";
-				var response = await CallVietmapApiAsync(fullUrl, cancellationToken);
+				var relativeUrl = $"/place/{refId}?apikey={_apiKey}";
+				var response = await CallVietmapApiAsync(relativeUrl, cancellationToken);
 
 				if (string.IsNullOrEmpty(response)) return null;
 
@@ -173,8 +171,8 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 				var cached = await _cache.GetAsync<List<AddressDto>>(cacheKey, cancellationToken);
 				if (cached != null) return cached;
 
-				var fullUrl = $"{_baseUrl}/reverse?apikey={_apiKey}&lat={lat}&lng={lng}&radius={radius}";
-				var response = await CallVietmapApiAsync(fullUrl, cancellationToken);
+				var relativeUrl = $"/reverse?apikey={_apiKey}&lat={lat}&lng={lng}&radius={radius}";
+				var response = await CallVietmapApiAsync(relativeUrl, cancellationToken);
 
 				if (string.IsNullOrEmpty(response))
 					return new List<AddressDto>();
@@ -217,15 +215,14 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 			return query;
 		}
 
-		private async Task<string?> CallVietmapApiAsync(string endpoint, CancellationToken cancellationToken)
+		private async Task<string?> CallVietmapApiAsync(string relativeUrl, CancellationToken cancellationToken)
 		{
 			try
 			{
-				_logger.LogDebug("Calling Vietmap API endpoint: {Endpoint}", endpoint);
-
+				_logger.LogDebug("Calling Vietmap API endpoint: {Endpoint}", relativeUrl);
 				var response = await _retryPolicy.ExecuteAsync(async () =>
 					await _circuitBreaker.ExecuteAsync(async () =>
-						await _httpClient.GetAsync(endpoint, cancellationToken)
+						await _httpClient.GetAsync(relativeUrl, cancellationToken)
 					)
 				);
 
@@ -233,7 +230,7 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 				{
 					var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
 					_logger.LogError("Vietmap API returned {StatusCode} for {Endpoint}. Error: {Error}",
-						response.StatusCode, endpoint, errorContent);
+						response.StatusCode, relativeUrl, errorContent);
 					return null;
 				}
 
@@ -241,7 +238,7 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, "Error calling Vietmap API: {Endpoint}", endpoint);
+				_logger.LogError(ex, "Error calling Vietmap API: {Endpoint}", relativeUrl);
 				return null;
 			}
 		}

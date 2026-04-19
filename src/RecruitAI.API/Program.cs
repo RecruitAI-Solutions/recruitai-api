@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RecruitAI.API.Hubs;
@@ -537,16 +539,23 @@ if (builder.Environment.IsDevelopment())
 
 var app = builder.Build();
 
+var useSeparatePath = app.Configuration.GetValue<bool>("FileStorage:UseSeparateUploadPath", false);
+var uploadRootPath = app.Configuration["FileStorage:UploadRootPath"];
+
 // 5. MIDDLEWARE PIPELINE
 // 5.1 Development-specific middleware
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
 	app.UseSwagger();
 	app.UseSwaggerUI(options =>
 	{
 		options.SwaggerEndpoint("/swagger/v1/swagger.json", "Recruit AI API V1");
 	});
-	app.UseDeveloperExceptionPage();
+
+	if (app.Environment.IsDevelopment())
+	{
+		app.UseDeveloperExceptionPage();
+	}
 }
 else
 {
@@ -560,6 +569,18 @@ app.UseRouting();
 app.UseRequestLocalization();
 app.UseCors();
 
+app.UseStaticFiles(); // Cho wwwroot
+
+// Static files cho uploads (có thể public hoặc private)
+if (useSeparatePath && !string.IsNullOrEmpty(uploadRootPath))
+{
+	app.UseStaticFiles(new StaticFileOptions
+	{
+		FileProvider = new PhysicalFileProvider(uploadRootPath),
+		RequestPath = "/uploads"
+	});
+}
+
 // 5.3 Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
@@ -568,56 +589,95 @@ app.UseAuthorization();
 app.MapControllers();
 app.MapHub<NotificationHub>("/api/v1/notification-hub").RequireAuthorization();
 
-// 6. DATABASE MIGRATION
-using (var scope = app.Services.CreateScope())
+// 6. DATABASE MIGRATION & SEEDING (CHỈ CHẠY TRONG DEVELOPMENT)
+if (app.Environment.IsDevelopment())
 {
-	var db = scope.ServiceProvider.GetRequiredService<RecruitDevContext>();
-	var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-
-	try
+	using (var scope = app.Services.CreateScope())
 	{
-		logger.LogInformation(ProgramMessages.Log("DatabaseCheck"));
-		logger.LogInformation(ProgramMessages.Log("DatabaseEnsuring"));
-		await db.Database.EnsureCreatedAsync();
+		var db = scope.ServiceProvider.GetRequiredService<RecruitDevContext>();
+		var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
-		logger.LogInformation(ProgramMessages.Log("DatabaseConnected"));
-		var canConnect = await db.Database.CanConnectAsync();
-		logger.LogInformation(ProgramMessages.Log("DatabaseConnected"), canConnect);
+		logger.LogInformation("========== [DEV DB INIT START] ==========");
 
-		if (canConnect)
+		try
 		{
-			logger.LogInformation(ProgramMessages.Log("MigrationStarted"));
-			var pendingMigrations = await db.Database.GetPendingMigrationsAsync();
-			var pendingList = pendingMigrations.ToList();
+			logger.LogInformation("[STEP 1] Checking database connection...");
+			var canConnect = await db.Database.CanConnectAsync();
+			logger.LogInformation("[INFO] CanConnect: {CanConnect}", canConnect);
 
-			if (pendingList.Any())
+			logger.LogInformation("[STEP 2] Applying migrations...");
+			var pendingMigrations = await db.Database.GetPendingMigrationsAsync();
+
+			if (pendingMigrations.Any())
 			{
-				logger.LogInformation(ProgramMessages.Log("MigrationPending"), pendingList.Count);
+				logger.LogInformation("[ACTION] Running {Count} pending migrations...", pendingMigrations.Count());
 				await db.Database.MigrateAsync();
-				logger.LogInformation(ProgramMessages.Log("MigrationSuccess"));
+				logger.LogInformation("[SUCCESS] Migration completed");
 			}
 			else
 			{
-				logger.LogInformation(ProgramMessages.Log("NoPendingMigration"));
+				logger.LogInformation("[SKIP] No pending migrations");
 			}
 
-			logger.LogInformation("Calling DatabaseSeeder.SeedAsync...");
+			logger.LogInformation("[STEP 3] Seeding data...");
 			await RecruitAI.Infrastructure.Data.SeedData.DatabaseSeeder.SeedAsync(db, logger);
-			logger.LogInformation("DatabaseSeeder.SeedAsync completed");
+			logger.LogInformation("[SUCCESS] Seeding completed");
 
-			var tables = await db.Database.SqlQuery<string>($@"
-				SELECT TABLE_NAME 
-				FROM INFORMATION_SCHEMA.TABLES 
-				WHERE TABLE_TYPE = 'BASE TABLE'").ToListAsync();
-
-			logger.LogInformation(ProgramMessages.Log("TablesFound"), tables.Count);
+			logger.LogInformation("========== [DEV DB INIT SUCCESS] ==========");
+		}
+		catch (Exception ex)
+		{
+			logger.LogError(ex, "========== [DEV DB INIT FAILED] ==========");
 		}
 	}
-	catch (Exception ex)
+}
+else
+{
+	// PRODUCTION: Chỉ kiểm tra kết nối, KHÔNG tự động migrate hay seed
+	using (var scope = app.Services.CreateScope())
 	{
-		logger.LogError(ex, ProgramMessages.Log("DbError"));
+		var db = scope.ServiceProvider.GetRequiredService<RecruitDevContext>();
+		var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+		var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+
+		logger.LogInformation("========== [PROD DB CHECK] ==========");
+
+		try
+		{
+			// Chỉ kiểm tra kết nối
+			var canConnect = await db.Database.CanConnectAsync();
+			logger.LogInformation("Database connection: {Status}", canConnect ? "OK" : "FAILED");
+
+			if (!canConnect)
+			{
+				logger.LogError("Cannot connect to database! Application may not function correctly.");
+			}
+
+			// Log pending migrations (cảnh báo, không tự động chạy)
+			var pendingMigrations = await db.Database.GetPendingMigrationsAsync();
+			if (pendingMigrations.Any())
+			{
+				logger.LogWarning("⚠️ There are {Count} pending migrations that need to be applied manually!",
+					pendingMigrations.Count());
+				foreach (var migration in pendingMigrations)
+				{
+					logger.LogWarning("  - Pending migration: {Migration}", migration);
+				}
+				logger.LogWarning("Please run 'dotnet ef database update' manually or via migration script.");
+			}
+
+			logger.LogInformation("========== [PROD DB CHECK COMPLETE] ==========");
+		}
+		catch (Exception ex)
+		{
+			logger.LogError(ex, "========== [PROD DB CHECK FAILED] ==========");
+			// Không throw exception, để app vẫn chạy (có thể log lỗi)
+		}
 	}
 }
+
+// Health check endpoint
+app.MapGet("/health", () => Results.Ok(new { status = "healthy", timestamp = DateTime.UtcNow }));
 
 // 7. START APPLICATION
 try

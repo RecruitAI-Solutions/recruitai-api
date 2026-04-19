@@ -1,0 +1,127 @@
+name: CD - Deploy to VPS
+
+on:
+  push:
+    branches: [production]
+
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 10.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Restore dependencies
+        run: dotnet restore RecruitAI.API.slnx
+
+      - name: Build and Publish
+        run: dotnet publish src/RecruitAI.API/RecruitAI.API.csproj -c Release -o ./publish
+
+      # ========== COPY EMAIL TEMPLATES ==========
+      - name: Copy Email Templates to publish folder
+        run: |
+          mkdir -p ./publish/Templates/Emails/en
+          mkdir -p ./publish/Templates/Emails/vi
+          cp -r ./src/RecruitAI.API/Templates/Emails/en/*.html ./publish/Templates/Emails/en/
+          cp -r ./src/RecruitAI.API/Templates/Emails/vi/*.html ./publish/Templates/Emails/vi/
+          echo "[INFO] Email templates copied"
+
+      # ========== DEPLOY TO VPS ==========
+      - name: Deploy to VPS via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "./publish/*"
+          target: "/var/www/recruitai_new"
+          strip_components: 1
+
+      # ========== POST-DEPLOY SETUP ==========
+      - name: Setup production environment on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+
+            echo "[STEP 1] Creating upload directories..."
+            sudo mkdir -p /var/www/recruitai_uploads/cvs
+            sudo mkdir -p /var/www/recruitai_uploads/uploads/avatars
+            sudo chown -R ${{ secrets.VPS_USER }}:${{ secrets.VPS_USER }} /var/www/recruitai_uploads
+
+            echo "[STEP 2] Ensuring wwwroot/images exists..."
+            mkdir -p /var/www/recruitai_new/wwwroot/images
+
+            echo "[STEP 3] Restoring default.png from backup if exists..."
+            if [ -f /var/www/recruitai_backup/default.png ]; then
+              cp /var/www/recruitai_backup/default.png /var/www/recruitai_new/wwwroot/images/default.png
+            elif [ -f /var/www/recruitai/wwwroot/images/default.png ]; then
+              cp /var/www/recruitai/wwwroot/images/default.png /var/www/recruitai_backup/default.png 2>/dev/null || true
+              cp /var/www/recruitai/wwwroot/images/default.png /var/www/recruitai_new/wwwroot/images/default.png
+            else
+              echo "[WARN] No default.png found, creating placeholder..."
+              touch /var/www/recruitai_new/wwwroot/images/default.png
+            fi
+
+            echo "[STEP 4] Validating and copying appsettings.Production.json..."
+            if [ -f /var/www/recruitai/appsettings.Production.json ]; then
+              # Validate JSON trước khi copy
+              if python3 -m json.tool /var/www/recruitai/appsettings.Production.json > /dev/null 2>&1; then
+                cp /var/www/recruitai/appsettings.Production.json /var/www/recruitai_new/appsettings.Production.json
+                echo "[INFO] appsettings.Production.json copied (valid)"
+              else
+                echo "[ERROR] appsettings.Production.json is invalid, using default"
+                # Không copy, để file mặc định từ publish
+              fi
+            fi
+
+            echo "[STEP 5] Setting up environment file..."
+            if [ -f /var/www/recruitai/.env ]; then
+              cp /var/www/recruitai/.env /var/www/recruitai_new/.env
+            fi
+
+            echo "[STEP 6] Stopping service before swap..."
+            sudo systemctl stop recruitai.service || true
+
+            echo "[STEP 7] Swapping deployment (atomic)..."
+            sudo rm -rf /var/www/recruitai_old 2>/dev/null || true
+            sudo mv /var/www/recruitai /var/www/recruitai_old 2>/dev/null || true
+            sudo mv /var/www/recruitai_new /var/www/recruitai
+
+            echo "[STEP 8] Fixing permissions..."
+            sudo chown -R ${{ secrets.VPS_USER }}:${{ secrets.VPS_USER }} /var/www/recruitai
+
+            echo "[STEP 9] Starting service..."
+            sudo systemctl start recruitai.service
+
+            echo "[STEP 10] Cleaning up old deployment (keep for rollback)..."
+            # Xoa ban cu sau 3 ngay (co the chay cron rieng)
+            # sudo rm -rf /var/www/recruitai_old &
+
+            echo "[SUCCESS] Deployment completed successfully!"
+
+      # ========== HEALTH CHECK ==========
+      - name: Health check
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            sleep 10
+            if curl -f -s -o /dev/null http://localhost:5000/health; then
+              echo "[SUCCESS] Health check passed!"
+            else
+              echo "[ERROR] Health check failed, check logs: sudo journalctl -u recruitai.service -n 50"
+              exit 1
+            fi
