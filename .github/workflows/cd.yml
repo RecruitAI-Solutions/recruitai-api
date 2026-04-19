@@ -1,66 +1,119 @@
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System.Text;
-using RecruitAI.Application.Interfaces.Services;
+name: CD - Deploy to VPS
 
-namespace RecruitAI.Infrastructure.Services
-{
-	public class EmailTemplateService : IEmailTemplateService
-	{
-		private readonly IHostEnvironment _env;
-		private readonly ILogger<EmailTemplateService> _logger;
-		private readonly string _templatePath;
+on:
+  push:
+    branches: [production]
 
-		public EmailTemplateService(IHostEnvironment env, ILogger<EmailTemplateService> logger)
-		{
-			_env = env;
-			_logger = logger;
-			_templatePath = Path.Combine(_env.ContentRootPath, "Templates", "Emails");
-		}
+jobs:
+  deploy:
+    name: Deploy to VPS
+    runs-on: ubuntu-latest
 
-		public async Task<string> LoadTemplateAsync(string templateName, string language, CancellationToken cancellationToken = default)
-		{
-			try
-			{
-				// Thử load file HTML trước
-				var htmlPath = Path.Combine(_templatePath, language, $"{templateName}.html");
-				if (File.Exists(htmlPath))
-				{
-					return await File.ReadAllTextAsync(htmlPath, Encoding.UTF8, cancellationToken);
-				}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-				// Fallback sang file TXT
-				var txtPath = Path.Combine(_templatePath, language, $"{templateName}.txt");
-				if (File.Exists(txtPath))
-				{
-					return await File.ReadAllTextAsync(txtPath, Encoding.UTF8, cancellationToken);
-				}
+      - name: Setup .NET 10.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
 
-				// Fallback sang tiếng Anh
-				var enPath = Path.Combine(_templatePath, "en", $"{templateName}.html");
-				if (File.Exists(enPath))
-				{
-					_logger.LogWarning("Template {TemplateName} not found for language {Language}, falling back to English", templateName, language);
-					return await File.ReadAllTextAsync(enPath, Encoding.UTF8, cancellationToken);
-				}
+      - name: Restore dependencies
+        run: dotnet restore RecruitAI.API.slnx
 
-				throw new FileNotFoundException($"Email template not found: {templateName}");
-			}
-			catch (Exception ex)
-			{
-				_logger.LogError(ex, "Error loading email template {TemplateName}", templateName);
-				throw;
-			}
-		}
+      - name: Build and Publish
+        run: dotnet publish src/RecruitAI.API/RecruitAI.API.csproj -c Release -o ./publish
 
-		public string ReplacePlaceholders(string template, Dictionary<string, string> placeholders)
-		{
-			var result = template;
-			foreach (var placeholder in placeholders)
-			{
-				result = result.Replace($"{{{{{placeholder.Key}}}}}", placeholder.Value);
-			}
-			return result;
-		}
-	}
-}
+      # ========== COPY EMAIL TEMPLATES ==========
+      - name: Copy Email Templates to publish folder
+        run: |
+          mkdir -p ./publish/Templates/Emails/en
+          mkdir -p ./publish/Templates/Emails/vi
+          cp -r ./Templates/Emails/en/*.html ./publish/Templates/Emails/en/ 2>/dev/null || true
+          cp -r ./Templates/Emails/vi/*.html ./publish/Templates/Emails/vi/ 2>/dev/null || true
+          echo "[INFO] Email templates copied"
+
+      # ========== DEPLOY TO VPS ==========
+      - name: Deploy to VPS via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "./publish/*"
+          target: "/var/www/recruitai_new"
+          strip_components: 1
+
+      # ========== POST-DEPLOY SETUP ==========
+      - name: Setup production environment on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            set -e
+
+            echo "[STEP 1] Creating upload directories..."
+            sudo mkdir -p /var/www/recruitai_uploads/cvs
+            sudo mkdir -p /var/www/recruitai_uploads/uploads/avatars
+            sudo chown -R ${{ secrets.VPS_USER }}:${{ secrets.VPS_USER }} /var/www/recruitai_uploads
+
+            echo "[STEP 2] Ensuring wwwroot/images exists..."
+            mkdir -p /var/www/recruitai_new/wwwroot/images
+
+            echo "[STEP 3] Restoring default.png from backup if exists..."
+            if [ -f /var/www/recruitai_backup/default.png ]; then
+              cp /var/www/recruitai_backup/default.png /var/www/recruitai_new/wwwroot/images/default.png
+            elif [ -f /var/www/recruitai/wwwroot/images/default.png ]; then
+              cp /var/www/recruitai/wwwroot/images/default.png /var/www/recruitai_backup/default.png 2>/dev/null || true
+              cp /var/www/recruitai/wwwroot/images/default.png /var/www/recruitai_new/wwwroot/images/default.png
+            else
+              echo "[WARN] No default.png found, creating placeholder..."
+              touch /var/www/recruitai_new/wwwroot/images/default.png
+            fi
+
+            echo "[STEP 4] Copying appsettings.Production.json..."
+            if [ -f /var/www/recruitai/appsettings.Production.json ]; then
+              cp /var/www/recruitai/appsettings.Production.json /var/www/recruitai_new/appsettings.Production.json
+            fi
+
+            echo "[STEP 5] Setting up environment file..."
+            if [ -f /var/www/recruitai/.env ]; then
+              cp /var/www/recruitai/.env /var/www/recruitai_new/.env
+            fi
+
+            echo "[STEP 6] Running database migrations (if any)..."
+            cd /var/www/recruitai_new
+            export ASPNETCORE_ENVIRONMENT=Production
+
+            echo "[STEP 7] Swapping deployment (atomic)..."
+            sudo rm -rf /var/www/recruitai_old 2>/dev/null || true
+            sudo mv /var/www/recruitai /var/www/recruitai_old 2>/dev/null
+            sudo mv /var/www/recruitai_new /var/www/recruitai
+
+            echo "[STEP 8] Restarting service..."
+            sudo systemctl daemon-reload
+            sudo systemctl restart recruitai.service
+
+            echo "[STEP 9] Cleaning up old deployment (keep for rollback)..."
+            # Xoa ban cu sau 3 ngay (co the chay cron rieng)
+            # sudo rm -rf /var/www/recruitai_old &
+
+            echo "[SUCCESS] Deployment completed successfully!"
+
+      # ========== HEALTH CHECK ==========
+      - name: Health check
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            sleep 5
+            if curl -f -s -o /dev/null http://localhost:5000/health; then
+              echo "[SUCCESS] Health check passed!"
+            else
+              echo "[ERROR] Health check failed, check logs: sudo journalctl -u recruitai.service -n 50"
+              exit 1
+            fi
