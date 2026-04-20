@@ -131,13 +131,11 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 	options.SupportedCultures = supportedCultures;
 	options.SupportedUICultures = supportedCultures;
 });
-
 // 3.4 CORS
 builder.Services.AddCors(options =>
 {
 	options.AddDefaultPolicy(policy =>
 	{
-		// Lấy origins từ nhiều nguồn
 		var allowedOrigins = new List<string>();
 
 		// 1. Từ environment variable
@@ -148,33 +146,21 @@ builder.Services.AddCors(options =>
 		}
 
 		// 2. Từ appsettings.json
-		var configOrigins = builder.Configuration
-			.GetSection("Cors:AllowedOrigins")
-			.Get<string[]>();
+		var configOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
 		if (configOrigins != null)
 		{
 			allowedOrigins.AddRange(configOrigins);
 		}
 
-		// 3. Production domains (nếu chưa có trong config)
-		if (builder.Environment.IsProduction())
-		{
-			allowedOrigins.Add("https://recruitai.com");
-			allowedOrigins.Add("https://www.recruitai.com");
-			allowedOrigins.Add("https://api.recruitai.com");
-		}
+		// 3. Thêm localhost cho mọi môi trường (để test)
+		allowedOrigins.Add("http://localhost:3000");
+		allowedOrigins.Add("https://localhost:3000");
+		allowedOrigins.Add("http://localhost:5000");
+		allowedOrigins.Add("https://localhost:5000");
+		allowedOrigins.Add("http://localhost:5173"); // Vite React default
+		allowedOrigins.Add("https://localhost:5173");
 
-		// 4. Development domains
-		if (builder.Environment.IsDevelopment())
-		{
-			allowedOrigins.Add("http://localhost:3000");
-			allowedOrigins.Add("https://localhost:3000");
-			allowedOrigins.Add("http://localhost:5000");
-			allowedOrigins.Add("https://localhost:5000");
-			allowedOrigins.Add("http://localhost:8080");
-		}
-
-		// Loại bỏ duplicate và null
+		// 4. Loại bỏ duplicate
 		allowedOrigins = allowedOrigins
 			.Where(x => !string.IsNullOrEmpty(x))
 			.Distinct()
@@ -182,15 +168,13 @@ builder.Services.AddCors(options =>
 
 		if (allowedOrigins.Any())
 		{
-			// Dùng WithOrigins + AllowCredentials cho WebSocket
 			policy.WithOrigins(allowedOrigins.ToArray())
 				  .AllowAnyMethod()
 				  .AllowAnyHeader()
-				  .AllowCredentials(); // SignalR cần AllowCredentials
+				  .AllowCredentials();
 		}
 		else
 		{
-			// Fallback an toàn - chỉ cho phép cùng origin
 			policy.SetIsOriginAllowed(_ => true)
 				  .AllowAnyMethod()
 				  .AllowAnyHeader()

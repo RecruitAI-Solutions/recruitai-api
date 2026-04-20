@@ -8,12 +8,11 @@ public class JobFilter
 	public string? Location { get; set; }
 	public decimal? MinSalary { get; set; }
 	public decimal? MaxSalary { get; set; }
-	public EmploymentType? EmploymentType { get; set; }  
-	public ExperienceLevel? ExperienceLevel { get; set; }
+	public List<EmploymentType>? EmploymentType { get; set; }
+	public List<ExperienceLevel>? ExperienceLevel { get; set; }
 	public string? Skill { get; set; }
-     // Support multiple skills filtering
-		public List<string>? Skills { get; set; }
-		public bool MatchAllSkills { get; set; } = false;
+	public List<string>? Skills { get; set; }
+	public bool MatchAllSkills { get; set; } = false;
 	public string? SortBy { get; set; }
 	public string SortOrder { get; set; } = "desc";
 	public int Page { get; set; } = 1;
