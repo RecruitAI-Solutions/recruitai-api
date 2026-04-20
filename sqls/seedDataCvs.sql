@@ -1,0 +1,6 @@
+-- Seed CVs cho 3 candidate (mỗi người 1 CV)
+INSERT INTO [CVs] (Id, UserId, FileName, StoredFileName, FilePath, FileSize, ContentType, Status, UploadedAt, ProcessedAt, IsDeleted, ExtractedText, AnalyzedAt) VALUES
+(NEWID(), '66666666-6666-6666-6666-666666666666', N'Pham_Van_D_CV.pdf', N'candidate1_cv.pdf', N'/uploads/cvs/candidate1_cv.pdf', 245760, N'application/pdf', 5, GETUTCDATE(), GETUTCDATE(), 0, N'Experienced .NET developer with 5 years experience in C#, ASP.NET Core, SQL Server', GETUTCDATE()),
+(NEWID(), '77777777-7777-7777-7777-777777777777', N'Nguyen_Thi_E_CV.pdf', N'candidate2_cv.pdf', N'/uploads/cvs/candidate2_cv.pdf', 189440, N'application/pdf', 5, GETUTCDATE(), GETUTCDATE(), 0, N'Frontend developer skilled in React, JavaScript, TypeScript, HTML5, CSS3', GETUTCDATE()),
+(NEWID(), '88888888-8888-8888-8888-888888888888', N'Hoang_Van_F_CV.pdf', N'candidate3_cv.pdf', N'/uploads/cvs/candidate3_cv.pdf', 302080, N'application/pdf', 5, GETUTCDATE(), GETUTCDATE(), 0, N'Python developer with ML experience, TensorFlow, Pandas, SQL', GETUTCDATE()),
+(NEWID(), '99999999-9999-9999-9999-999999999999', N'Nguyen_Quang_Duy_CV.pdf', N'candidate4_cv.pdf', N'/uploads/cvs/candidate4_cv.pdf', 210000, N'application/pdf', 5, GETUTCDATE(), GETUTCDATE(), 0, N'Full Stack developer with React, Node.js, MongoDB experience', GETUTCDATE());
