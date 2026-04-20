@@ -72,8 +72,8 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 	}
 
 	public async Task<PagedResult<Job>> GetJobsAsync(
-		JobFilter filter,
-		CancellationToken cancellationToken = default)
+	JobFilter filter,
+	CancellationToken cancellationToken = default)
 	{
 		var query = _dbSet
 			.Include(j => j.Recruiter)
@@ -102,14 +102,16 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 			query = query.Where(j => j.SalaryMin <= filter.MaxSalary.Value);
 		}
 
-		if (filter.EmploymentType.HasValue)
+		// Filter EmploymentType (hỗ trợ nhiều giá trị)
+		if (filter.EmploymentType != null && filter.EmploymentType.Any())
 		{
-			query = query.Where(j => j.EmploymentType == filter.EmploymentType);
+			query = query.Where(j => j.EmploymentType.HasValue && filter.EmploymentType.Contains(j.EmploymentType.Value));
 		}
 
-		if (filter.ExperienceLevel.HasValue)
+		// Filter ExperienceLevel (hỗ trợ nhiều giá trị)
+		if (filter.ExperienceLevel != null && filter.ExperienceLevel.Any())
 		{
-			query = query.Where(j => j.ExperienceLevel == filter.ExperienceLevel);
+			query = query.Where(j => j.ExperienceLevel.HasValue && filter.ExperienceLevel.Contains(j.ExperienceLevel.Value));
 		}
 
 		query = ApplySkillFilter(query, filter);
@@ -177,9 +179,9 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 	}
 
 	public async Task<(List<Job> Items, int Total)> GetJobsByRecruiterAsync(
-		Guid recruiterId,
-		JobFilter filter,
-		CancellationToken cancellationToken = default)
+	Guid recruiterId,
+	JobFilter filter,
+	CancellationToken cancellationToken = default)
 	{
 		var query = _dbSet
 			.Include(j => j.Recruiter)
@@ -200,11 +202,17 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 		if (filter.MaxSalary.HasValue)
 			query = query.Where(j => j.SalaryMin <= filter.MaxSalary.Value);
 
-		if (filter.EmploymentType.HasValue)
-			query = query.Where(j => j.EmploymentType == filter.EmploymentType.Value);
+		// Filter EmploymentType (hỗ trợ nhiều giá trị)
+		if (filter.EmploymentType != null && filter.EmploymentType.Any())
+		{
+			query = query.Where(j => j.EmploymentType.HasValue && filter.EmploymentType.Contains(j.EmploymentType.Value));
+		}
 
-		if (filter.ExperienceLevel.HasValue)
-			query = query.Where(j => j.ExperienceLevel == filter.ExperienceLevel.Value);
+		// Filter ExperienceLevel (hỗ trợ nhiều giá trị)
+		if (filter.ExperienceLevel != null && filter.ExperienceLevel.Any())
+		{
+			query = query.Where(j => j.ExperienceLevel.HasValue && filter.ExperienceLevel.Contains(j.ExperienceLevel.Value));
+		}
 
 		query = ApplySkillFilter(query, filter);
 
@@ -233,8 +241,8 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 	}
 
 	public async Task<PagedResult<Job>> GetDeletedJobsAsync(
-		JobFilter filter,
-		CancellationToken cancellationToken = default)
+	JobFilter filter,
+	CancellationToken cancellationToken = default)
 	{
 		var query = _dbSet
 			.Include(j => j.Recruiter)
@@ -255,11 +263,18 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 		if (filter.MaxSalary.HasValue)
 			query = query.Where(j => j.SalaryMin <= filter.MaxSalary.Value);
 
-		if (filter.EmploymentType.HasValue)
-			query = query.Where(j => j.EmploymentType == filter.EmploymentType);
+		// Filter EmploymentType (hỗ trợ nhiều giá trị)
+		if (filter.EmploymentType != null && filter.EmploymentType.Any())
+		{
+			query = query.Where(j => j.EmploymentType.HasValue && filter.EmploymentType.Contains(j.EmploymentType.Value));
+		}
 
-		if (filter.ExperienceLevel.HasValue)
-			query = query.Where(j => j.ExperienceLevel == filter.ExperienceLevel);
+		// Filter ExperienceLevel (hỗ trợ nhiều giá trị)
+		if (filter.ExperienceLevel != null && filter.ExperienceLevel.Any())
+		{
+			query = query.Where(j => j.ExperienceLevel.HasValue && filter.ExperienceLevel.Contains(j.ExperienceLevel.Value));
+		}
+
 		if (!string.IsNullOrWhiteSpace(filter.Skill))
 		{
 			query = query.Where(j => j.JobSkills.Any(js =>
