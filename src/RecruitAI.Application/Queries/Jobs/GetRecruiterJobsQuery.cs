@@ -46,13 +46,11 @@ public class GetRecruiterJobsQueryHandler : IRequestHandler<GetRecruiterJobsQuer
 				Location = request.Filter.Location,
 				MinSalary = request.Filter.MinSalary,
 				MaxSalary = request.Filter.MaxSalary,
-				EmploymentType = !string.IsNullOrWhiteSpace(request.Filter.EmploymentType)
-					? Enum.Parse<EmploymentType>(request.Filter.EmploymentType, true)
-					: null,
-				ExperienceLevel = !string.IsNullOrWhiteSpace(request.Filter.ExperienceLevel)
-					? Enum.Parse<ExperienceLevel>(request.Filter.ExperienceLevel, true)
-					: null,
+				EmploymentType = request.Filter.EmploymentType?.Select(et => (EmploymentType)et).ToList() ?? new(),
+				ExperienceLevel = request.Filter.ExperienceLevel?.Select(el => (ExperienceLevel)el).ToList() ?? new(),
 				Skill = request.Filter.Skill,
+				Skills = request.Filter.Skills,
+				MatchAllSkills = request.Filter.MatchAllSkills,
 				SortBy = request.Filter.SortBy,
 				SortOrder = request.Filter.SortOrder,
 				Page = request.Filter.Page,

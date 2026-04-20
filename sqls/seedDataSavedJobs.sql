@@ -1,0 +1,18 @@
+-- Seed SavedJobs (các candidate lưu job yêu thích)
+INSERT INTO [SavedJobs] (Id, JobId, UserId, SavedAt) VALUES
+-- Candidate1 lưu jobs
+(NEWID(), (SELECT TOP 1 Id FROM Jobs WHERE Title = N'.NET Backend Developer'), '66666666-6666-6666-6666-666666666666', GETUTCDATE()),
+(NEWID(), (SELECT TOP 1 Id FROM Jobs WHERE Title = N'Cloud Engineer AWS'), '66666666-6666-6666-6666-666666666666', GETUTCDATE()),
+
+-- Candidate2 lưu jobs
+(NEWID(), (SELECT TOP 1 Id FROM Jobs WHERE Title = N'Lập trình viên Frontend React'), '77777777-7777-7777-7777-777777777777', GETUTCDATE()),
+(NEWID(), (SELECT TOP 1 Id FROM Jobs WHERE Title = N'Thiết kế UI/UX'), '77777777-7777-7777-7777-777777777777', GETUTCDATE()),
+(NEWID(), (SELECT TOP 1 Id FROM Jobs WHERE Title = N'Product Manager'), '77777777-7777-7777-7777-777777777777', GETUTCDATE()),
+
+-- Candidate3 lưu jobs
+(NEWID(), (SELECT TOP 1 Id FROM Jobs WHERE Title = N'AI/ML Engineer'), '88888888-8888-8888-8888-888888888888', GETUTCDATE()),
+(NEWID(), (SELECT TOP 1 Id FROM Jobs WHERE Title = N'Data Engineer'), '88888888-8888-8888-8888-888888888888', GETUTCDATE()),
+
+-- Candidate4 lưu jobs
+(NEWID(), (SELECT TOP 1 Id FROM Jobs WHERE Title = N'Lập trình viên Full Stack'), '99999999-9999-9999-9999-999999999999', GETUTCDATE()),
+(NEWID(), (SELECT TOP 1 Id FROM Jobs WHERE Title = N'Lập trình viên Mobile React Native'), '99999999-9999-9999-9999-999999999999', GETUTCDATE());

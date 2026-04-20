@@ -1,4 +1,5 @@
 ﻿using RecruitAI.Application.DTOs.Common;
+using RecruitAI.Domain.Enums;
 
 namespace RecruitAI.Application.DTOs.Jobs;
 
@@ -25,19 +26,21 @@ public class JobFilterDto : PaginationRequestDto
 	public decimal? MaxSalary { get; set; }
 
 	/// <summary>
-	/// Loại hình công việc (Full-time, Part-time, Remote)
+	/// Loại hình công việc (hỗ trợ nhiều giá trị)
+	/// Ví dụ: ?employmentType=1&employmentType=2
 	/// </summary>
-	public string? EmploymentType { get; set; }
+	public List<EmploymentType> EmploymentType { get; set; } = new();
 
 	/// <summary>
-	/// Cấp độ kinh nghiệm (Entry, Junior, Senior, Lead)
+	/// Cấp độ kinh nghiệm (hỗ trợ nhiều giá trị)
+	/// Ví dụ: ?experienceLevel=1&experienceLevel=2
 	/// </summary>
-	public string? ExperienceLevel { get; set; }
+	public List<ExperienceLevel> ExperienceLevel { get; set; } = new();
 
 	/// <summary>
 	/// Kỹ năng (tìm kiếm chứa)
 	/// </summary>
-  public string? Skill { get; set; }
+	public string? Skill { get; set; }
 
 	/// <summary>
 	/// Danh sách kỹ năng để lọc (support multiple). If MatchAllSkills is true, job must contain all skills; otherwise any match.
