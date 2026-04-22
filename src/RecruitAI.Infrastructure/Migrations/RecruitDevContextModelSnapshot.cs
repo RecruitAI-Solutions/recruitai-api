@@ -221,16 +221,24 @@ namespace RecruitAI.Infrastructure.Migrations
                         .HasColumnType("float");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<int>("SkillId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CVId");
+                    b.HasIndex("CVId")
+                        .HasDatabaseName("IX_CVAnalysisResults_CVId");
 
-                    b.HasIndex("SkillId");
+                    b.HasIndex("SkillId")
+                        .HasDatabaseName("IX_CVAnalysisResults_SkillId");
+
+                    b.HasIndex("CVId", "SkillId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_CVAnalysisResults_CVId_SkillId");
 
                     b.ToTable("CVAnalysisResult");
                 });
@@ -921,7 +929,7 @@ namespace RecruitAI.Infrastructure.Migrations
                     b.HasOne("RecruitAI.Domain.Entities.Skill", "Skill")
                         .WithMany()
                         .HasForeignKey("SkillId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("CV");
