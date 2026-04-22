@@ -1,6 +1,6 @@
 ﻿using RecruitAI.Domain.Enums;
 
-namespace RecruitAI.Application.DTOs.Auths
+namespace RecruitAI.Shared.DTOs
 {
 	public class RoleConfig
 	{

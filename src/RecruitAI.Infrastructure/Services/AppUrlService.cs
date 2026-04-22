@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
-using RecruitAI.Application.Interfaces;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Infrastructure.Services
 {

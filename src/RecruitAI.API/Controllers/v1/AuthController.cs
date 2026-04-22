@@ -10,6 +10,8 @@ using RecruitAI.Application.DTOs.Responses.Auths;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using System.Security.Claims;
+using RecruitAI.Shared.DTOs;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI_API.Controllers.v1;
 

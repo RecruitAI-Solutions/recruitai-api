@@ -4,6 +4,8 @@ using RecruitAI.Application.DTOs.Responses.Admin;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Interfaces.Repositories;
+using RecruitAI.Shared.Interfaces;
+using RecruitAI.Shared.Helpers;
 
 namespace RecruitAI.Application.Queries.Admin
 {

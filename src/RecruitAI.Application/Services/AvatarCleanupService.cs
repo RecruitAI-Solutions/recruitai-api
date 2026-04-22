@@ -3,6 +3,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
+using RecruitAI.Shared.Interfaces;
+using RecruitAI.Shared.Helpers;
 
 namespace RecruitAI.Infrastructure.Services
 {

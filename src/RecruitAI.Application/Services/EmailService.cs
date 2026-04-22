@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Http;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Infrastructure.Services
 {

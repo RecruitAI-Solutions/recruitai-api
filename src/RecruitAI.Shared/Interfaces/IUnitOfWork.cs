@@ -1,6 +1,6 @@
 ﻿using RecruitAI.Domain.Interfaces.Repositories;
 
-namespace RecruitAI.Application.Interfaces
+namespace RecruitAI.Shared.Interfaces
 {
 	public interface IUnitOfWork : IDisposable
 	{

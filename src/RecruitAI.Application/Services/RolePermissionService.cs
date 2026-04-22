@@ -2,8 +2,10 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.DTOs.Auths;
-using RecruitAI.Application.Interfaces.Services;
+using RecruitAI.Shared.Interfaces;
 using RecruitAI.Domain.Enums;
+using RecruitAI.Domain.Interfaces;
+using RecruitAI.Shared.DTOs;
 
 namespace RecruitAI.Infrastructure.Services
 {

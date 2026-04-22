@@ -1,5 +1,5 @@
 ﻿// RecruitAI.Application/DTOs/Responses/Admin/ExportFilterDto.cs
-namespace RecruitAI.Application.DTOs.Responses.Admin;
+namespace RecruitAI.Shared.DTOs;
 
 public class ExportFilterDto
 {

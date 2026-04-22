@@ -1,9 +1,9 @@
-﻿namespace RecruitAI.Application.DTOs.Responses.AI
+﻿namespace RecruitAI.Shared.DTOs
 {
 	public class AnalyzeCvResponseDto
 	{
 		public Guid CvId { get; set; }
-      // Numeric status code
+	  // Numeric status code
 		public int Status { get; set; }
 
 		// Name of the status

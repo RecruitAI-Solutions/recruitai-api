@@ -8,6 +8,7 @@ using RecruitAI.Domain.Exceptions;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
 using Image = SixLabors.ImageSharp.Image;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Infrastructure.Services
 {

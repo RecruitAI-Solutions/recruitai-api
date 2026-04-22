@@ -1,4 +1,6 @@
 ﻿// RecruitAI.Application/DTOs/Responses/Geocoding/GeocodingResponseDto.cs
+using RecruitAI.Shared.DTOs;
+
 namespace RecruitAI.Application.DTOs.Responses.Geocoding
 {
 	public class GeocodingResponseDto

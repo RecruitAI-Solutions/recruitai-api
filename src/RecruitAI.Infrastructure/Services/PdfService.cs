@@ -1,6 +1,6 @@
 ﻿// RecruitAI.Infrastructure/Services/PdfService.cs
 using Microsoft.Extensions.Logging;
-using RecruitAI.Application.Interfaces.Services;
+using RecruitAI.Shared.Interfaces;
 using RecruitAI.Domain.Interfaces.Services;
 using System.Text;
 using System.Text.RegularExpressions;

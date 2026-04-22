@@ -9,6 +9,7 @@ using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using System.Text.Json;
 using RecruitAI.Application.Extensions;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Application.Commands.Admin
 {

@@ -2,6 +2,7 @@
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Entities;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Application.Services;
 

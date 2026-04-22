@@ -5,6 +5,8 @@ using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using RecruitAI.Domain.Interfaces.Repositories;
+using RecruitAI.Shared.Interfaces;
+using RecruitAI.Shared.Helpers;
 
 namespace RecruitAI.Application.Queries.Admin
 {

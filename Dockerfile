@@ -10,6 +10,7 @@ COPY src/RecruitAI.API/*.csproj RecruitAI.API/
 COPY src/RecruitAI.Application/*.csproj RecruitAI.Application/
 COPY src/RecruitAI.Domain/*.csproj RecruitAI.Domain/
 COPY src/RecruitAI.Infrastructure/*.csproj RecruitAI.Infrastructure/
+COPY src/RecruitAI.Shared/*.csproj RecruitAI.Shared/
 
 # Restore dependencies
 RUN dotnet restore RecruitAI.API/RecruitAI.API.csproj
@@ -37,6 +38,7 @@ COPY src/RecruitAI.API/*.csproj RecruitAI.API/
 COPY src/RecruitAI.Application/*.csproj RecruitAI.Application/
 COPY src/RecruitAI.Domain/*.csproj RecruitAI.Domain/
 COPY src/RecruitAI.Infrastructure/*.csproj RecruitAI.Infrastructure/
+COPY src/RecruitAI.Shared/*.csproj RecruitAI.Shared/
 
 RUN dotnet restore RecruitAI.API/RecruitAI.API.csproj
 

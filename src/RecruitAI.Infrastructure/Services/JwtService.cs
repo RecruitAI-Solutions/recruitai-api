@@ -1,15 +1,15 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using RecruitAI.Application.Helpers;
-using RecruitAI.Application.Interfaces.Services;
+using RecruitAI.Shared.Helpers;
+using RecruitAI.Shared.Interfaces;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using RecruitAI.Application.Interfaces.Services;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Infrastructure.Services
 {

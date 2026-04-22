@@ -14,5 +14,6 @@ namespace RecruitAI.Domain.Interfaces.Repositories
 		Task<List<CVAnalysisResult>> GetByCvIdAsync(Guid cvId);
 		Task<CVAnalysisResult?> GetByCvIdAndSkillIdAsync(Guid cvId, int skillId);
 		Task DeleteByCvIdAsync(Guid cvId);
+		IQueryable<CVAnalysisResult> GetQueryable();
 	}
 }

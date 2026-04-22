@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
-using RecruitAI.Application.Interfaces;
+using RecruitAI.Shared.Interfaces;
 using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Infrastructure.Repositories;
 using System.Linq;

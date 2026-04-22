@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RecruitAI.Application.DTOs.Responses;
+using RecruitAI.Shared.DTOs;
 using RecruitAI.Domain.Common.CVs;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;

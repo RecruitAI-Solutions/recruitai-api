@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Http;
 using RecruitAI.Application.Interfaces.Services;
+using RecruitAI.Shared.Interfaces;
+using RecruitAI.Shared.Helpers;
 
 namespace RecruitAI.Application.DTOs.Requests.Auths;
 

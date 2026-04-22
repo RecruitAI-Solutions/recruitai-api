@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace RecruitAI.Application.Resources {
+namespace RecruitAI.Shared.Resources {
     using System;
     
     

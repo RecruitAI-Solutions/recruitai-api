@@ -10,6 +10,8 @@ using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Queries.Companies;
 using RecruitAI_API.Controllers.v1;
+using RecruitAI.Shared.DTOs;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.API.Controllers.v1;
 

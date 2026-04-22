@@ -179,6 +179,8 @@ services:
           action: rebuild
         - path: ./src/RecruitAI.Infrastructure/RecruitAI.Infrastructure.csproj
           action: rebuild
+        - path: ./src/RecruitAI.Shared/RecruitAI.Shared.csproj  
+          action: rebuild
       # ===== NGINX REVERSE PROXY =====
   nginx:
     image: nginx:alpine

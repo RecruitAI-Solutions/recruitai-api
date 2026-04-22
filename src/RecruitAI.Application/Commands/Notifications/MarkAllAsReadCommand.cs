@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using RecruitAI.Application.Interfaces;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Application.Commands.Notifications;
 

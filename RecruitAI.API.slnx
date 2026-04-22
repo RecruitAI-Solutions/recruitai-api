@@ -4,5 +4,6 @@
     <Project Path="src/RecruitAI.Application/RecruitAI.Application.csproj" />
     <Project Path="src/RecruitAI.Domain/RecruitAI.Domain.csproj" />
     <Project Path="src/RecruitAI.Infrastructure/RecruitAI.Infrastructure.csproj" />
+    <Project Path="src/RecruitAI.Shared/RecruitAI.Shared.csproj" />
   </Folder>
 </Solution>
