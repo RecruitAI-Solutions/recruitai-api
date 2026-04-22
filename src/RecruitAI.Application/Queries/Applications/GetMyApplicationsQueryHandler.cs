@@ -2,6 +2,8 @@
 using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Application.DTOs.Responses.Applications;
 using RecruitAI.Application.Interfaces;
+using RecruitAI.Shared.Interfaces;
+using RecruitAI.Shared.Helpers;
 
 namespace RecruitAI.Application.Queries.Applications;
 
@@ -27,7 +29,7 @@ public class GetMyApplicationsQueryHandler : IRequestHandler<GetMyApplicationsQu
 			Company = app.Job?.Department ?? "Unknown",
 			Location = app.Job?.Location ?? "Unknown",
 			MatchPercentage = app.Match?.MatchPercentage ?? 0,
-            Status = app.Status,
+			Status = app.Status,
 			StatusName = app.Status.ToString(),
 			StatusDisplay = app.Status.ToString(),
 			AppliedAt = app.AppliedAt,

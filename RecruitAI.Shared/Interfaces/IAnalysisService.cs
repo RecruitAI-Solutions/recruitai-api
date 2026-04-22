@@ -1,8 +1,8 @@
 ﻿// RecruitAI.Application/Interfaces/Services/IAnalysisService.cs
-using RecruitAI.Application.DTOs.Requests.AI;
-using RecruitAI.Application.DTOs.Responses.AI;
+using RecruitAI.Shared.DTOs;
 
-namespace RecruitAI.Application.Interfaces.Services
+
+namespace RecruitAI.Shared.Interfaces
 {
 	public interface IAnalysisService
 	{

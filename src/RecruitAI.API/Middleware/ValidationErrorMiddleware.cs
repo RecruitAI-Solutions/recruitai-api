@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using RecruitAI.Application.Interfaces.Services;
 using System.Text.Json;
+using RecruitAI.Shared.DTOs;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.API.Middleware
 {

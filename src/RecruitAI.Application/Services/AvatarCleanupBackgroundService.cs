@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RecruitAI.Application.Interfaces.Services;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Infrastructure.BackgroundServices
 {

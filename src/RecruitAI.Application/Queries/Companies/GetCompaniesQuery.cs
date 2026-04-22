@@ -6,6 +6,8 @@ using RecruitAI.Application.DTOs.Responses.Companies;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Common.Companies;
+using RecruitAI.Shared.Interfaces;
+using RecruitAI.Shared.Helpers;
 
 namespace RecruitAI.Application.Queries.Companies;
 

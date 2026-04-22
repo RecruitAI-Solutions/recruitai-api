@@ -10,6 +10,7 @@ using RecruitAI.Domain.Exceptions;
 using RecruitAI.Infrastructure.Services;
 using RecruitAI.Application.Extensions;
 using System.Text.Json;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Application.Commands.Admin
 {

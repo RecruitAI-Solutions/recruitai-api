@@ -1,11 +1,10 @@
-﻿// RecruitAI.Application/DTOs/Responses/AI/AnalysisResultDto.cs
-namespace RecruitAI.Application.DTOs.Responses.AI
+﻿namespace RecruitAI.Shared.DTOs
 {
 	public class AnalysisResultDto
 	{
 		public Guid CvId { get; set; }
 		public string FileName { get; set; } = string.Empty;
-      // Numeric status code
+	  // Numeric status code
 		public int Status { get; set; }
 
 		// Name of the status

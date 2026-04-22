@@ -1,13 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RecruitAI.Application.DTOs;
 using RecruitAI.Domain.Common.Jobs;
 using RecruitAI.Domain.Common.Paginations;
+using RecruitAI.Domain.Common.Reports;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
-using RecruitAI.Domain.Interfaces;
 using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Infrastructure.Data;
-using RecruitAI.Domain.Common.Reports;
 
 namespace RecruitAI.Infrastructure.Repositories;
 

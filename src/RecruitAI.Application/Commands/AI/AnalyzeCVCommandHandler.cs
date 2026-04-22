@@ -1,13 +1,8 @@
 ﻿// RecruitAI.Application/Commands/AI/AnalyzeCVCommandHandler.cs
 using MediatR;
 using Microsoft.Extensions.Logging;
-using RecruitAI.Application.DTOs.Requests.AI;
-using RecruitAI.Application.DTOs.Responses.AI;
-using RecruitAI.Application.Interfaces.Services;
-using RecruitAI.Domain.Entities;
-using RecruitAI.Domain.Enums;
-using RecruitAI.Infrastructure.Services;
-using System.Text.Json;
+using RecruitAI.Shared.DTOs;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Application.Commands.AI
 {

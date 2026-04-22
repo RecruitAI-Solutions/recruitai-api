@@ -7,8 +7,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\RecruitAI.Shared\RecruitAI.Shared.csproj" />
 		<ProjectReference Include="..\RecruitAI.Domain\RecruitAI.Domain.csproj" />
-		<ProjectReference Include="..\RecruitAI.Application\RecruitAI.Application.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -17,6 +17,7 @@
 
 	<ItemGroup>
 	  <PackageReference Include="AutoMapper" Version="14.0.0" />
+	  <PackageReference Include="BCrypt.Net-Next" Version="4.1.0" />
 	  <PackageReference Include="CsvHelper" Version="33.1.0" />
 	  <PackageReference Include="EPPlus" Version="7.5.2" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">

@@ -10,6 +10,8 @@ using RecruitAI.Application.Queries.Jobs;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using RecruitAI_API.Controllers.v1;
+using RecruitAI.Shared.DTOs;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.API.Controllers.v1;
 

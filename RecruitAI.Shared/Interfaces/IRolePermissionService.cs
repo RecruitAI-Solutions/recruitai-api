@@ -1,7 +1,7 @@
-﻿using RecruitAI.Application.DTOs.Auths;
+﻿using RecruitAI.Shared.DTOs;
 using RecruitAI.Domain.Enums;
 
-namespace RecruitAI.Application.Interfaces.Services
+namespace RecruitAI.Shared.Interfaces
 {
 	public interface IRolePermissionService
 	{

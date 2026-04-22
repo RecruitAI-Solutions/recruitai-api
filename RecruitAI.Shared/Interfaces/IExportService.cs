@@ -1,7 +1,7 @@
-﻿// RecruitAI.Application/Interfaces/Services/IExportService.cs
-using RecruitAI.Application.DTOs.Responses.Admin;
+﻿// RecruitAI.Shared/Interfaces/IExportService.cs
+using RecruitAI.Shared.DTOs;
 
-namespace RecruitAI.Application.Interfaces.Services;
+namespace RecruitAI.Shared.Interfaces;
 
 public interface IExportService
 {

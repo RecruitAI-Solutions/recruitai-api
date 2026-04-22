@@ -15,6 +15,8 @@ using RecruitAI.Domain.Services;
 using RecruitAI.Infrastructure.BackgroundServices;
 using RecruitAI.Infrastructure.Services;
 using RecruitAI.Infrastructure.Services.AI;
+using RecruitAI.Shared.Interfaces;
+using RecruitAI.Shared.Helpers;
 
 namespace RecruitAI.Application
 {
@@ -58,6 +60,8 @@ namespace RecruitAI.Application
 			services.AddScoped<IAIRecommendationService, DeepSeekRecommendationService>();
 			services.AddScoped<ICompanyService, CompanyService>();
 			services.AddScoped<IMessageService, MessageService>();
+			services.AddScoped<IAnalysisService, AnalysisService>();
+			services.AddScoped<IRolePermissionService, RolePermissionService>();
 
 			//Validators
 			services.AddScoped<RegisterRequestValidator>();

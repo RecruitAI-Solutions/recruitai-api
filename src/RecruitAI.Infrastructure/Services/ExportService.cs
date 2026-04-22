@@ -3,12 +3,11 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
-using RecruitAI.Application.DTOs.Responses.Admin;
-using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Infrastructure.Data;
-using System.ComponentModel;
+using RecruitAI.Shared.Interfaces;
+using RecruitAI.Shared.DTOs;
 using System.Text;
 
 namespace RecruitAI.Infrastructure.Services;

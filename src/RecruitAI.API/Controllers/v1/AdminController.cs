@@ -12,6 +12,8 @@ using RecruitAI.Application.Queries.Admin;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using RecruitAI.Infrastructure.Services;
+using RecruitAI.Shared.DTOs;
+using RecruitAI.Shared.Interfaces;
 using RecruitAI_API.Controllers.v1;
 
 namespace RecruitAI.API.Controllers.v1

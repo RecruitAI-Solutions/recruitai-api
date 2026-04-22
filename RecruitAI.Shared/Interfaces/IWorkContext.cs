@@ -1,7 +1,7 @@
 ﻿using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
 
-namespace RecruitAI.Application.Interfaces
+namespace RecruitAI.Shared.Interfaces
 {
 	public interface IWorkContext
 	{

@@ -1,5 +1,5 @@
 ﻿// RecruitAI.Application/DTOs/Requests/AI/AnalyzeCvRequestDto.cs
-namespace RecruitAI.Application.DTOs.Requests.AI
+namespace RecruitAI.Shared.DTOs
 {
 	public class AnalyzeCvRequestDto
 	{

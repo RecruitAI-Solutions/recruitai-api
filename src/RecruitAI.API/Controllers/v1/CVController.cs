@@ -12,6 +12,8 @@ using RecruitAI.Domain.Exceptions;
 using AutoMapper;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.DTOs.Responses.Auths;
+using RecruitAI.Shared.DTOs;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI_API.Controllers.v1;
 /// <summary>

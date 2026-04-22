@@ -13,6 +13,8 @@ using RecruitAI.Application.Queries.Jobs;
 using RecruitAI.Application.Queries.Applications;
 using RecruitAI.Domain.Enums;
 using RecruitAI_API.Controllers.v1;
+using RecruitAI.Shared.DTOs;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.API.Controllers.v1
 {

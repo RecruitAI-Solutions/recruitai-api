@@ -12,6 +12,8 @@ using RecruitAI.Domain.Exceptions;
 using RecruitAI_API.Controllers.v1;
 using System.Security.Claims;
 using System.Text.Json;
+using RecruitAI.Shared.DTOs;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.API.Controllers.v1
 {

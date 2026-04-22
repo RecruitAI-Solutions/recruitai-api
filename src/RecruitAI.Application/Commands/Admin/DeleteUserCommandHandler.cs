@@ -6,6 +6,7 @@ using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Application.Commands.Admin
 {
