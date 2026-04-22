@@ -11,7 +11,7 @@ public class CVListDto
 	public CVStatus Status { get; set; }
 	public string FormattedFileSize => GetFormattedFileSize();
 	public string StatusName => Status.ToString();
-	public int totalSkills { get; set; } = 0;
+	public int TotalSkills { get; set; } = 0;
 
 	private string GetFormattedFileSize()
 	{
