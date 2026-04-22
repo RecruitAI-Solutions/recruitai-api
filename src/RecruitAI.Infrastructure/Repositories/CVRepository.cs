@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RecruitAI.Application.DTOs.Responses;
 using RecruitAI.Domain.Common.CVs;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
@@ -27,7 +28,7 @@ public class CVRepository : BaseRepository<CV>, ICVRepository
 			.ToListAsync(cancellationToken);
 	}
 
-	public async Task<(IEnumerable<CV> Items, int Total)> GetUserCVsAsync(
+	public async Task<(IEnumerable<CVList> Items, int Total)> GetUserCVsAsync(
 		Guid userId,
 		CVFilter filter,
 		CancellationToken cancellationToken = default)
@@ -85,6 +86,26 @@ public class CVRepository : BaseRepository<CV>, ICVRepository
 		var items = await query
 			.Skip((filter.Page - 1) * filter.PageSize)
 			.Take(filter.PageSize)
+			  .Select(c => new CVList
+			  {
+				  Id = c.Id,
+				  UserId = c.UserId,
+				  FileName = c.FileName,
+				  StoredFileName = c.StoredFileName,
+				  FilePath = c.FilePath,
+				  FileSize = c.FileSize,
+				  ContentType = c.ContentType,
+				  Status = c.Status,
+				  UploadedAt = c.UploadedAt,
+				  ProcessedAt = c.ProcessedAt,
+				  ErrorMessage = c.ErrorMessage,
+				  IsDeleted = c.IsDeleted,
+				  DeletedAt = c.DeletedAt,
+				  ExtractedText = c.ExtractedText,
+				  AnalyzedAt = c.AnalyzedAt,
+				  // Thêm TotalSkills (đếm số lượng analysis results)
+				  TotalSkills = c.AnalysisResults.Count(r => r.Skill != null)
+			  })
 			.ToListAsync(cancellationToken);
 
 		return (items, total);

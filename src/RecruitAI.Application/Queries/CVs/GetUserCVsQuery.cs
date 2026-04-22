@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Application.DTOs.CVs;
+using RecruitAI.Application.DTOs.Responses;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Common.CVs;
@@ -56,7 +57,7 @@ public class GetUserCVsQueryHandler : IRequestHandler<GetUserCVsQuery, Paginatio
 				PageSize = request.Filter.PageSize > 0 ? request.Filter.PageSize : 10
 			};
 
-			(IEnumerable<CV> cvs, int total) = await _uow.CVs.GetUserCVsAsync(
+			(IEnumerable<CVList> cvs, int total) = await _uow.CVs.GetUserCVsAsync(
 			   userId: request.UserId,
 			   filter: domainFilter,
 			   cancellationToken: cancellationToken);
