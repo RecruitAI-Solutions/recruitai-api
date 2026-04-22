@@ -1,6 +1,6 @@
 ﻿using RecruitAI.Domain.Entities;
 
-namespace RecruitAI.Application.Interfaces.Services
+namespace RecruitAI.Shared.Interfaces
 {
 	public interface IJwtService
 	{

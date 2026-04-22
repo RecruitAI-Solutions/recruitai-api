@@ -6,6 +6,8 @@ using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using System.Text.Json;
 using RecruitAI.Application.Helpers;
+using RecruitAI.Shared.Interfaces;
+using RecruitAI.Shared.Helpers;
 
 namespace RecruitAI.Application.Queries.Applications
 {
@@ -38,7 +40,7 @@ namespace RecruitAI.Application.Queries.Applications
 			var response = new ApplicationDetailResponseDto
 			{
 				Id = application.Id,
-            Status = application.Status,
+			Status = application.Status,
 			StatusName = application.Status.ToString(),
 			StatusDisplay = _msg.Get($"ApplicationStatus.{application.Status}"),
 				AppliedAt = application.AppliedAt,

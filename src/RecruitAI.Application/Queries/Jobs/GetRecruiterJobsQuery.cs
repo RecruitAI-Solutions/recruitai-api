@@ -7,6 +7,7 @@ using RecruitAI.Application.Interfaces;
 using RecruitAI.Domain.Common.Jobs;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Interfaces;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Application.Queries.Jobs;
 

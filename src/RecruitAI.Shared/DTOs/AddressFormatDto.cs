@@ -1,5 +1,4 @@
-﻿// RecruitAI.Application/DTOs/Responses/Geocoding/AddressFormatDto.cs
-namespace RecruitAI.Application.DTOs.Responses.Geocoding
+﻿namespace RecruitAI.Shared.DTOs
 {
 	public class AddressFormatDto
 	{

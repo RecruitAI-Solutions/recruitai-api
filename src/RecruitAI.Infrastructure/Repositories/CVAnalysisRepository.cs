@@ -78,6 +78,9 @@ namespace RecruitAI.Infrastructure.Repositories
 				_dbSet.RemoveRange(results);
 			}
 		}
-
+		public IQueryable<CVAnalysisResult> GetQueryable()
+		{
+			return _dbSet.AsQueryable();
+		}
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Application.Extensions;
 

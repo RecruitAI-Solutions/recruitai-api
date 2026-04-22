@@ -8,6 +8,9 @@ using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Queries.Jobs;
 using RecruitAI.Domain.Interfaces;
+using RecruitAI.Shared.DTOs;
+using RecruitAI.Shared.Helpers;
+using RecruitAI.Shared.Interfaces;
 
 
 namespace RecruitAI_API.Controllers.v1;
@@ -260,33 +263,19 @@ public class JobsController : BaseController
 		});
 	}
 
-	/// <summary>
-	/// Gợi ý công việc tương tự dựa trên kỹ năng
-	/// </summary>
-	/// <remarks>
-	/// **Cách tính tương tự:**
-	/// - Dựa trên số lượng kỹ năng chung giữa các công việc
-	/// - Ưu tiên công việc có nhiều kỹ năng trùng khớp nhất
-	/// - Không bao gồm công việc hiện tại
-	/// 
-	/// **Ví dụ:** Job A có kỹ năng [Java, Spring, SQL]
-	/// → Gợi ý các job có chứa Java, Spring hoặc SQL
-	/// </remarks>
-	/// <param name="id">ID của công việc hiện tại</param>
-	/// <param name="limit">Số lượng gợi ý tối đa (mặc định: 10)</param>
-	/// <returns>Danh sách công việc tương tự</returns>
-	[HttpGet("similar/{id}")]
-	[AllowAnonymous]
-	[ProducesResponseType(typeof(PaginationResponseDto<JobListDto>), StatusCodes.Status200OK)]
-	[ProducesResponseType(StatusCodes.Status404NotFound)]
-	public async Task<ActionResult<PaginationResponseDto<JobListDto>>> GetSimilarJobs(
-		Guid id,
-		[FromQuery] int limit = 10)
+	[HttpGet("suggestions/by-cv/{cvId}")]
+	[Authorize(Roles = "CANDIDATE")]
+	public async Task<ActionResult<List<JobMatchResultDto>>> GetJobSuggestionsByCV(
+	Guid cvId,
+	[FromQuery] int minMatchSkills = 2)
 	{
-		return await ExecuteAsync<PaginationResponseDto<JobListDto>>(async () =>
+		var query = new GetJobSuggestionsByCVQuery
 		{
-			var query = new GetSimilarJobsQuery { JobId = id, Limit = limit };
-			return await _mediator.Send(query);
-		});
+			CVId = cvId,
+			MinMatchSkills = minMatchSkills
+		};
+
+		var result = await _mediator.Send(query);
+		return Ok(result);
 	}
 }

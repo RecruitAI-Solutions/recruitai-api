@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Configuration;
-using RecruitAI.Application.Interfaces.Services;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Infrastructure.Settings
 {

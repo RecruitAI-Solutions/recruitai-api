@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Localization;
-using RecruitAI.Application.Interfaces.Services;
-using RecruitAI.Application.Resources;
+using RecruitAI.Shared.Interfaces;
+using RecruitAI.Shared.Resources;
 using RecruitAI.Domain.Enums;
 
-namespace RecruitAI.Application.Helpers
+namespace RecruitAI.Shared.Helpers
 {
 	public class MessageService : IMessageService
 	{

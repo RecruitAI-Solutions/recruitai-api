@@ -9,6 +9,8 @@ using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Common.CVs;
 using RecruitAI.Domain.Entities;
 using RecruitAI.Domain.Enums;
+using RecruitAI.Shared.Interfaces;
+using RecruitAI.Shared.Helpers;
 using System;
 
 namespace RecruitAI.Application.Queries.CVs;

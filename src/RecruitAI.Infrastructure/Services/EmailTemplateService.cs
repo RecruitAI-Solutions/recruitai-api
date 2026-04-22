@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.Text;
-using RecruitAI.Application.Interfaces.Services;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Infrastructure.Services
 {

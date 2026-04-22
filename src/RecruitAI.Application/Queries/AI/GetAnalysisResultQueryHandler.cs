@@ -3,6 +3,8 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.DTOs.Responses.AI;
 using RecruitAI.Application.Interfaces.Services;
+using RecruitAI.Shared.DTOs;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Application.Queries.AI
 {

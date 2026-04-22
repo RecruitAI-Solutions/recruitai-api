@@ -1,4 +1,4 @@
-﻿namespace RecruitAI.Application.Interfaces
+﻿namespace RecruitAI.Shared.Interfaces
 {
 	public interface IAppUrlService
 	{

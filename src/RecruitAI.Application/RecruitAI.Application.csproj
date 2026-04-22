@@ -7,24 +7,13 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\RecruitAI.Shared\RecruitAI.Shared.csproj" />
 		<ProjectReference Include="..\RecruitAI.Domain\RecruitAI.Domain.csproj" />
+		<ProjectReference Include="..\RecruitAI.Infrastructure\RecruitAI.Infrastructure.csproj" />
+		<ProjectReference Include="..\RecruitAI.Shared\RecruitAI.Shared.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Compile Update="Resources\Messages.en.Designer.cs">
-			<DesignTime>true</DesignTime>
-			<AutoGen>true</AutoGen>
-			<DependentUpon>Messages.en.resx</DependentUpon>
-		</Compile>
-
-		<Compile Update="Resources\Messages.vi.Designer.cs">
-			<DesignTime>true</DesignTime>
-			<AutoGen>true</AutoGen>
-			<DependentUpon>Messages.vi.resx</DependentUpon>
-		</Compile>
 	</ItemGroup>
 
 	<ItemGroup>
@@ -33,7 +22,7 @@
 
 		<PackageReference Include="MediatR" Version="12.4.1" />
 
-        <PackageReference Include="AutoMapper" Version="14.0.0" />
+		<PackageReference Include="AutoMapper" Version="14.0.0" />
 
 		<PackageReference Include="FluentValidation" Version="12.1.1" />
 		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />

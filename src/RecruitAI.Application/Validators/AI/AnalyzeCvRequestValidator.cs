@@ -2,6 +2,10 @@
 using FluentValidation;
 using RecruitAI.Application.DTOs.Requests.AI;
 using RecruitAI.Application.Interfaces.Services;
+using RecruitAI.Shared.Interfaces;
+using RecruitAI.Shared.Helpers;
+using RecruitAI.Shared.Interfaces;
+using RecruitAI.Shared.DTOs;
 
 namespace RecruitAI.Application.Validators.AI
 {

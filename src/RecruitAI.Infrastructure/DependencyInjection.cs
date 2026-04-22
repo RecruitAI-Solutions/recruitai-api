@@ -1,10 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using RecruitAI.Application.Interfaces;
-using RecruitAI.Application.Interfaces.Services;
-using RecruitAI.Application.Services;
-using RecruitAI.Domain.Interfaces;
 using RecruitAI.Domain.Interfaces.Repositories;
 using RecruitAI.Domain.Interfaces.Services;
 using RecruitAI.Infrastructure.Caching;
@@ -13,7 +9,7 @@ using RecruitAI.Infrastructure.Repositories;
 using RecruitAI.Infrastructure.Services;
 using RecruitAI.Infrastructure.Services.Geocoding;
 using RecruitAI.Infrastructure.Settings;
-
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Infrastructure
 {
@@ -36,7 +32,6 @@ namespace RecruitAI.Infrastructure
 			services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
 			services.AddScoped<ICVRepository, CVRepository>();
 			services.AddScoped<IJobRepository, JobRepository>();
-			services.AddScoped<IAnalysisService, AnalysisService>();
 			services.AddScoped<IJobApplicationRepository, JobApplicationRepository>();
 			services.AddScoped<IJobApplicationMatchRepository, JobApplicationMatchRepository>();
 			services.AddScoped<IAuditLogRepository, AuditLogRepository>();
@@ -45,7 +40,6 @@ namespace RecruitAI.Infrastructure
 
 			services.AddScoped<IWorkContext, WorkContext>();
 			services.AddScoped<IEmailTemplateService, EmailTemplateService>();
-			services.AddScoped<IRolePermissionService, RolePermissionService>();
 			services.AddSingleton<FileSystemWatcher>();
 
 			// Redis Cache
@@ -71,7 +65,7 @@ namespace RecruitAI.Infrastructure
 			services.AddScoped<IPdfService, PdfService>();
 			services.AddScoped<IAppUrlService, AppUrlService>();
 			services.AddHostedService<FeaturedJobBackgroundService>();
-			services.AddScoped<IExportService,ExportService>();
+			services.AddScoped<IExportService, ExportService>();
 			//Settings
 			services.AddSingleton<IStorageSettings, StorageSettings>();
 

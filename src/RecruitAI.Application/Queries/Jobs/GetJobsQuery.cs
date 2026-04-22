@@ -5,6 +5,8 @@ using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Application.DTOs.Jobs;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Mappings;
+using RecruitAI.Shared.Interfaces;
+using RecruitAI.Shared.Helpers;
 
 namespace RecruitAI.Application.Queries.Jobs;
 

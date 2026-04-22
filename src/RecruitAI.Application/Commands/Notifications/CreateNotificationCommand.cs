@@ -5,6 +5,8 @@ using RecruitAI.Application.Interfaces;
 using RecruitAI.Domain.Entities;
 using System.Text.Json;
 using RecruitAI.Application.Events;
+using RecruitAI.Shared.Interfaces;
+using RecruitAI.Shared.Helpers;
 
 namespace RecruitAI.Application.Commands.Notifications;
 

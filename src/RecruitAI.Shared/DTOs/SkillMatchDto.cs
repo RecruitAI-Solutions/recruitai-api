@@ -1,5 +1,4 @@
-﻿// RecruitAI.Application/DTOs/Responses/AI/SkillMatchDto.cs
-namespace RecruitAI.Application.DTOs.Responses.AI
+﻿namespace RecruitAI.Shared.DTOs
 {
 	public class SkillMatchDto
 	{

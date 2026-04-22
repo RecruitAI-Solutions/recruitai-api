@@ -13,6 +13,8 @@ using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using System.Security.Cryptography;
 using System.Text.Json;
+using RecruitAI.Shared.Interfaces;
+using RecruitAI.Shared.Helpers;
 
 namespace RecruitAI.Application.Services
 {
