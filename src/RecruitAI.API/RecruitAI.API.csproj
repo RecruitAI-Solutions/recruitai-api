@@ -47,6 +47,7 @@
 		<ProjectReference Include="..\..\RecruitAI.Shared\RecruitAI.Shared.csproj" />
 		<ProjectReference Include="..\RecruitAI.Application\RecruitAI.Application.csproj" />
 		<ProjectReference Include="..\RecruitAI.Infrastructure\RecruitAI.Infrastructure.csproj" />
+		<ProjectReference Include="..\RecruitAI.Shared\RecruitAI.Shared.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

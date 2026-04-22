@@ -8,8 +8,9 @@ using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Queries.Jobs;
 using RecruitAI.Domain.Interfaces;
-using RecruitAI.Shared.Interfaces;
+using RecruitAI.Shared.DTOs;
 using RecruitAI.Shared.Helpers;
+using RecruitAI.Shared.Interfaces;
 
 
 namespace RecruitAI_API.Controllers.v1;
@@ -260,5 +261,21 @@ public class JobsController : BaseController
 			var query = new GetFeaturedJobsQuery { Limit = limit };
 			return await _mediator.Send(query);
 		});
+	}
+
+	[HttpGet("suggestions/by-cv/{cvId}")]
+	[Authorize(Roles = "CANDIDATE")]
+	public async Task<ActionResult<List<JobMatchResultDto>>> GetJobSuggestionsByCV(
+	Guid cvId,
+	[FromQuery] int minMatchSkills = 2)
+	{
+		var query = new GetJobSuggestionsByCVQuery
+		{
+			CVId = cvId,
+			MinMatchSkills = minMatchSkills
+		};
+
+		var result = await _mediator.Send(query);
+		return Ok(result);
 	}
 }

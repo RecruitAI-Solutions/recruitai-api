@@ -26,6 +26,7 @@ public partial class RecruitDevContext : DbContext
 	public DbSet<Company> Companies { get; set; }
 	public DbSet<SavedJob> SavedJobs { get; set; }
 	public DbSet<Notification> Notifications { get; set; }
+	public DbSet<CVAnalysisResult> CVAnalysisResult { get; set; }
 	protected override void OnModelCreating(ModelBuilder modelBuilder)
 	{
 		// Áp dụng tất cả configurations từ các file riêng
@@ -44,6 +45,7 @@ public partial class RecruitDevContext : DbContext
 		modelBuilder.ApplyConfiguration(new CompanyConfiguration());
 		modelBuilder.ApplyConfiguration(new SavedJobConfiguration());
 		modelBuilder.ApplyConfiguration(new NotificationConfiguration());
+		modelBuilder.ApplyConfiguration(new CVAnalysisResultConfiguration());
 
 		OnModelCreatingPartial(modelBuilder);
 	}

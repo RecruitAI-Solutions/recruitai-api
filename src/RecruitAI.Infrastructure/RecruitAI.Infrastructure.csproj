@@ -9,6 +9,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\RecruitAI.Shared\RecruitAI.Shared.csproj" />
 		<ProjectReference Include="..\RecruitAI.Domain\RecruitAI.Domain.csproj" />
+		<ProjectReference Include="..\RecruitAI.Shared\RecruitAI.Shared.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

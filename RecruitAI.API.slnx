@@ -1,9 +1,9 @@
 <Solution>
   <Folder Name="/src/">
-    <Project Path="RecruitAI.Shared/RecruitAI.Shared.csproj" Id="b748a5fc-2a46-47dc-b54a-726e17646c92" />
     <Project Path="src/RecruitAI.API/RecruitAI.API.csproj" />
     <Project Path="src/RecruitAI.Application/RecruitAI.Application.csproj" />
     <Project Path="src/RecruitAI.Domain/RecruitAI.Domain.csproj" />
     <Project Path="src/RecruitAI.Infrastructure/RecruitAI.Infrastructure.csproj" />
+    <Project Path="src/RecruitAI.Shared/RecruitAI.Shared.csproj" />
   </Folder>
 </Solution>
