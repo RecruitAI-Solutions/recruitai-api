@@ -8,7 +8,7 @@ public interface ICVRepository : IBaseRepository<CV>
 {
 	new Task<CV?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 	Task<IEnumerable<CV>> GetByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
-	Task<(IEnumerable<CV> Items, int Total)> GetUserCVsAsync(
+	Task<(IEnumerable<CVList> Items, int Total)> GetUserCVsAsync(
 		Guid userId,
 		CVFilter filter,
 		CancellationToken cancellationToken = default);
