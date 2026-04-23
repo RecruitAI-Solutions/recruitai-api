@@ -1,14 +1,14 @@
 ﻿// RecruitAI.Application/Queries/Jobs/GetJobSuggestionsByCVQueryHandler.cs
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Infrastructure.Data;
 using RecruitAI.Shared.DTOs;
-using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Application.Queries.Jobs
 {
-	public class GetJobSuggestionsByCVQueryHandler : IRequestHandler<GetJobSuggestionsByCVQuery, List<JobMatchResultDto>>
+	public class GetJobSuggestionsByCVQueryHandler : IRequestHandler<GetJobSuggestionsByCVQuery, PaginationResponseDto<JobMatchResultDto>>
 	{
 		private readonly RecruitDevContext _context;
 
@@ -17,7 +17,7 @@ namespace RecruitAI.Application.Queries.Jobs
 			_context = context;
 		}
 
-		public async Task<List<JobMatchResultDto>> Handle(GetJobSuggestionsByCVQuery request, CancellationToken cancellationToken)
+		public async Task<PaginationResponseDto<JobMatchResultDto>> Handle(GetJobSuggestionsByCVQuery request, CancellationToken cancellationToken)
 		{
 			// 1. Lấy skill IDs từ CV
 			var cvSkillIds = await _context.CVAnalysisResult
@@ -27,9 +27,17 @@ namespace RecruitAI.Application.Queries.Jobs
 				.ToListAsync(cancellationToken);
 
 			if (!cvSkillIds.Any())
-				return new List<JobMatchResultDto>();
+			{
+				return new PaginationResponseDto<JobMatchResultDto>
+				{
+					Data = new List<JobMatchResultDto>(),
+					Total = 0,
+					Page = request.Page,
+					PageSize = request.PageSize
+				};
+			}
 
-			// 2. Lấy danh sách job active
+			// 2. Lấy danh sách job active và tính match count
 			var allJobs = await _context.Jobs
 				.Include(j => j.Company)
 				.Include(j => j.JobSkills)
@@ -38,7 +46,7 @@ namespace RecruitAI.Application.Queries.Jobs
 				.Distinct()
 				.ToListAsync(cancellationToken);
 
-			var result = new List<JobMatchResultDto>();
+			var matchedJobs = new List<JobMatchResultDto>();
 
 			foreach (var job in allJobs)
 			{
@@ -61,7 +69,7 @@ namespace RecruitAI.Application.Queries.Jobs
 						.Select(s => s.Name)
 						.ToListAsync(cancellationToken);
 
-					result.Add(new JobMatchResultDto
+					matchedJobs.Add(new JobMatchResultDto
 					{
 						Id = job.Id,
 						Title = job.Title,
@@ -82,7 +90,21 @@ namespace RecruitAI.Application.Queries.Jobs
 				}
 			}
 
-			return result.OrderByDescending(x => x.MatchedSkillCount).ToList();
+			// Sắp xếp và phân trang
+			var total = matchedJobs.Count;
+			var pagedJobs = matchedJobs
+				.OrderByDescending(x => x.MatchedSkillCount)
+				.Skip((request.Page - 1) * request.PageSize)
+				.Take(request.PageSize)
+				.ToList();
+
+			return new PaginationResponseDto<JobMatchResultDto>
+			{
+				Data = pagedJobs,
+				Total = total,
+				Page = request.Page,
+				PageSize = request.PageSize
+			};
 		}
 
 		private string FormatSalary(decimal? min, decimal? max, Currency currency)
