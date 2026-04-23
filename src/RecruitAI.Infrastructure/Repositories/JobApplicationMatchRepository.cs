@@ -24,8 +24,4 @@ public class JobApplicationMatchRepository : BaseRepository<JobApplicationMatch>
 			.Where(x => x.Application.CVId == cvId)
 			.ToListAsync(cancellationToken);
 	}
-	public IQueryable<JobApplicationMatch> GetQueryable()
-	{
-		return _dbSet.AsQueryable();
-	}
 }

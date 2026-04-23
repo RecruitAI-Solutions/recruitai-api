@@ -77,8 +77,7 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 			.Include(j => j.Recruiter)
 			.Include(j => j.JobSkills)
 				.ThenInclude(js => js.Skill)
-			.Where(j => !j.IsDeleted)
-			.Distinct();
+			.Where(j => !j.IsDeleted);
 
 		// Apply filters
 		if (!string.IsNullOrWhiteSpace(filter.Title))
@@ -447,7 +446,6 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 			.Where(j => !j.IsDeleted && j.IsActive && j.IsFeatured && j.ExpirationDate > DateTime.UtcNow)
 			.OrderBy(j => j.FeaturedOrder ?? int.MaxValue)
 			.ThenByDescending(j => j.CreatedAt)
-			.Distinct()
 			.Take(limit)
 			.ToListAsync(cancellationToken);
 	}
@@ -468,7 +466,6 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 			.Select(j => new { Job = j, MatchCount = j.JobSkills.Count(js => skillIds.Contains(js.SkillId)) })
 			.OrderByDescending(x => x.MatchCount)
 			.ThenByDescending(x => x.Job.CreatedAt)
-			.Distinct()
 			.Select(x => x.Job)
 			.Take(limit)
 			.ToListAsync(cancellationToken);

@@ -43,7 +43,6 @@ namespace RecruitAI.Application.Queries.Jobs
 				.Include(j => j.JobSkills)
 				.ThenInclude(js => js.Skill)
 				.Where(j => j.IsActive && !j.IsDeleted && j.Status == JobStatus.Published && j.ExpirationDate > DateTime.UtcNow)
-				.Distinct()
 				.ToListAsync(cancellationToken);
 
 			var matchedJobs = new List<JobMatchResultDto>();
