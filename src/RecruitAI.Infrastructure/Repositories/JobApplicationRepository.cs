@@ -50,6 +50,8 @@ public class JobApplicationRepository : BaseRepository<JobApplication>, IJobAppl
 			query = query.Where(x => x.Status == status.Value);
 		}
 
+		query = query.Distinct();
+
 		var total = await query.CountAsync(cancellationToken);
 
 		var items = await query
