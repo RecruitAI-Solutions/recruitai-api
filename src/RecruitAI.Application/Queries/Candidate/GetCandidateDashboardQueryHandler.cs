@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿// GetCandidateDashboardQueryHandler.cs - Bổ sung đầy đủ
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Infrastructure.Data;
@@ -6,7 +7,6 @@ using RecruitAI.Shared.DTOs;
 
 namespace RecruitAI.Application.Queries.Candidate
 {
-	// GetCandidateDashboardQueryHandler.cs
 	public class GetCandidateDashboardQueryHandler : IRequestHandler<GetCandidateDashboardQuery, CandidateDashboardDto>
 	{
 		private readonly RecruitDevContext _context;
@@ -54,12 +54,27 @@ namespace RecruitAI.Application.Queries.Candidate
 			var reviewedApplications = await _context.JobApplications
 				.CountAsync(a => a.CV.UserId == userId && a.Status >= JobApplicationStatus.Reviewed, ct);
 
+			// 5. Số CV đã phân tích
+			var analyzedCVs = await _context.CVs
+				.CountAsync(c => c.UserId == userId && c.Status == CVStatus.Analyzed, ct);
+
+			// 6. Số công việc đã lưu
+			var savedJobs = await _context.SavedJobs
+				.CountAsync(s => s.UserId == userId, ct);
+
+			// 7. Số thông báo chưa đọc
+			var unreadNotifications = await _context.Notifications
+				.CountAsync(n => n.UserId == userId && !n.IsRead, ct);
+
 			return new CandidateDashboardDto
 			{
 				NewJobsToday = newJobsToday,
 				TotalApplications = totalApplications,
 				SuggestedJobs = suggestedJobs,
-				ReviewedApplications = reviewedApplications
+				ReviewedApplications = reviewedApplications,
+				AnalyzedCVs = analyzedCVs,
+				SavedJobs = savedJobs,
+				UnreadNotifications = unreadNotifications
 			};
 		}
 	}
