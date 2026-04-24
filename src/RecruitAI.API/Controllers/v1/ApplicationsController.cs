@@ -82,9 +82,14 @@ namespace RecruitAI.API.Controllers.v1
 		[ProducesResponseType(typeof(PaginationResponseDto<MyApplicationDto>), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 		public async Task<ActionResult<PaginationResponseDto<MyApplicationDto>>> GetMyApplications(
-			[FromQuery] int page = 1,
-			[FromQuery] int pageSize = 10,
-			[FromQuery] JobApplicationStatus? status = null)
+		[FromQuery] int page = 1,
+		[FromQuery] int pageSize = 10,
+		[FromQuery] JobApplicationStatus? status = null,
+		[FromQuery] DateTime? fromDate = null,
+		[FromQuery] DateTime? toDate = null,
+		[FromQuery] string? query = null,
+		[FromQuery] string? sortBy = "appliedAt",
+		[FromQuery] string? sortOrder = "desc")
 		{
 			return await ExecuteAsync<PaginationResponseDto<MyApplicationDto>>(async () =>
 			{
@@ -92,17 +97,23 @@ namespace RecruitAI.API.Controllers.v1
 				if (userId == null)
 					throw new UnauthorizedAccessException();
 
-				var query = new GetMyApplicationsQuery
+				var queryParams = new GetMyApplicationsQuery
 				{
 					UserId = userId.Value,
 					Page = page,
 					PageSize = pageSize,
-					Status = status
+					Status = status,
+					FromDate = fromDate,
+					ToDate = toDate,
+					Query = query,
+					SortBy = sortBy,
+					SortOrder = sortOrder
 				};
 
-				return await _mediator.Send(query);
+				return await _mediator.Send(queryParams);
 			});
 		}
+
 
 		/// <summary>
 		/// Lấy danh sách đơn ứng tuyển của một công việc (nhà tuyển dụng)
