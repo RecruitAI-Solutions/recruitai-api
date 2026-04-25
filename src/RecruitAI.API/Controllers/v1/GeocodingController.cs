@@ -146,4 +146,33 @@ public class GeocodingController : BaseController
 			};
 		});
 	}
+
+	[HttpGet("provinces")]
+	[AllowAnonymous]
+	[ProducesResponseType(typeof(List<ProvinceDto>), StatusCodes.Status200OK)]
+	public async Task<ActionResult<List<ProvinceDto>>> GetProvinces(
+		[FromQuery] string? search = null,
+		CancellationToken cancellationToken = default)
+	{
+		return await ExecuteAsync<List<ProvinceDto>>(async () =>
+		{
+			return await _geocodingService.GetProvincesAsync(search, cancellationToken);
+		});
+	}
+
+	[HttpGet("districts/{provinceId}")]
+	[AllowAnonymous]
+	[ProducesResponseType(typeof(List<DistrictDto>), StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<ActionResult<List<DistrictDto>>> GetDistricts(
+		string provinceId,
+		[FromQuery] string? search = null,
+		CancellationToken cancellationToken = default)
+	{
+		return await ExecuteAsync<List<DistrictDto>>(async () =>
+		{
+			var result = await _geocodingService.GetDistrictsAsync(provinceId, search, cancellationToken);
+			return result;
+		});
+	}
 }

@@ -50,10 +50,18 @@ namespace RecruitAI.Infrastructure
 			});
 			services.AddScoped<IRedisCacheService, RedisCacheService>();
 
-			// Geocoding Service
-			services.AddHttpClient("Vietmap", client =>
+			// Place API (cho provinces, districts)
+			services.AddHttpClient("VietmapPlace", client =>
 			{
-				client.BaseAddress = new Uri(configuration["Vietmap:BaseUrl"] ?? "https://maps.vietmap.vn/api/v4");
+				client.BaseAddress = new Uri(configuration["Vietmap:PlaceBaseUrl"] ?? "https://maps.vietmap.vn/api/place/v4");
+				client.DefaultRequestHeaders.Add("Accept", "application/json");
+				client.Timeout = TimeSpan.FromSeconds(10);
+			});
+
+			// Autocomplete API (cho search)
+			services.AddHttpClient("VietmapAutocomplete", client =>
+			{
+				client.BaseAddress = new Uri(configuration["Vietmap:AutocompleteBaseUrl"] ?? "https://maps.vietmap.vn/api/autocomplete/v4");
 				client.DefaultRequestHeaders.Add("Accept", "application/json");
 				client.Timeout = TimeSpan.FromSeconds(10);
 			});
