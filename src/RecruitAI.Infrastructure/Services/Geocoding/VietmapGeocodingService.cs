@@ -2,28 +2,26 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Polly;
-using Polly.Caching;
 using Polly.CircuitBreaker;
 using Polly.Extensions.Http;
 using Polly.Retry;
-using RecruitAI.Shared.DTOs;
-using RecruitAI.Shared.Interfaces;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Infrastructure.Caching;
-using RecruitAI.Infrastructure.Services.Geocoding;
+using RecruitAI.Shared.DTOs;
+using RecruitAI.Shared.Interfaces;
 using System.Text.Json;
 
 namespace RecruitAI.Infrastructure.Services.Geocoding
 {
 	public class VietmapGeocodingService : IGeocodingService
 	{
-		private readonly HttpClient _httpClient;
+		private readonly HttpClient _autocompleteClient;
+		private readonly HttpClient _placeClient;
 		private readonly ILogger<VietmapGeocodingService> _logger;
 		private readonly IRedisCacheService _cache;
 		private readonly string _apiKey;
 		private readonly AsyncRetryPolicy<HttpResponseMessage> _retryPolicy;
 		private readonly AsyncCircuitBreakerPolicy<HttpResponseMessage> _circuitBreaker;
-		private readonly string _baseUrl;
 
 		public VietmapGeocodingService(
 			IHttpClientFactory httpClientFactory,
@@ -31,30 +29,24 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 			ILogger<VietmapGeocodingService> logger,
 			IRedisCacheService cache)
 		{
-			_httpClient = httpClientFactory.CreateClient("Vietmap");
+			_autocompleteClient = httpClientFactory.CreateClient("VietmapAutocomplete");
+			_placeClient = httpClientFactory.CreateClient("VietmapPlace");
 			_apiKey = configuration["Vietmap:ApiKey"] ?? throw new InvalidOperationException("Vietmap API Key not configured");
 			_logger = logger;
 			_cache = cache;
-			//_baseUrl = configuration["Vietmap:BaseUrl"] ?? "https://maps.vietmap.vn/api/autocomplete/v4";
 
-			// Retry policy (3 lần, exponential backoff)
 			_retryPolicy = HttpPolicyExtensions
 				.HandleTransientHttpError()
-				.WaitAndRetryAsync(
-					3,
-					retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+				.WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
 					onRetry: (outcome, timespan, retryCount, context) =>
 					{
 						_logger.LogWarning("Retry {RetryCount} after {Timespan}s due to {Error}",
 							retryCount, timespan.TotalSeconds, outcome.Exception?.Message);
 					});
 
-			// Circuit breaker (ngắt sau 5 lỗi, nghỉ 30 giây)
 			_circuitBreaker = HttpPolicyExtensions
 				.HandleTransientHttpError()
-				.CircuitBreakerAsync(
-					5,
-					TimeSpan.FromSeconds(30),
+				.CircuitBreakerAsync(5, TimeSpan.FromSeconds(30),
 					onBreak: (ex, time) => _logger.LogError("Circuit broken for {BreakTime}s", time.TotalSeconds),
 					onReset: () => _logger.LogInformation("Circuit reset"),
 					onHalfOpen: () => _logger.LogWarning("Circuit half-open"));
@@ -72,7 +64,6 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 		{
 			try
 			{
-				// 1. Kiểm tra cache
 				var cacheKey = $"geocoding:search:{text}:{limit}:{lat}:{lng}:{cityId}:{wardId}:{displayType}";
 				var cached = await _cache.GetAsync<List<AddressDto>>(cacheKey, cancellationToken);
 				if (cached != null)
@@ -81,10 +72,9 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 					return cached;
 				}
 
-				// 2. Gọi Vietmap API (không truyền limit vì API không hỗ trợ)
 				var queryString = BuildQueryString(text, lat, lng, displayType);
-				var relativeUrl = $"?apikey={_apiKey}{queryString}";
-				var response = await CallVietmapApiAsync(relativeUrl, cancellationToken);
+				var url = $"?apikey={_apiKey}{queryString}";
+				var response = await CallAutocompleteApiAsync(url, cancellationToken);
 
 				if (string.IsNullOrEmpty(response))
 					return new List<AddressDto>();
@@ -93,33 +83,21 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 				if (vietmapPlaces == null)
 					return new List<AddressDto>();
 
-				// 3. Transform dữ liệu
 				var results = vietmapPlaces.Select(MapToAddressDto).ToList();
 
-				// 4. GIỚI HẠN SỐ LƯỢNG KẾT QUẢ THEO LIMIT
 				if (limit.HasValue && results.Count > limit.Value)
-				{
-					_logger.LogInformation("Limiting results from {OriginalCount} to {Limit}",
-						results.Count, limit.Value);
 					results = results.Take(limit.Value).ToList();
-				}
 
-				// 5. Lọc kết quả (nếu có)
 				if (!string.IsNullOrEmpty(cityId) || !string.IsNullOrEmpty(wardId))
-				{
 					results = FilterResults(results, cityId, wardId);
-				}
 
-				// 6. Sắp xếp theo khoảng cách nếu có tọa độ
 				if (lat.HasValue && lng.HasValue && results.Any())
 				{
 					results = results.OrderBy(a => CalculateDistance(
 						lat.Value, lng.Value, a.Location.Lat, a.Location.Lng)).ToList();
 				}
 
-				// 7. Lưu cache (5 phút)
 				await _cache.SetAsync(cacheKey, results, TimeSpan.FromMinutes(5), cancellationToken);
-
 				return results;
 			}
 			catch (Exception ex)
@@ -129,9 +107,7 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 			}
 		}
 
-		public async Task<AddressDto?> GetAddressDetailAsync(
-			string refId,
-			CancellationToken cancellationToken = default)
+		public async Task<AddressDto?> GetAddressDetailAsync(string refId, CancellationToken cancellationToken = default)
 		{
 			try
 			{
@@ -139,8 +115,8 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 				var cached = await _cache.GetAsync<AddressDto>(cacheKey, cancellationToken);
 				if (cached != null) return cached;
 
-				var relativeUrl = $"/place/{refId}?apikey={_apiKey}";
-				var response = await CallVietmapApiAsync(relativeUrl, cancellationToken);
+				var url = $"/place/{refId}?apikey={_apiKey}";
+				var response = await CallPlaceApiAsync(url, cancellationToken);
 
 				if (string.IsNullOrEmpty(response)) return null;
 
@@ -149,7 +125,6 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 
 				var result = MapToAddressDto(place);
 				await _cache.SetAsync(cacheKey, result, TimeSpan.FromMinutes(30), cancellationToken);
-
 				return result;
 			}
 			catch (Exception ex)
@@ -159,11 +134,7 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 			}
 		}
 
-		public async Task<List<AddressDto>> ReverseGeocodingAsync(
-			double lat,
-			double lng,
-			int? radius = 100,
-			CancellationToken cancellationToken = default)
+		public async Task<List<AddressDto>> ReverseGeocodingAsync(double lat, double lng, int? radius = 100, CancellationToken cancellationToken = default)
 		{
 			try
 			{
@@ -171,8 +142,8 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 				var cached = await _cache.GetAsync<List<AddressDto>>(cacheKey, cancellationToken);
 				if (cached != null) return cached;
 
-				var relativeUrl = $"/reverse?apikey={_apiKey}&lat={lat}&lng={lng}&radius={radius}";
-				var response = await CallVietmapApiAsync(relativeUrl, cancellationToken);
+				var url = $"/reverse?apikey={_apiKey}&lat={lat}&lng={lng}&radius={radius}";
+				var response = await CallPlaceApiAsync(url, cancellationToken);
 
 				if (string.IsNullOrEmpty(response))
 					return new List<AddressDto>();
@@ -181,13 +152,93 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 				var results = vietmapPlaces?.Select(MapToAddressDto).ToList() ?? new();
 
 				await _cache.SetAsync(cacheKey, results, TimeSpan.FromMinutes(5), cancellationToken);
-
 				return results;
 			}
 			catch (Exception ex)
 			{
 				_logger.LogError(ex, "Error reverse geocoding: {Lat},{Lng}", lat, lng);
 				return new List<AddressDto>();
+			}
+		}
+
+		public async Task<List<ProvinceDto>> GetProvincesAsync(string? searchText = null, CancellationToken cancellationToken = default)
+		{
+			var cacheKey = string.IsNullOrEmpty(searchText)
+				? "geocoding:provinces:all"
+				: $"geocoding:provinces:search:{searchText}";
+
+			var cached = await _cache.GetAsync<List<ProvinceDto>>(cacheKey, cancellationToken);
+			if (cached != null)
+			{
+				_logger.LogInformation("Cache HIT for provinces");
+				return cached;
+			}
+
+			try
+			{
+				// Dùng Autocomplete API với layers=CITY để lấy danh sách tỉnh/thành
+				var text = string.IsNullOrEmpty(searchText) ? "" : Uri.EscapeDataString(searchText);
+				var url = $"?apikey={_apiKey}&text={text}&layers=CITY&display_type=5&limit=50";
+				var response = await CallAutocompleteApiAsync(url, cancellationToken);
+
+				if (string.IsNullOrEmpty(response))
+					return new List<ProvinceDto>();
+
+				var places = JsonSerializer.Deserialize<List<VietmapPlace>>(response);
+				var result = places?.Select(p => new ProvinceDto
+				{
+					Id = p.Boundaries?.FirstOrDefault(b => b.Type == 0)?.Id.ToString() ?? p.RefId,
+					Name = p.Name,
+					Code = p.Boundaries?.FirstOrDefault(b => b.Type == 0)?.Id.ToString()
+				}).DistinctBy(p => p.Id).ToList() ?? new();
+
+				await _cache.SetAsync(cacheKey, result, TimeSpan.FromHours(6), cancellationToken);
+				return result;
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error getting provinces");
+				return new List<ProvinceDto>();
+			}
+		}
+
+		public async Task<List<DistrictDto>> GetDistrictsAsync(string provinceId, string? searchText = null, CancellationToken cancellationToken = default)
+		{
+			var cacheKey = $"geocoding:districts:{provinceId}:{searchText ?? "all"}";
+
+			var cached = await _cache.GetAsync<List<DistrictDto>>(cacheKey, cancellationToken);
+			if (cached != null)
+			{
+				_logger.LogInformation("Cache HIT for districts of province {ProvinceId}", provinceId);
+				return cached;
+			}
+
+			try
+			{
+				// Dùng Autocomplete API với layers=DIST và cityId để lấy quận/huyện theo tỉnh
+				var text = string.IsNullOrEmpty(searchText) ? "" : Uri.EscapeDataString(searchText);
+				var url = $"?apikey={_apiKey}&text={text}&layers=DIST&cityId={provinceId}&display_type=5&limit=50";
+				var response = await CallAutocompleteApiAsync(url, cancellationToken);
+
+				if (string.IsNullOrEmpty(response))
+					return new List<DistrictDto>();
+
+				var places = JsonSerializer.Deserialize<List<VietmapPlace>>(response);
+				var result = places?.Select(p => new DistrictDto
+				{
+					Id = p.Boundaries?.FirstOrDefault(b => b.Type == 1)?.Id.ToString() ?? p.RefId,
+					Name = p.Name,
+					ProvinceId = provinceId,
+					Code = p.Boundaries?.FirstOrDefault(b => b.Type == 1)?.Id.ToString()
+				}).DistinctBy(d => d.Id).ToList() ?? new();
+
+				await _cache.SetAsync(cacheKey, result, TimeSpan.FromHours(6), cancellationToken);
+				return result;
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error getting districts for province {ProvinceId}", provinceId);
+				return new List<DistrictDto>();
 			}
 		}
 
@@ -201,36 +252,29 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 						$"{lng.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
 			}
 
-			// Sử dụng display_type theo enum
-			if (displayType.HasValue)
-			{
-				query += $"&display_type={(int)displayType.Value}";
-			}
-			else
-			{
-				// Mặc định dùng 5 (both new with old)
-				query += "&display_type=5";
-			}
+			query += displayType.HasValue
+				? $"&display_type={(int)displayType.Value}"
+				: "&display_type=5";
 
 			return query;
 		}
 
-		private async Task<string?> CallVietmapApiAsync(string relativeUrl, CancellationToken cancellationToken)
+		private async Task<string?> CallAutocompleteApiAsync(string url, CancellationToken cancellationToken)
 		{
 			try
 			{
-				_logger.LogDebug("Calling Vietmap API endpoint: {Endpoint}", relativeUrl);
+				_logger.LogDebug("Calling Vietmap Autocomplete API: {Url}", url);
 				var response = await _retryPolicy.ExecuteAsync(async () =>
 					await _circuitBreaker.ExecuteAsync(async () =>
-						await _httpClient.GetAsync(relativeUrl, cancellationToken)
+						await _autocompleteClient.GetAsync(url, cancellationToken)
 					)
 				);
 
 				if (!response.IsSuccessStatusCode)
 				{
 					var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-					_logger.LogError("Vietmap API returned {StatusCode} for {Endpoint}. Error: {Error}",
-						response.StatusCode, relativeUrl, errorContent);
+					_logger.LogError("Vietmap Autocomplete API returned {StatusCode}. Error: {Error}",
+						response.StatusCode, errorContent);
 					return null;
 				}
 
@@ -238,71 +282,88 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 			}
 			catch (Exception ex)
 			{
-				_logger.LogError(ex, "Error calling Vietmap API: {Endpoint}", relativeUrl);
+				_logger.LogError(ex, "Error calling Vietmap Autocomplete API: {Url}", url);
 				return null;
 			}
 		}
 
-		private AddressDto MapToAddressDto(VietmapPlace place)
+		private async Task<string?> CallPlaceApiAsync(string url, CancellationToken cancellationToken)
 		{
-			return new AddressDto
+			try
 			{
-				RefId = place.RefId,
-				FullAddress = place.Address,
-				Display = place.Display,
-				Location = new LocationDto
-				{
-					Lat = 0, // API autocomplete không trả về location
-					Lng = 0
-				},
-				Boundaries = place.Boundaries?.Select(b => new BoundaryDto
-				{
-					Type = (BoundaryType)b.Type,
-					Name = b.Name,
-					Prefix = b.Prefix ?? string.Empty,
-					Code = b.Id.ToString()
-				}).ToList() ?? new(),
-				Formats = new AddressFormatDto
-				{
-					// Format mới từ data_new nếu có
-					New = place.DataNew != null ? new FormatDetailDto
-					{
-						Address = place.DataNew.Address,
-						Boundaries = place.DataNew.Boundaries?.Select(b => new BoundaryInfoDto
-						{
-							Type = b.Type,
-							Name = b.Name,
-							Code = b.Id.ToString()
-						}).ToList() ?? new()
-					} : null,
+				_logger.LogDebug("Calling Vietmap Place API: {Url}", url);
+				var response = await _retryPolicy.ExecuteAsync(async () =>
+					await _circuitBreaker.ExecuteAsync(async () =>
+						await _placeClient.GetAsync(url, cancellationToken)
+					)
+				);
 
-					// Format cũ từ place chính hoặc data_old
-					Old = place.DataOld != null ? new FormatDetailDto
-					{
-						Address = place.DataOld.Address,
-						Boundaries = place.DataOld.Boundaries?.Select(b => new BoundaryInfoDto
-						{
-							Type = b.Type,
-							Name = b.Name,
-							Code = b.Id.ToString()
-						}).ToList() ?? new()
-					} : new FormatDetailDto
-					{
-						Address = place.Address,
-						Boundaries = place.Boundaries?.Select(b => new BoundaryInfoDto
-						{
-							Type = b.Type,
-							Name = b.Name,
-							Code = b.Id.ToString()
-						}).ToList() ?? new()
-					}
+				if (!response.IsSuccessStatusCode)
+				{
+					var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+					_logger.LogError("Vietmap Place API returned {StatusCode}. Error: {Error}",
+						response.StatusCode, errorContent);
+					return null;
 				}
-			};
+
+				return await response.Content.ReadAsStringAsync(cancellationToken);
+			}
+			catch (Exception ex)
+			{
+				_logger.LogError(ex, "Error calling Vietmap Place API: {Url}", url);
+				return null;
+			}
 		}
 
-		private List<AddressDto> FilterResults(List<AddressDto> results, string? cityId, string? wardId)
+		private AddressDto MapToAddressDto(VietmapPlace place) => new()
 		{
-			return results.Where(a =>
+			RefId = place.RefId,
+			FullAddress = place.Address,
+			Display = place.Display,
+			Location = new LocationDto { Lat = 0, Lng = 0 },
+			Boundaries = place.Boundaries?.Select(b => new BoundaryDto
+			{
+				Type = (BoundaryType)b.Type,
+				Name = b.Name,
+				Prefix = b.Prefix ?? string.Empty,
+				Code = b.Id.ToString()
+			}).ToList() ?? new(),
+			Formats = new AddressFormatDto
+			{
+				New = place.DataNew != null ? new FormatDetailDto
+				{
+					Address = place.DataNew.Address,
+					Boundaries = place.DataNew.Boundaries?.Select(b => new BoundaryInfoDto
+					{
+						Type = b.Type,
+						Name = b.Name,
+						Code = b.Id.ToString()
+					}).ToList() ?? new()
+				} : null,
+				Old = place.DataOld != null ? new FormatDetailDto
+				{
+					Address = place.DataOld.Address,
+					Boundaries = place.DataOld.Boundaries?.Select(b => new BoundaryInfoDto
+					{
+						Type = b.Type,
+						Name = b.Name,
+						Code = b.Id.ToString()
+					}).ToList() ?? new()
+				} : new FormatDetailDto
+				{
+					Address = place.Address,
+					Boundaries = place.Boundaries?.Select(b => new BoundaryInfoDto
+					{
+						Type = b.Type,
+						Name = b.Name,
+						Code = b.Id.ToString()
+					}).ToList() ?? new()
+				}
+			}
+		};
+
+		private List<AddressDto> FilterResults(List<AddressDto> results, string? cityId, string? wardId) =>
+			results.Where(a =>
 			{
 				if (!string.IsNullOrEmpty(cityId))
 				{
@@ -318,12 +379,10 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 
 				return true;
 			}).ToList();
-		}
 
 		private double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
 		{
-			// Công thức Haversine tính khoảng cách giữa 2 tọa độ
-			var R = 6371e3; // Bán kính trái đất (mét)
+			var R = 6371e3;
 			var φ1 = lat1 * Math.PI / 180;
 			var φ2 = lat2 * Math.PI / 180;
 			var Δφ = (lat2 - lat1) * Math.PI / 180;
@@ -334,7 +393,7 @@ namespace RecruitAI.Infrastructure.Services.Geocoding
 					Math.Sin(Δλ / 2) * Math.Sin(Δλ / 2);
 			var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
 
-			return R * c; // Khoảng cách (mét)
+			return R * c;
 		}
 	}
 }

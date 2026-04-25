@@ -6,4 +6,5 @@ public interface IJobApplicationMatchRepository : IBaseRepository<JobApplication
 {
 	Task<JobApplicationMatch?> GetByApplicationIdAsync(Guid applicationId, CancellationToken cancellationToken = default);
 	Task<List<JobApplicationMatch>> GetByCvIdAsync(Guid cvId, CancellationToken cancellationToken = default);
+	IQueryable<JobApplicationMatch> GetQueryable();
 }

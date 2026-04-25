@@ -12,7 +12,7 @@ namespace RecruitAI.Infrastructure.Data.Configurations
 			entity.HasKey(e => e.Id);
 
 			entity.Property(e => e.Confidence)
-				.HasPrecision(18, 4);
+				.HasColumnType("float");
 
 			entity.Property(e => e.CreatedAt)
 				.HasDefaultValueSql("GETUTCDATE()");

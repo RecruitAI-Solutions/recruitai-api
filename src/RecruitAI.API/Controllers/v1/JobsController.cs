@@ -6,6 +6,7 @@ using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Application.DTOs.Jobs;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
+using RecruitAI.Application.Queries.CVs;
 using RecruitAI.Application.Queries.Jobs;
 using RecruitAI.Domain.Interfaces;
 using RecruitAI.Shared.DTOs;
@@ -263,19 +264,75 @@ public class JobsController : BaseController
 		});
 	}
 
+	/// <summary>
+	/// Gợi ý công việc tương tự dựa trên kỹ năng
+	/// </summary>
+	/// <remarks>
+	/// **Cách tính tương tự:**
+	/// - Dựa trên số lượng kỹ năng chung giữa các công việc
+	/// - Ưu tiên công việc có nhiều kỹ năng trùng khớp nhất
+	/// - Không bao gồm công việc hiện tại
+	/// 
+	/// **Ví dụ:** Job A có kỹ năng [Java, Spring, SQL]
+	/// → Gợi ý các job có chứa Java, Spring hoặc SQL
+	/// </remarks>
+	/// <param name="id">ID của công việc hiện tại</param>
+	/// <param name="limit">Số lượng gợi ý tối đa (mặc định: 10)</param>
+	/// <returns>Danh sách công việc tương tự</returns>
+	[HttpGet("similar/{id}")]
+	[AllowAnonymous]
+	[ProducesResponseType(typeof(PaginationResponseDto<JobListDto>), StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<ActionResult<PaginationResponseDto<JobListDto>>> GetSimilarJobs(
+		Guid id,
+		[FromQuery] int limit = 10)
+	{
+		return await ExecuteAsync<PaginationResponseDto<JobListDto>>(async () =>
+		{
+			var query = new GetSimilarJobsQuery { JobId = id, Limit = limit };
+			return await _mediator.Send(query);
+		});
+	}
+
+
+	/// <summary>
+	/// Gợi ý công việc dựa trên CV đã phân tích (Chỉ Candidate)
+	/// </summary>
+	/// <param name="cvId">ID của CV đã được phân tích</param>
+	/// <param name="minMatchSkills">Số kỹ năng tối thiểu phải match (mặc định: 2)</param>
+	/// <returns>Danh sách công việc phù hợp kèm thông tin match</returns>
 	[HttpGet("suggestions/by-cv/{cvId}")]
 	[Authorize(Roles = "CANDIDATE")]
-	public async Task<ActionResult<List<JobMatchResultDto>>> GetJobSuggestionsByCV(
-	Guid cvId,
-	[FromQuery] int minMatchSkills = 2)
+	[ProducesResponseType(typeof(PaginationResponseDto<JobMatchResultDto>), StatusCodes.Status200OK)]
+	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+	[ProducesResponseType(StatusCodes.Status403Forbidden)]
+	[ProducesResponseType(StatusCodes.Status404NotFound)]
+	public async Task<ActionResult<PaginationResponseDto<JobMatchResultDto>>> GetJobSuggestionsByCV(
+		Guid cvId,
+		[FromQuery] int minMatchSkills = 2,
+		[FromQuery] int page = 1,
+		[FromQuery] int pageSize = 10)
 	{
-		var query = new GetJobSuggestionsByCVQuery
+		return await ExecuteAsync<PaginationResponseDto<JobMatchResultDto>>(async () =>
 		{
-			CVId = cvId,
-			MinMatchSkills = minMatchSkills
-		};
+			var userId = GetCurrentUserId();
+			if (userId == null)
+				throw new UnauthorizedAccessException();
 
-		var result = await _mediator.Send(query);
-		return Ok(result);
+			// Kiểm tra quyền: user phải là chủ của CV
+			var cv = await _mediator.Send(new GetCVByIdQuery { Id = cvId, UserId = userId.Value });
+			if (cv == null)
+				throw new ("CV không tồn tại hoặc không có quyền truy cập");
+
+			var query = new GetJobSuggestionsByCVQuery
+			{
+				CVId = cvId,
+				MinMatchSkills = minMatchSkills,
+				Page = page,
+				PageSize = pageSize
+			};
+
+			return await _mediator.Send(query);
+		});
 	}
 }

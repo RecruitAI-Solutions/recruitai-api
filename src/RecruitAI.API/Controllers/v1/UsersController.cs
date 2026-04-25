@@ -5,9 +5,10 @@ using RecruitAI.Application.Commands.Users;
 using RecruitAI.Application.DTOs.Responses.Users;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
-using RecruitAI_API.Controllers.v1;
+using RecruitAI.Application.Queries.Candidate;
 using RecruitAI.Shared.DTOs;
 using RecruitAI.Shared.Interfaces;
+using RecruitAI_API.Controllers.v1;
 
 namespace RecruitAI.API.Controllers.v1
 {
@@ -76,6 +77,17 @@ namespace RecruitAI.API.Controllers.v1
 				};
 
 				return await _mediator.Send(command);
+			});
+		}
+
+		[HttpGet("dashboard")]
+		[Authorize(Roles = "CANDIDATE")]
+		public async Task<ActionResult<CandidateDashboardDto>> GetDashboard()
+		{
+			return await ExecuteAsync<CandidateDashboardDto>(async () =>
+			{
+				var userId = GetCurrentUserId().Value;
+				return await _mediator.Send(new GetCandidateDashboardQuery { UserId = userId });
 			});
 		}
 	}
