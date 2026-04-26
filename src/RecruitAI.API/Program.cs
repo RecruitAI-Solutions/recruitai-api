@@ -522,6 +522,19 @@ var app = builder.Build();
 var useSeparatePath = app.Configuration.GetValue<bool>("FileStorage:UseSeparateUploadPath", false);
 var uploadRootPath = app.Configuration["FileStorage:UploadRootPath"];
 
+if (useSeparatePath && !string.IsNullOrEmpty(uploadRootPath))
+{
+	app.UseStaticFiles(new StaticFileOptions
+	{
+		FileProvider = new PhysicalFileProvider(uploadRootPath),
+		RequestPath = "/uploads"
+	});
+}
+else
+{
+	app.UseStaticFiles(); // mặc định dùng wwwroot
+}
+
 // 5. MIDDLEWARE PIPELINE
 // 5.1 Development-specific middleware
 if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
