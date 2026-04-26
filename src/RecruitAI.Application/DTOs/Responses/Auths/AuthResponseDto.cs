@@ -28,6 +28,7 @@ namespace RecruitAI.Application.DTOs.Responses.Auths
 		public string RoleName { get; set; } = string.Empty; // Tên hiển thị theo ngôn ngữ
 		// Permissions
 		public List<string> Permissions { get; set; } = new(); // Danh sách mã permission
+		public string? AvatarUrl { get; set; }
 
 		// Constructor để khởi tạo nhanh
 		public AuthResponseDto()
