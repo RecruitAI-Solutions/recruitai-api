@@ -175,7 +175,8 @@ namespace RecruitAI.Application.Services
 					Role = (int)user.Role,
 					RoleName = roleDef?.Name ?? roleCode,
 					Permissions = permissions,
-					ExpiresIn = expirySeconds
+					ExpiresIn = expirySeconds,
+					AvatarUrl = user.AvatarUrl
 				};
 			}
 			catch (OperationCanceledException)
@@ -289,7 +290,8 @@ namespace RecruitAI.Application.Services
 					Role = (int)user.Role,
 					RoleName = roleDef?.Name ?? roleCode,
 					Permissions = permissions,
-					ExpiresIn = expirySeconds
+					ExpiresIn = expirySeconds,
+					AvatarUrl = user.AvatarUrl
 				};
 			}
 			catch (OperationCanceledException)
@@ -436,7 +438,8 @@ namespace RecruitAI.Application.Services
 					Role = (int)user.Role,
 					RoleName = roleDef?.Name ?? roleCode,
 					Permissions = permissions,
-					ExpiresIn = expirySeconds
+					ExpiresIn = expirySeconds,
+					AvatarUrl = user.AvatarUrl
 				};
 			}
 			catch (OperationCanceledException)
