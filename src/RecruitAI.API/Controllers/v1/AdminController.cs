@@ -615,5 +615,34 @@ namespace RecruitAI.API.Controllers.v1
 				return await _mediator.Send(command);
 			});
 		}
+
+		/// <summary>
+		/// Lấy danh sách tất cả nhà tuyển dụng
+		/// </summary>
+		[HttpGet("recruiters")]
+		[Authorize(Roles = "ADMIN")]
+		[ProducesResponseType(typeof(PaginationResponseDto<RecruiterListDto>), StatusCodes.Status200OK)]
+		public async Task<ActionResult<PaginationResponseDto<RecruiterListDto>>> GetRecruiters(
+			[FromQuery] int page = 1,
+			[FromQuery] int pageSize = 10,
+			[FromQuery] string? keyword = null,
+			[FromQuery] UserStatus? status = null,
+			[FromQuery] string? sortBy = "createdAt",
+			[FromQuery] string? sortOrder = "desc")
+		{
+			return await ExecuteAsync<PaginationResponseDto<RecruiterListDto>>(async () =>
+			{
+				var query = new GetRecruitersQuery
+				{
+					Page = page,
+					PageSize = pageSize,
+					Keyword = keyword,
+					Status = status,
+					SortBy = sortBy,
+					SortOrder = sortOrder
+				};
+				return await _mediator.Send(query);
+			});
+		}
 	}
 }
