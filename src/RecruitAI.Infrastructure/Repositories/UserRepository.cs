@@ -231,5 +231,10 @@ namespace RecruitAI.Infrastructure.Repositories
 
 			return items.ToDictionary(x => x.Role, x => x.Count);
 		}
+
+		public IQueryable<User> GetQueryable()
+		{
+			return _dbSet.AsQueryable();
+		}
 	}
 }

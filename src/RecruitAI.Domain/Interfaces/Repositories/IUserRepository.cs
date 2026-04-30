@@ -33,6 +33,7 @@ namespace RecruitAI.Domain.Interfaces.Repositories
 		Task<User?> GetDetailByIdAsync(Guid id, CancellationToken cancellationToken = default);
 		Task<bool> SoftDeleteAsync(Guid userId, CancellationToken cancellationToken = default);
 		Task<Dictionary<UserRole, int>> CountUsersByRoleAsync(DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default);
+		IQueryable<User> GetQueryable();
 	}
 }
 
