@@ -955,4 +955,32 @@
 		<data name="ApplicationStatus.Rejected" xml:space="preserve">
 		<value>Rejected</value>
 	  </data>
+	<!-- Job Status -->
+	<data name="JobStatus.Draft" xml:space="preserve">
+    <value>Draft</value>
+  </data>
+	<data name="JobStatus.Published" xml:space="preserve">
+    <value>Published</value>
+  </data>
+	<data name="JobStatus.Closed" xml:space="preserve">
+    <value>Closed</value>
+  </data>
+
+	<!-- Success Messages -->
+	<data name="Success.JobStatusUpdated" xml:space="preserve">
+    <value>Job status updated successfully</value>
+  </data>
+
+	<!-- Notification Messages -->
+	<data name="Notification.JobStatusChanged.Title" xml:space="preserve">
+    <value>Job Status Updated</value>
+  </data>
+	<data name="Notification.JobStatusChanged.Content" xml:space="preserve">
+    <value>Job '{0}' has been changed to '{1}'</value>
+  </data>
+
+	<!-- Business Messages -->
+	<data name="Business.JobNotFound" xml:space="preserve">
+    <value>Job not found</value>
+  </data>
 </root>
