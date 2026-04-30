@@ -9,6 +9,7 @@ using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Queries.Admin;
+using RecruitAI.Application.Queries.Applications;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using RecruitAI.Infrastructure.Services;
@@ -535,6 +536,48 @@ namespace RecruitAI.API.Controllers.v1
 			{
 				var query = new GetApplicationsByMonthReportQuery { Year = year, Status = status };
 				return await _mediator.Send(query);
+			});
+		}
+
+		/// <summary>
+		/// Lấy danh sách tất cả đơn ứng tuyển (Chỉ Admin)
+		/// </summary>
+		[HttpGet("admin/all")]
+		[Authorize(Roles = "ADMIN")]
+		[ProducesResponseType(typeof(PaginationResponseDto<AdminApplicationDto>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		public async Task<ActionResult<PaginationResponseDto<AdminApplicationDto>>> GetAllApplications(
+			[FromQuery] int page = 1,
+			[FromQuery] int pageSize = 10,
+			[FromQuery] JobApplicationStatus? status = null,
+			[FromQuery] DateTime? fromDate = null,
+			[FromQuery] DateTime? toDate = null,
+			[FromQuery] string? query = null,
+			[FromQuery] int? minMatch = null,
+			[FromQuery] string? sortBy = "appliedAt",
+			[FromQuery] string? sortOrder = "desc")
+		{
+			return await ExecuteAsync<PaginationResponseDto<AdminApplicationDto>>(async () =>
+			{
+				var currentUserId = GetCurrentUserId();
+				if (currentUserId == null)
+					throw new UnauthorizedAccessException();
+
+				var applicationsQuery = new GetApplicationsQuery
+				{
+					Page = page,
+					PageSize = pageSize,
+					Status = status,
+					FromDate = fromDate,
+					ToDate = toDate,
+					Query = query,
+					MinMatch = minMatch,
+					SortBy = sortBy,
+					SortOrder = sortOrder
+				};
+
+				return await _mediator.Send(applicationsQuery);
 			});
 		}
 	}
