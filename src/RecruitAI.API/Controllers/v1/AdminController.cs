@@ -580,5 +580,40 @@ namespace RecruitAI.API.Controllers.v1
 				return await _mediator.Send(applicationsQuery);
 			});
 		}
+
+		/// <summary>
+		/// Cập nhật trạng thái công việc (Chỉ Admin)
+		/// </summary>
+		/// <param name="jobId">ID của công việc</param>
+		/// <param name="request">Trạng thái mới</param>
+		/// <returns>Kết quả cập nhật</returns>
+		[HttpPatch("jobs/{jobId}/status")]
+		[Authorize(Policy = "ManageJobs")]
+		[ProducesResponseType(typeof(AdminJobStatusUpdateResponseDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<ActionResult<AdminJobStatusUpdateResponseDto>> UpdateJobStatus(
+			Guid jobId,
+			[FromBody] AdminJobStatusUpdateRequestDto request)
+		{
+			return await ExecuteAsync<AdminJobStatusUpdateResponseDto>(async () =>
+			{
+				var adminId = GetCurrentUserId();
+				if (adminId == null)
+					throw new UnauthorizedAccessException();
+
+				var command = new UpdateJobStatusCommand
+				{
+					JobId = jobId,
+					Status = request.Status,
+					Reason = request.Reason,
+					AdminId = adminId.Value
+				};
+
+				return await _mediator.Send(command);
+			});
+		}
 	}
 }
