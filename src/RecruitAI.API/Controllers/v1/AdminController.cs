@@ -588,7 +588,7 @@ namespace RecruitAI.API.Controllers.v1
 		/// <param name="request">Trạng thái mới</param>
 		/// <returns>Kết quả cập nhật</returns>
 		[HttpPatch("jobs/{jobId}/status")]
-		[Authorize(Policy = "ManageJobs")]
+		[Authorize(Roles = "ADMIN")]
 		[ProducesResponseType(typeof(AdminJobStatusUpdateResponseDto), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
