@@ -2,18 +2,15 @@
 using Microsoft.Extensions.Logging;
 using RecruitAI.Application.Commands.Notifications;
 using RecruitAI.Application.DTOs.Responses.Admin;
+using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using RecruitAI.Shared.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Text.Json;
 
 namespace RecruitAI.Application.Commands.Admin
 {
-	// UpdateJobStatusCommand.cs
 	public class UpdateJobStatusCommand : IRequest<AdminJobStatusUpdateResponseDto>
 	{
 		public Guid JobId { get; set; }
@@ -22,7 +19,6 @@ namespace RecruitAI.Application.Commands.Admin
 		public Guid AdminId { get; set; }
 	}
 
-	// UpdateJobStatusCommandHandler.cs
 	public class UpdateJobStatusCommandHandler : IRequestHandler<UpdateJobStatusCommand, AdminJobStatusUpdateResponseDto>
 	{
 		private readonly IUnitOfWork _uow;
@@ -30,6 +26,20 @@ namespace RecruitAI.Application.Commands.Admin
 		private readonly IAuditLogService _auditLogService;
 		private readonly IMediator _mediator;
 		private readonly IMessageService _msg;
+
+		public UpdateJobStatusCommandHandler(
+			IUnitOfWork uow,
+			ILogger<UpdateJobStatusCommandHandler> logger,
+			IAuditLogService auditLogService,
+			IMediator mediator,
+			IMessageService msg)
+		{
+			_uow = uow;
+			_logger = logger;
+			_auditLogService = auditLogService;
+			_mediator = mediator;
+			_msg = msg;
+		}
 
 		public async Task<AdminJobStatusUpdateResponseDto> Handle(UpdateJobStatusCommand request, CancellationToken cancellationToken)
 		{
@@ -73,7 +83,7 @@ namespace RecruitAI.Application.Commands.Admin
 				OldStatusName = oldStatusName,
 				NewStatus = job.Status,
 				NewStatusName = job.Status.ToString(),
-				UpdatedAt = job.UpdatedAt.Value,
+				UpdatedAt = job.UpdatedAt ?? DateTime.UtcNow,
 				Success = true,
 				Message = _msg.Success("JobStatusUpdated")
 			};
