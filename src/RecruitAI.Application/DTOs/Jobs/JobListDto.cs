@@ -16,6 +16,8 @@ public class JobListDto
 	public DateTime CreatedAt { get; set; }
 	public DateTime ExpirationDate { get; set; }
 	public bool IsActive { get; set; }
+	public JobStatus Status { get; set; }
+	public string StatusName { get; set; } = string.Empty;
 
 	// Enum friendly names
 	public string CurrencyName { get; set; } = string.Empty;

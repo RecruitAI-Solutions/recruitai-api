@@ -40,6 +40,8 @@ public class JobDetailDto
 	public DateTime? UpdatedAt { get; set; }
 
 	// Trạng thái
+	public JobStatus Status { get; set; }
+	public string StatusName { get; set; } = string.Empty;
 	public bool IsActive { get; set; }
 
 	// Thông tin Recruiter

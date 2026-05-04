@@ -13,6 +13,7 @@ namespace RecruitAI.Application.DTOs.Responses.Admin
 		public string OldStatusName { get; set; } = string.Empty;
 		public JobStatus NewStatus { get; set; }
 		public string NewStatusName { get; set; } = string.Empty;
+		public bool IsActive { get; set; }
 		public DateTime UpdatedAt { get; set; }
 		public bool Success { get; set; }
 		public string? Message { get; set; }

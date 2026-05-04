@@ -83,6 +83,7 @@ namespace RecruitAI.Application.Commands.Admin
 				OldStatusName = oldStatusName,
 				NewStatus = job.Status,
 				NewStatusName = job.Status.ToString(),
+				IsActive = job.IsActive,
 				UpdatedAt = job.UpdatedAt ?? DateTime.UtcNow,
 				Success = true,
 				Message = _msg.Success("JobStatusUpdated")

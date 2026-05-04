@@ -424,7 +424,7 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 			.Include(j => j.Recruiter)
 			.Include(j => j.JobSkills)
 				.ThenInclude(js => js.Skill)
-			.Where(j => j.CompanyId == companyId && !j.IsDeleted && j.IsActive);
+			.Where(j => j.CompanyId == companyId && !j.IsDeleted && j.Status == JobStatus.Published && j.ExpirationDate > DateTime.UtcNow);
 
 		var total = await query.CountAsync(cancellationToken);
 
@@ -444,7 +444,7 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 			.Include(j => j.JobSkills)
 				.ThenInclude(js => js.Skill)
 			.Include(j => j.Company)
-			.Where(j => !j.IsDeleted && j.IsActive && j.IsFeatured && j.ExpirationDate > DateTime.UtcNow)
+			.Where(j => !j.IsDeleted && j.Status == JobStatus.Published && j.IsFeatured && j.ExpirationDate > DateTime.UtcNow)
 			.OrderBy(j => j.FeaturedOrder ?? int.MaxValue)
 			.ThenByDescending(j => j.CreatedAt)
 			.Distinct()
@@ -463,7 +463,7 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 			.Include(j => j.JobSkills)
 				.ThenInclude(js => js.Skill)
 			.Include(j => j.Company)
-			.Where(j => !j.IsDeleted && j.IsActive && j.Id != excludeJobId && j.ExpirationDate > DateTime.UtcNow)
+			.Where(j => !j.IsDeleted && j.Status == JobStatus.Published && j.Id != excludeJobId && j.ExpirationDate > DateTime.UtcNow)
 			.Where(j => j.JobSkills.Any(js => skillIds.Contains(js.SkillId)))
 			.Select(j => new { Job = j, MatchCount = j.JobSkills.Count(js => skillIds.Contains(js.SkillId)) })
 			.OrderByDescending(x => x.MatchCount)
@@ -478,8 +478,10 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 		var now = DateTime.UtcNow;
 
 		var jobs = await _dbSet
-			.Where(j => !j.IsDeleted && j.IsActive && j.ExpirationDate > now)
-			.ToListAsync(cancellationToken);
+		.Where(j => !j.IsDeleted
+			&& j.Status == JobStatus.Published
+			&& j.ExpirationDate > now)
+		.ToListAsync(cancellationToken);
 
 		if (!jobs.Any())
 			return new List<Job>();
@@ -531,7 +533,7 @@ public class JobRepository : BaseRepository<Job>, IJobRepository
 		return await _context.Jobs
 			.Where(j => j.CreatedAt >= startDate && j.CreatedAt <= endDate && !j.IsDeleted)
 			.GroupBy(j => j.CreatedAt.Month)
-			.Select(g => new MonthlyJobStat  // ⭐ Domain class
+			.Select(g => new MonthlyJobStat  // Domain class
 			{
 				Month = g.Key,
 				Total = g.Count()

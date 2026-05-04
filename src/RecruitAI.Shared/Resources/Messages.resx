@@ -985,4 +985,20 @@
 	<data name="Business.JobNotFound" xml:space="preserve">
 		<value>Không tìm thấy công việc</value>
 	</data>
+	<!-- Job Status -->
+	<data name="JobStatus.Draft" xml:space="preserve">
+		<value>Nháp</value>
+	</data>
+		<data name="JobStatus.Published" xml:space="preserve">
+		<value>Đã đăng</value>
+	</data>
+		<data name="JobStatus.Closed" xml:space="preserve">
+		<value>Đã đóng</value>
+	</data>
+		<data name="JobStatus.Expired" xml:space="preserve">
+		<value>Hết hạn</value>
+	</data>
+		<data name="JobStatus.Pending" xml:space="preserve">
+		<value>Chờ duyệt</value>
+	</data>
 </root>
