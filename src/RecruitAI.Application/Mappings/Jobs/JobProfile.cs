@@ -2,6 +2,7 @@
 using RecruitAI.Application.Commands.Jobs;
 using RecruitAI.Application.DTOs.Common;
 using RecruitAI.Application.DTOs.Jobs;
+using RecruitAI.Application.Mappings.Resolvers;
 using RecruitAI.Domain.Common.Skills;
 using RecruitAI.Domain.Entities;
 
@@ -21,7 +22,8 @@ public class JobProfile : Profile
 					: new List<string>()))
 			.ForMember(dest => dest.CurrencyName, opt => opt.MapFrom(src => src.Currency.ToString()))
 			.ForMember(dest => dest.EmploymentTypeName, opt => opt.MapFrom(src => src.EmploymentType.ToString()))
-			.ForMember(dest => dest.ExperienceLevelName, opt => opt.MapFrom(src => src.ExperienceLevel.ToString()));
+			.ForMember(dest => dest.ExperienceLevelName, opt => opt.MapFrom(src => src.ExperienceLevel.ToString()))
+			.ForMember(dest => dest.StatusName, opt => opt.MapFrom<JobStatusResolver>());
 
 		// ===== JOB -> JOBDETAILDTO =====
 		CreateMap<Job, JobDetailDto>()
@@ -57,7 +59,8 @@ public class JobProfile : Profile
 			// Enum names
 			.ForMember(dest => dest.CurrencyName, opt => opt.MapFrom(src => src.Currency.ToString()))
 			.ForMember(dest => dest.EmploymentTypeName, opt => opt.MapFrom(src => src.EmploymentType.ToString()))
-			.ForMember(dest => dest.ExperienceLevelName, opt => opt.MapFrom(src => src.ExperienceLevel.ToString()));
+			.ForMember(dest => dest.ExperienceLevelName, opt => opt.MapFrom(src => src.ExperienceLevel.ToString()))
+			.ForMember(dest => dest.StatusName, opt => opt.MapFrom<JobStatusResolver>());
 
 		// ===== COMMAND -> JOB =====
 		CreateMap<CreateJobCommand, Job>()

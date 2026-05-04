@@ -101,6 +101,22 @@ namespace RecruitAI.Shared.Helpers
 		}
 
 		/// <summary>
+		/// Lấy tên hiển thị của JobStatus
+		/// </summary>
+		public string GetJobStatusDisplay(JobStatus status)
+		{
+			return status switch
+			{
+				JobStatus.Draft => Get("JobStatus.Draft"),
+				JobStatus.Published => Get("JobStatus.Published"),
+				JobStatus.Closed => Get("JobStatus.Closed"),
+				JobStatus.Expired => Get("JobStatus.Expired"),
+				JobStatus.Pending => Get("JobStatus.Pending"),
+				_ => status.ToString()
+			};
+		}
+
+		/// <summary>
 		/// Format file size (bytes -> KB/MB)
 		/// </summary>
 		public string FormatFileSize(long bytes)

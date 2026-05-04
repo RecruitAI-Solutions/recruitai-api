@@ -957,30 +957,46 @@
 	  </data>
 	<!-- Job Status -->
 	<data name="JobStatus.Draft" xml:space="preserve">
-    <value>Draft</value>
+	<value>Draft</value>
   </data>
 	<data name="JobStatus.Published" xml:space="preserve">
-    <value>Published</value>
+	<value>Published</value>
   </data>
 	<data name="JobStatus.Closed" xml:space="preserve">
-    <value>Closed</value>
+	<value>Closed</value>
   </data>
 
 	<!-- Success Messages -->
 	<data name="Success.JobStatusUpdated" xml:space="preserve">
-    <value>Job status updated successfully</value>
+	<value>Job status updated successfully</value>
   </data>
 
 	<!-- Notification Messages -->
 	<data name="Notification.JobStatusChanged.Title" xml:space="preserve">
-    <value>Job Status Updated</value>
+	<value>Job Status Updated</value>
   </data>
 	<data name="Notification.JobStatusChanged.Content" xml:space="preserve">
-    <value>Job '{0}' has been changed to '{1}'</value>
+	<value>Job '{0}' has been changed to '{1}'</value>
   </data>
 
 	<!-- Business Messages -->
 	<data name="Business.JobNotFound" xml:space="preserve">
-    <value>Job not found</value>
+	<value>Job not found</value>
   </data>
+	<!-- Job Status -->
+	<data name="JobStatus.Draft" xml:space="preserve">
+		<value>Draft</value>
+	</data>
+		<data name="JobStatus.Published" xml:space="preserve">
+		<value>Published</value>
+	</data>
+		<data name="JobStatus.Closed" xml:space="preserve">
+		<value>Closed</value>
+	</data>
+		<data name="JobStatus.Expired" xml:space="preserve">
+		<value>Expired</value>
+	</data>
+		<data name="JobStatus.Pending" xml:space="preserve">
+		<value>Pending</value>
+	</data>
 </root>

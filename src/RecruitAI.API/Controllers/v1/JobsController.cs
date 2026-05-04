@@ -39,7 +39,10 @@ public class JobsController : BaseController
 	/// <returns>Danh sách jobs phân trang</returns>
 	[HttpGet]
 	[AllowAnonymous]
-	[ProducesResponseType(typeof(PaginationResponseDto<JobListDto>), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(PaginationResponseDto<
+	
+	
+	>), StatusCodes.Status200OK)]
 	[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 	[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 	public async Task<ActionResult<PaginationResponseDto<JobListDto>>> GetJobs(

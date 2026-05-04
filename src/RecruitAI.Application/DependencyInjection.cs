@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using RecruitAI.Application.Behaviors;
 using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces.Services;
+using RecruitAI.Application.Mappings.Resolvers;
 using RecruitAI.Application.Services;
 using RecruitAI.Application.Validators.AI;
 using RecruitAI.Application.Validators.Auths;
@@ -15,8 +16,8 @@ using RecruitAI.Domain.Services;
 using RecruitAI.Infrastructure.BackgroundServices;
 using RecruitAI.Infrastructure.Services;
 using RecruitAI.Infrastructure.Services.AI;
-using RecruitAI.Shared.Interfaces;
 using RecruitAI.Shared.Helpers;
+using RecruitAI.Shared.Interfaces;
 
 namespace RecruitAI.Application
 {
@@ -31,14 +32,13 @@ namespace RecruitAI.Application
 				cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 			});
 
-			// Register AutoMapper manually to avoid dependency on AutoMapper.Extensions when using AutoMapper v14
-			var mapperConfig = new AutoMapper.MapperConfiguration(cfg =>
+			// Register AutoMapper with service provider support
+			services.AddAutoMapper(cfg =>
 			{
 				cfg.AddMaps(typeof(DependencyInjection).Assembly);
-			});
-			var mapper = mapperConfig.CreateMapper();
-			services.AddSingleton(mapper);
-			services.AddSingleton(mapperConfig);
+				// Configure AutoMapper to use DI for resolvers
+				cfg.ConstructServicesUsing(type => ActivatorUtilities.CreateFactory(type, Type.EmptyTypes));
+			}, typeof(DependencyInjection).Assembly);
 
 			services.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 
@@ -62,6 +62,7 @@ namespace RecruitAI.Application
 			services.AddScoped<IMessageService, MessageService>();
 			services.AddScoped<IAnalysisService, AnalysisService>();
 			services.AddScoped<IRolePermissionService, RolePermissionService>();
+			services.AddScoped<JobStatusResolver>();
 
 			//Validators
 			services.AddScoped<RegisterRequestValidator>();

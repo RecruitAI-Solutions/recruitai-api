@@ -43,7 +43,21 @@ public class Job
 	// Trạng thái
 	public JobStatus Status { get; set; } = JobStatus.Draft;
 	public bool IsDeleted { get; set; } = false;
-	public bool IsActive { get; set; } = true;
+	public bool IsActive => Status == JobStatus.Published && !IsDeleted && ExpirationDate > DateTime.UtcNow;
+
+	public void SetActive(bool active)
+	{
+		if (active && !IsActive)
+		{
+			Status = JobStatus.Published;
+			UpdatedAt = DateTime.UtcNow;
+		}
+		else if (!active && IsActive)
+		{
+			Status = JobStatus.Closed;
+			UpdatedAt = DateTime.UtcNow;
+		}
+	}
 
 	// Thống kê
 	public int Views { get; set; }
