@@ -9,6 +9,7 @@ using RecruitAI.Application.Helpers;
 using RecruitAI.Application.Interfaces;
 using RecruitAI.Application.Interfaces.Services;
 using RecruitAI.Application.Queries.Admin;
+using RecruitAI.Application.Queries.Applications;
 using RecruitAI.Domain.Enums;
 using RecruitAI.Domain.Exceptions;
 using RecruitAI.Infrastructure.Services;
@@ -534,6 +535,112 @@ namespace RecruitAI.API.Controllers.v1
 			return await ExecuteAsync<MonthlyApplicationReportDto>(async () =>
 			{
 				var query = new GetApplicationsByMonthReportQuery { Year = year, Status = status };
+				return await _mediator.Send(query);
+			});
+		}
+
+		/// <summary>
+		/// Lấy danh sách tất cả đơn ứng tuyển (Chỉ Admin)
+		/// </summary>
+		[HttpGet("admin/all")]
+		[Authorize(Roles = "ADMIN")]
+		[ProducesResponseType(typeof(PaginationResponseDto<AdminApplicationDto>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		public async Task<ActionResult<PaginationResponseDto<AdminApplicationDto>>> GetAllApplications(
+			[FromQuery] int page = 1,
+			[FromQuery] int pageSize = 10,
+			[FromQuery] JobApplicationStatus? status = null,
+			[FromQuery] DateTime? fromDate = null,
+			[FromQuery] DateTime? toDate = null,
+			[FromQuery] string? query = null,
+			[FromQuery] int? minMatch = null,
+			[FromQuery] string? sortBy = "appliedAt",
+			[FromQuery] string? sortOrder = "desc")
+		{
+			return await ExecuteAsync<PaginationResponseDto<AdminApplicationDto>>(async () =>
+			{
+				var currentUserId = GetCurrentUserId();
+				if (currentUserId == null)
+					throw new UnauthorizedAccessException();
+
+				var applicationsQuery = new GetApplicationsQuery
+				{
+					Page = page,
+					PageSize = pageSize,
+					Status = status,
+					FromDate = fromDate,
+					ToDate = toDate,
+					Query = query,
+					MinMatch = minMatch,
+					SortBy = sortBy,
+					SortOrder = sortOrder
+				};
+
+				return await _mediator.Send(applicationsQuery);
+			});
+		}
+
+		/// <summary>
+		/// Cập nhật trạng thái công việc (Chỉ Admin)
+		/// </summary>
+		/// <param name="jobId">ID của công việc</param>
+		/// <param name="request">Trạng thái mới</param>
+		/// <returns>Kết quả cập nhật</returns>
+		[HttpPatch("jobs/{jobId}/status")]
+		[Authorize(Roles = "ADMIN")]
+		[ProducesResponseType(typeof(AdminJobStatusUpdateResponseDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status403Forbidden)]
+		[ProducesResponseType(StatusCodes.Status404NotFound)]
+		public async Task<ActionResult<AdminJobStatusUpdateResponseDto>> UpdateJobStatus(
+			Guid jobId,
+			[FromBody] AdminJobStatusUpdateRequestDto request)
+		{
+			return await ExecuteAsync<AdminJobStatusUpdateResponseDto>(async () =>
+			{
+				var adminId = GetCurrentUserId();
+				if (adminId == null)
+					throw new UnauthorizedAccessException();
+
+				var command = new UpdateJobStatusCommand
+				{
+					JobId = jobId,
+					Status = request.Status,
+					Reason = request.Reason,
+					AdminId = adminId.Value
+				};
+
+				return await _mediator.Send(command);
+			});
+		}
+
+		/// <summary>
+		/// Lấy danh sách tất cả nhà tuyển dụng
+		/// </summary>
+		[HttpGet("recruiters")]
+		[Authorize(Roles = "ADMIN")]
+		[ProducesResponseType(typeof(PaginationResponseDto<RecruiterListDto>), StatusCodes.Status200OK)]
+		public async Task<ActionResult<PaginationResponseDto<RecruiterListDto>>> GetRecruiters(
+			[FromQuery] int page = 1,
+			[FromQuery] int pageSize = 10,
+			[FromQuery] string? keyword = null,
+			[FromQuery] UserStatus? status = null,
+			[FromQuery] string? sortBy = "createdAt",
+			[FromQuery] string? sortOrder = "desc")
+		{
+			return await ExecuteAsync<PaginationResponseDto<RecruiterListDto>>(async () =>
+			{
+				var query = new GetRecruitersQuery
+				{
+					Page = page,
+					PageSize = pageSize,
+					Keyword = keyword,
+					Status = status,
+					SortBy = sortBy,
+					SortOrder = sortOrder
+				};
 				return await _mediator.Send(query);
 			});
 		}

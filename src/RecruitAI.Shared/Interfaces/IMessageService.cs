@@ -15,6 +15,7 @@ namespace RecruitAI.Shared.Interfaces
 		string GetApplicationStatusDisplay(JobApplicationStatus status);
 		string GetCVStatusDisplay(CVStatus status);
 		string GetUserRoleDisplay(UserRole role);
+		string GetJobStatusDisplay(JobStatus status);
 		string FormatFileSize(long bytes);
 		string GetRelativeTime(DateTime dateTime);
 	}
