@@ -10,6 +10,7 @@ namespace RecruitAI.Application.Queries.Candidate
 	public class GetCandidateDashboardQueryHandler : IRequestHandler<GetCandidateDashboardQuery, CandidateDashboardDto>
 	{
 		private readonly RecruitDevContext _context;
+		private readonly DateTime _now = DateTime.UtcNow;
 
 		public GetCandidateDashboardQueryHandler(RecruitDevContext context)
 		{
@@ -23,7 +24,10 @@ namespace RecruitAI.Application.Queries.Candidate
 
 			// 1. Việc làm mới hôm nay
 			var newJobsToday = await _context.Jobs
-				.CountAsync(j => j.CreatedAt >= today && j.IsActive && !j.IsDeleted && j.Status == JobStatus.Published, ct);
+				.CountAsync(j => j.CreatedAt >= today
+					&& j.Status == JobStatus.Published
+					&& !j.IsDeleted
+					&& j.ExpirationDate > _now, ct);
 
 			// 2. Đã ứng tuyển
 			var totalApplications = await _context.JobApplications
@@ -45,7 +49,9 @@ namespace RecruitAI.Application.Queries.Candidate
 					.ToListAsync(ct);
 
 				suggestedJobs = await _context.Jobs
-					.Where(j => j.IsActive && !j.IsDeleted && j.Status == JobStatus.Published && j.ExpirationDate > DateTime.UtcNow)
+					.Where(j => j.Status == JobStatus.Published
+						&& !j.IsDeleted
+						&& j.ExpirationDate > _now)
 					.Where(j => j.JobSkills.Any(js => cvSkillIds.Contains(js.SkillId)))
 					.CountAsync(ct);
 			}
