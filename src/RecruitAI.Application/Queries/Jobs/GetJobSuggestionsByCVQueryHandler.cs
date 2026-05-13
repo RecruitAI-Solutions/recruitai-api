@@ -11,6 +11,7 @@ namespace RecruitAI.Application.Queries.Jobs
 	public class GetJobSuggestionsByCVQueryHandler : IRequestHandler<GetJobSuggestionsByCVQuery, PaginationResponseDto<JobMatchResultDto>>
 	{
 		private readonly RecruitDevContext _context;
+		private readonly DateTime _now = DateTime.UtcNow;
 
 		public GetJobSuggestionsByCVQueryHandler(RecruitDevContext context)
 		{
@@ -42,7 +43,7 @@ namespace RecruitAI.Application.Queries.Jobs
 				.Include(j => j.Company)
 				.Include(j => j.JobSkills)
 				.ThenInclude(js => js.Skill)
-				.Where(j => j.IsActive && !j.IsDeleted && j.Status == JobStatus.Published && j.ExpirationDate > DateTime.UtcNow)
+				.Where(j => j.Status == JobStatus.Published && !j.IsDeleted && j.ExpirationDate > _now)
 				.Distinct()
 				.ToListAsync(cancellationToken);
 
