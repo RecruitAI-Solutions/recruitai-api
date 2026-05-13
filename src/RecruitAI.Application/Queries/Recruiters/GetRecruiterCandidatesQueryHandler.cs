@@ -94,9 +94,11 @@ public class GetRecruiterCandidatesQueryHandler : IRequestHandler<GetRecruiterCa
 				: query.OrderByDescending(x => x.AppliedAt)
 		};
 
-		var total = await query.CountAsync(cancellationToken);
+		var distinctQuery = query.Distinct();
 
-		var items = await query
+		var total = await distinctQuery.CountAsync(cancellationToken);
+
+		var items = await distinctQuery
 			.Skip((request.Page - 1) * request.PageSize)
 			.Take(request.PageSize)
 			.ToListAsync(cancellationToken);
