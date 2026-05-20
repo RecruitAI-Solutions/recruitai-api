@@ -251,48 +251,48 @@ namespace RecruitAI.Application.Services
 			}
 
 			// 11. Save to database
-			var existingApplication = await _unitOfWork.JobApplications.GetByJobAndCvAsync(jobId, cvId, cancellationToken);
+			//var existingApplication = await _unitOfWork.JobApplications.GetByJobAndCvAsync(jobId, cvId, cancellationToken);
 
-			if (existingApplication == null)
-			{
-				existingApplication = new JobApplication
-				{
-					Id = Guid.NewGuid(),
-					CVId = cvId,
-					JobId = jobId,
-					Status = JobApplicationStatus.Pending,
-					AppliedAt = DateTime.UtcNow
-				};
-				await _unitOfWork.JobApplications.AddAsync(existingApplication, cancellationToken);
-			}
+			//if (existingApplication == null)
+			//{
+			//	existingApplication = new JobApplication
+			//	{
+			//		Id = Guid.NewGuid(),
+			//		CVId = cvId,
+			//		JobId = jobId,
+			//		Status = JobApplicationStatus.Pending,
+			//		AppliedAt = DateTime.UtcNow
+			//	};
+			//	await _unitOfWork.JobApplications.AddAsync(existingApplication, cancellationToken);
+			//}
 
-			var existingMatch = await _unitOfWork.JobApplicationMatches.GetByApplicationIdAsync(existingApplication.Id, cancellationToken);
+			//var existingMatch = await _unitOfWork.JobApplicationMatches.GetByApplicationIdAsync(existingApplication.Id, cancellationToken);
 
-			if (existingMatch == null)
-			{
-				existingMatch = new JobApplicationMatch
-				{
-					Id = Guid.NewGuid(),
-					ApplicationId = existingApplication.Id,
-					MatchPercentage = finalMatchPercentage,
-					RequiredSkillCount = requiredCount,
-					MatchedSkillCount = matchedCount,
-					MatchedSkillsJson = JsonSerializer.Serialize(matchedSkills),
-					MissingSkillsJson = JsonSerializer.Serialize(missingSkills),
-					CalculatedAt = DateTime.UtcNow
-				};
-				await _unitOfWork.JobApplicationMatches.AddAsync(existingMatch, cancellationToken);
-			}
-			else
-			{
-				existingMatch.MatchPercentage = finalMatchPercentage;
-				existingMatch.RequiredSkillCount = requiredCount;
-				existingMatch.MatchedSkillCount = matchedCount;
-				existingMatch.MatchedSkillsJson = JsonSerializer.Serialize(matchedSkills);
-				existingMatch.MissingSkillsJson = JsonSerializer.Serialize(missingSkills);
-				existingMatch.CalculatedAt = DateTime.UtcNow;
-				_unitOfWork.JobApplicationMatches.Update(existingMatch);
-			}
+			//if (existingMatch == null)
+			//{
+			//	existingMatch = new JobApplicationMatch
+			//	{
+			//		Id = Guid.NewGuid(),
+			//		ApplicationId = existingApplication.Id,
+			//		MatchPercentage = finalMatchPercentage,
+			//		RequiredSkillCount = requiredCount,
+			//		MatchedSkillCount = matchedCount,
+			//		MatchedSkillsJson = JsonSerializer.Serialize(matchedSkills),
+			//		MissingSkillsJson = JsonSerializer.Serialize(missingSkills),
+			//		CalculatedAt = DateTime.UtcNow
+			//	};
+			//	await _unitOfWork.JobApplicationMatches.AddAsync(existingMatch, cancellationToken);
+			//}
+			//else
+			//{
+			//	existingMatch.MatchPercentage = finalMatchPercentage;
+			//	existingMatch.RequiredSkillCount = requiredCount;
+			//	existingMatch.MatchedSkillCount = matchedCount;
+			//	existingMatch.MatchedSkillsJson = JsonSerializer.Serialize(matchedSkills);
+			//	existingMatch.MissingSkillsJson = JsonSerializer.Serialize(missingSkills);
+			//	existingMatch.CalculatedAt = DateTime.UtcNow;
+			//	_unitOfWork.JobApplicationMatches.Update(existingMatch);
+			//}
 
 			// 12. Ghi audit log
 			var matchData = new Dictionary<string, string>

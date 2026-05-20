@@ -96,22 +96,40 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 
 		try
 		{
-			// 5. Calculate or get match result (this also creates/updates application and match)
+			// 5. Calculate match result (NOT create application)
 			var matchResult = await _matchingService.CalculateAndSaveMatchAsync(
 				request.CvId, request.JobId, request.UserId, cancellationToken);
 
-			// 6. Get the application that was created/updated by MatchingService
-			var application = await _unitOfWork.JobApplications
-				.GetByJobAndCvAsync(request.JobId, request.CvId, cancellationToken);
+			// 6. Create job application
+			var application = new JobApplication
+			{
+				Id = Guid.NewGuid(),
+				JobId = request.JobId,
+				CVId = request.CvId,
+				Status = JobApplicationStatus.Pending,
+				AppliedAt = DateTime.UtcNow
+			};
+			await _unitOfWork.JobApplications.AddAsync(application, cancellationToken);
 
-			if (application == null)
-				throw new BusinessException(ErrorCode.InternalServerError, "Failed to create application");
+			// 7. Create match record
+			var match = new JobApplicationMatch
+			{
+				Id = Guid.NewGuid(),
+				ApplicationId = application.Id,
+				MatchPercentage = matchResult.MatchPercentage,
+				RequiredSkillCount = matchResult.RequiredSkillCount,
+				MatchedSkillCount = matchResult.MatchedSkillCount,
+				MatchedSkillsJson = JsonSerializer.Serialize(matchResult.MatchedSkills),
+				MissingSkillsJson = JsonSerializer.Serialize(matchResult.MissingSkills),
+				CalculatedAt = DateTime.UtcNow
+			};
+			await _unitOfWork.JobApplicationMatches.AddAsync(match, cancellationToken);
 
-			// 7. Update job applications count
+			// 8. Update job applications count
 			job.Applications++;
 			_unitOfWork.Jobs.Update(job);
 
-			// 8. Create notifications
+			// 9. Create notifications
 			var recruiterNotification = new CreateNotificationCommand
 			{
 				UserId = job.RecruiterId,
@@ -132,7 +150,7 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 			};
 			await _mediator.Send(candidateNotification, cancellationToken);
 
-			// 9. AI Recommendation (optional)
+			// 10. AI Recommendation (optional)
 			AIRecommendationDto? aiAnalysis = null;
 			var enableRecommendation = _configuration.GetValue<bool>("AI:EnableRecommendation", true);
 
@@ -166,10 +184,10 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 				}
 			}
 
-			// 10. Build salary range display
+			// 11. Build salary range display
 			var salaryRange = _msg.GetSalaryRangeDisplay(job.SalaryMin, job.SalaryMax);
 
-			// 11. Send confirmation email (non-blocking)
+			// 12. Send confirmation email (non-blocking)
 			try
 			{
 				var candidateName = candidate.FullName ?? "User";
@@ -195,7 +213,7 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 				_logger.LogWarning(ex, "Failed to send application confirmation email for application {ApplicationId}", application.Id);
 			}
 
-			// 12. Audit log
+			// 13. Audit log
 			var applicationData = new Dictionary<string, string>
 			{
 				[_msg.Get("AuditFieldJobId")] = request.JobId.ToString(),
@@ -214,13 +232,13 @@ public class ApplyJobCommandHandler : IRequestHandler<ApplyJobCommand, ApplyJobR
 				null,
 				cancellationToken);
 
-			// 13. Commit transaction
+			// 14. Commit transaction
 			await _unitOfWork.CommitTransactionAsync(cancellationToken);
 
 			_logger.LogInformation(_msg.Log("UserAppliedForJob"),
 				request.UserId, request.JobId, request.CvId);
 
-			// 14. Return response
+			// 15. Return response
 			return new ApplyJobResponseDto
 			{
 				ApplicationId = application.Id,
